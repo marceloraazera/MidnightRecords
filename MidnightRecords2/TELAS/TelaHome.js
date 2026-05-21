@@ -1,19 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
+import { useProdutosContext } from "../context/ProdutosContext";
 
 export default function TelaInicio() {
-  const produtos = [
-    { id: 1, nome: "The Queen Is Dead", preco: "R$ 250,00", imagem: "🎵" },
-    { id: 2, nome: "Super Real Me", preco: "R$ 250,00", imagem: "🎵" },
-    { id: 3, nome: "Ocean Blvd", preco: "R$ 250,00", imagem: "🎵" },
-    { id: 4, nome: "GUTS", preco: "R$ 250,00", imagem: "🎵" },
-  ];
+  const router = useRouter();
+  const { produtos } = useProdutosContext();
+
+  const irParaAdmin = () => {
+    router.push("/admin");
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerPlaceholder}>+</Text>
+        <TouchableOpacity onPress={irParaAdmin} style={styles.addButton}>
+          <Text style={styles.headerPlaceholder}>+</Text>
+        </TouchableOpacity>
         <Text style={styles.logo}>MIDNIGHT</Text>
         <TouchableOpacity>
           <Text style={styles.headerIcon}>♡</Text>
@@ -39,7 +43,14 @@ export default function TelaInicio() {
           {produtos.map((produto) => (
             <View key={produto.id} style={styles.produtoCard}>
               <View style={styles.produtoImageContainer}>
-                <Text style={styles.produtoImagePlaceholder}>{produto.imagem}</Text>
+                {produto.imagem && (produto.imagem.startsWith("file://") || produto.imagem.startsWith("http")) ? (
+                  <Image
+                    source={{ uri: produto.imagem }}
+                    style={styles.produtoImageAtual}
+                  />
+                ) : (
+                  <Text style={styles.produtoImagePlaceholder}>{produto.imagem}</Text>
+                )}
               </View>
               <Text style={styles.produtoNome}>{produto.nome}</Text>
               <View style={styles.produtoPreco}>
@@ -71,6 +82,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: "#1a1420",
     marginTop: 12,
+  },
+  addButton: {
+    padding: 8,
   },
   headerPlaceholder: {
     fontSize: 32,
@@ -153,6 +167,10 @@ const styles = StyleSheet.create({
   },
   produtoImagePlaceholder: {
     fontSize: 50,
+  },
+  produtoImageAtual: {
+    width: "100%",
+    height: "100%",
   },
   produtoNome: {
     fontSize: 13,
