@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { useRouter } from "expo-router";
+import Feather from '@expo/vector-icons/Feather';
 
 const saveUserName = async (nome) => {
   if (Platform.OS === "web" && typeof window !== "undefined") {
@@ -96,7 +97,7 @@ export default function TelaCadastro() {
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Nome</Text>
             <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>👤</Text>
+              <Text style={styles.inputIcon}><Feather name="user" size={20} color="#4CAF7F" /></Text>
               <TextInput
                 style={styles.input}
                 placeholder="seu nome"
@@ -128,7 +129,7 @@ export default function TelaCadastro() {
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Senha</Text>
             <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>🔒</Text>
+              <Text style={styles.inputIcon}><Feather name="lock" size={18} color="#4CAF7F" /></Text>
               <TextInput
                 style={styles.input}
                 placeholder="••••••••"

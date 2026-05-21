@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
+import { View, Text, Image, ImageBackground, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { useRouter } from "expo-router";
+import Feather from '@expo/vector-icons/Feather';
 
 export default function TelaLogin() {
   const router = useRouter();
@@ -45,17 +46,25 @@ export default function TelaLogin() {
   }
 
   return (
-    <LinearGradient
-      colors={["#2d1b1b", "#1a0f2e", "#0f1a2e"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
+    <ImageBackground
+      source={require("../imagensMR/fundo-escuro.png")}
       style={styles.background}
+      imageStyle={styles.backgroundImage}
     >
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <LinearGradient
+        colors={["rgba(45,27,27,0.85)", "rgba(26,15,46,0.85)", "rgba(15,26,46,0.85)"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.gradientOverlay}
+      >
+        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Logo Area */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>MIDNIGHT</Text>
-          <Text style={styles.logoSubtitle}>RECORDS</Text>
+          <Image
+            source={require("../imagensMR/logo-completa-midnight.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Tabs */}
@@ -103,7 +112,7 @@ export default function TelaLogin() {
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Senha</Text>
             <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>🔒</Text>
+              <Text style={styles.inputIcon}><Feather name="lock" size={18} color="#4CAF7F" /></Text>
               <TextInput
                 style={styles.input}
                 placeholder="••••••••"
@@ -129,6 +138,7 @@ export default function TelaLogin() {
         </View>
       </ScrollView>
     </LinearGradient>
+    </ImageBackground>
   );
 }
 
@@ -136,6 +146,12 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     backgroundColor: "#1a0f2e",
+  },
+  backgroundImage: {
+    resizeMode: "cover",
+  },
+  gradientOverlay: {
+    flex: 1,
   },
   container: {
     flexGrow: 1,
@@ -147,6 +163,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 40,
     marginTop: 20,
+  },
+  logoImage: {
+    width: 360,
+    height: 220,
   },
   logo: {
     fontSize: 42,

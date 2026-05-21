@@ -5,8 +5,7 @@ import { AntDesign } from '@expo/vector-icons';
 
 import HomeScreen from './MidnightRecords2/TELAS/TelaHome';
 import TelaAdmin from './MidnightRecords2/TELAS/telaAdmin';
-import TelaFavoritos from './TELAS/telaFavoritos';
-import TelaLogin from './TELAS/telaLogin';
+import TelaFavoritos from '../MidnightRecords/MidnightRecords2/TELAS/TelaFavoritos';
 
 const Tab = createBottomTabNavigator();
 
