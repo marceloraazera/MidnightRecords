@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
+import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
@@ -54,8 +54,11 @@ export default function TelaLogin() {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Logo Area */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>MIDNIGHT</Text>
-          <Text style={styles.logoSubtitle}>RECORDS</Text>
+          <Image
+            source={require("../imagensMR/logo-completa-midnight.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Tabs */}
@@ -147,6 +150,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 40,
     marginTop: 20,
+  },
+  logoImage: {
+    width: 260,
+    height: 120,
   },
   logo: {
     fontSize: 42,
