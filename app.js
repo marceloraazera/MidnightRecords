@@ -12,9 +12,9 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
+    initialRouteName="TelaLogin"
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName="TelaLogin"
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {
             let iconName;
@@ -60,5 +60,5 @@ export default function App() {
         />
       </Tab.Navigator>
     </NavigationContainer>
-  );
+  )
 }
