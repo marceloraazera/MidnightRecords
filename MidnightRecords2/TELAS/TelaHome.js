@@ -13,7 +13,6 @@ export default function TelaInicio() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={irParaAdmin} style={styles.addButton}>
           <Text style={styles.headerPlaceholder}>+</Text>
@@ -24,7 +23,6 @@ export default function TelaInicio() {
         </TouchableOpacity>
       </View>
 
-      {/* Novos Discos Section */}
       <View style={styles.novosDischttps}>
         <View style={styles.discContainer}>
           <Text style={styles.discImage}>💿</Text>
@@ -35,7 +33,6 @@ export default function TelaInicio() {
         </View>
       </View>
 
-      {/* Vitrine de Ofertas */}
       <View style={styles.vitrineSection}>
         <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
         
@@ -73,7 +70,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#2a1f2f",
   },
 
-  // Header
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -102,7 +98,6 @@ const styles = StyleSheet.create({
     color: "#d4af37",
   },
 
-  // Novos Discos
   novosDischttps: {
     flexDirection: "row",
     paddingHorizontal: 16,
@@ -132,7 +127,6 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 
-  // Vitrine de Ofertas
   vitrineSection: {
     paddingHorizontal: 12,
     paddingVertical: 24,
