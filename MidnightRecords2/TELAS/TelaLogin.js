@@ -36,7 +36,7 @@ export default function TelaLogin() {
     try {
       await signInWithEmailAndPassword(auth, email, senha);
       showFeedback("Sucesso", "Login realizado!");
-      router.push("/explore");
+      router.push("/(tabs)");
     } catch (error) {
       console.log("Login erro", error);
       const errorCode = error?.code || "auth/unknown-error";

@@ -1,5 +1,5 @@
-import TelaLogin from "../../TELAS/TelaLogin";
+import TelaHome from "../../TELAS/TelaHome";
 
 export default function HomeScreen() {
-  return <TelaLogin />;
+  return <TelaHome />;
 }
