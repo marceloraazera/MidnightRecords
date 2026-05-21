@@ -3,8 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AntDesign } from '@expo/vector-icons';
 
-import HomeScreen from './TELAS/TelaHome';
-import TelaAdmin from './TELAS/telaAdmin';
+import HomeScreen from './MidnightRecords2/TELAS/TelaHome';
+import TelaAdmin from './MidnightRecords2/TELAS/telaAdmin';
 import TelaFavoritos from './TELAS/telaFavoritos';
 import TelaLogin from './TELAS/telaLogin';
 
@@ -12,7 +12,7 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    initialRouteName="TelaLogin"
+    initialRouteName="HomeScreen"
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
