@@ -7,7 +7,6 @@ export function useProdutos() {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Carregar produtos do AsyncStorage
   useEffect(() => {
     carregarProdutos();
   }, []);
@@ -18,7 +17,6 @@ export function useProdutos() {
       if (jsonValue) {
         setProdutos(JSON.parse(jsonValue));
       } else {
-        // Produtos padrão
         const produtosPadrao = [
           { id: 1, nome: "The Queen Is Dead", preco: "R$ 250,00", imagem: "🎵" },
           { id: 2, nome: "Super Real Me", preco: "R$ 250,00", imagem: "🎵" },

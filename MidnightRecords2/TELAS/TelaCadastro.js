@@ -62,7 +62,6 @@ export default function TelaCadastro() {
       imageStyle={styles.backgroundImage}
     >
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Logo Area */}
         <View style={styles.logoContainer}>
           <Image
             source={require("../imagensMR/logo-completa-midnight.png")}
@@ -71,7 +70,6 @@ export default function TelaCadastro() {
           />
         </View>
 
-        {/* Tabs */}
         <View style={styles.tabsContainer}>
           <TouchableOpacity 
             style={[styles.tab, activeTab === "login" && styles.tabActive]}
@@ -93,9 +91,7 @@ export default function TelaCadastro() {
           </TouchableOpacity>
         </View>
 
-        {/* Form Container */}
         <View style={styles.formContainer}>
-          {/* Name Input */}
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Nome</Text>
             <View style={styles.inputContainer}>
@@ -110,7 +106,6 @@ export default function TelaCadastro() {
             </View>
           </View>
 
-          {/* Email Input */}
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>E-mail</Text>
             <View style={styles.inputContainer}>
@@ -127,7 +122,6 @@ export default function TelaCadastro() {
             </View>
           </View>
 
-          {/* Password Input */}
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Senha</Text>
             <View style={styles.inputContainer}>
@@ -143,12 +137,10 @@ export default function TelaCadastro() {
             </View>
           </View>
 
-          {/* Sign Up Button */}
           <TouchableOpacity style={styles.button} onPress={cadastrar}>
             <Text style={styles.buttonText}>Cadastrar</Text>
           </TouchableOpacity>
 
-          {/* Message */}
           {message ? (
             <Text style={messageType === "error" ? styles.errorText : styles.successText}>
               {message}

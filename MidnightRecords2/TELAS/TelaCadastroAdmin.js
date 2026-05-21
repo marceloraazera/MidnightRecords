@@ -199,7 +199,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#2a1f2f",
   },
   
-  // Header
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -226,13 +225,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // Content
   content: {
     paddingHorizontal: 12,
     paddingVertical: 20,
   },
 
-  // Section
   section: {
     marginBottom: 24,
   },
@@ -254,7 +251,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  // Input
   input: {
     backgroundColor: "#1a1420",
     color: "#ffffff",
@@ -266,13 +262,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // Text Area
   textArea: {
     paddingTop: 12,
     minHeight: 120,
   },
 
-  // Image
   imagePreviewContainer: {
     marginBottom: 12,
     borderRadius: 6,
@@ -299,7 +293,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // Buttons
   buttonsContainer: {
     flexDirection: "row",
     gap: 12,
