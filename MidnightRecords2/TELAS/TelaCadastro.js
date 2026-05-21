@@ -1,15 +1,24 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { useRouter } from "expo-router";
 
+const saveUserName = async (nome) => {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    localStorage.setItem("nomeUsuario", nome);
+  }
+};
+
 export default function TelaCadastro() {
   const router = useRouter();
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("info");
+  const [activeTab, setActiveTab] = useState("cadastro");
 
   function showFeedback(title, text) {
     const finalMessage = text || title;
@@ -25,13 +34,14 @@ export default function TelaCadastro() {
   }
 
   async function cadastrar() {
-    if (!email || !senha) {
-      showFeedback("Erro", "Preencha e-mail e senha para continuar.");
+    if (!nome || !email || !senha) {
+      showFeedback("Erro", "Preencha nome, e-mail e senha para continuar.");
       return;
     }
 
     try {
       await createUserWithEmailAndPassword(auth, email, senha);
+      await saveUserName(nome);
 
       showFeedback("Sucesso", "Conta criada!");
 
@@ -45,87 +55,242 @@ export default function TelaCadastro() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Cadastro</Text>
+    <LinearGradient
+      colors={["#2d1b1b", "#1a0f2e", "#0f1a2e"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+      style={styles.background}
+    >
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Logo Area */}
+        <View style={styles.logoContainer}>
+          <Text style={styles.logo}>MIDNIGHT</Text>
+          <Text style={styles.logoSubtitle}>RECORDS</Text>
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="E-mail"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === "login" && styles.tabActive]}
+            onPress={() => {
+              setActiveTab("login");
+              router.push("/");
+            }}
+          >
+            <Text style={[styles.tabText, activeTab === "login" && styles.tabTextActive]}>LOGIN</Text>
+            {activeTab === "login" && <View style={styles.tabUnderline} />}
+          </TouchableOpacity>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        value={senha}
-        onChangeText={setSenha}
-        secureTextEntry
-      />
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === "cadastro" && styles.tabActive]}
+            onPress={() => setActiveTab("cadastro")}
+          >
+            <Text style={[styles.tabText, activeTab === "cadastro" && styles.tabTextActive]}>CADASTRO</Text>
+            {activeTab === "cadastro" && <View style={styles.tabUnderline} />}
+          </TouchableOpacity>
+        </View>
 
-      <TouchableOpacity style={styles.button} onPress={cadastrar}>
-        <Text style={styles.buttonText}>Cadastrar</Text>
-      </TouchableOpacity>
+        {/* Form Container */}
+        <View style={styles.formContainer}>
+          {/* Name Input */}
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>Nome</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputIcon}>👤</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="seu nome"
+                placeholderTextColor="#999"
+                value={nome}
+                onChangeText={setNome}
+              />
+            </View>
+          </View>
 
-      {message ? (
-        <Text style={messageType === "error" ? styles.errorText : styles.successText}>
-          {message}
-        </Text>
-      ) : null}
+          {/* Email Input */}
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>E-mail</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputIcon}>✉</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="seu@email.com"
+                placeholderTextColor="#999"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+            </View>
+          </View>
 
-      <TouchableOpacity onPress={() => router.push("/") }>
-        <Text style={styles.link}>Já tenho conta</Text>
-      </TouchableOpacity>
-    </View>
+          {/* Password Input */}
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>Senha</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputIcon}>🔒</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="••••••••"
+                placeholderTextColor="#999"
+                value={senha}
+                onChangeText={setSenha}
+                secureTextEntry
+              />
+            </View>
+          </View>
+
+          {/* Sign Up Button */}
+          <TouchableOpacity style={styles.button} onPress={cadastrar}>
+            <Text style={styles.buttonText}>Cadastrar</Text>
+          </TouchableOpacity>
+
+          {/* Message */}
+          {message ? (
+            <Text style={messageType === "error" ? styles.errorText : styles.successText}>
+              {message}
+            </Text>
+          ) : null}
+        </View>
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
-    backgroundColor: "#1C1445",
-    justifyContent: "center",
-    padding: 24,
+    backgroundColor: "#1a0f2e",
   },
-  title: {
-    color: "#F1F6B3",
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 28,
-    textAlign: "center",
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+    justifyContent: "space-between",
   },
-  input: {
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 14,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: "#FCA311",
-    padding: 15,
-    borderRadius: 10,
+  logoContainer: {
     alignItems: "center",
-  },
-  buttonText: {
-    color: "#1C1445",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  link: {
-    color: "#F1F6B3",
-    textAlign: "center",
+    marginBottom: 40,
     marginTop: 20,
   },
+  logo: {
+    fontSize: 42,
+    fontWeight: "900",
+    color: "#D4A74F",
+    letterSpacing: 3,
+    textShadowColor: "rgba(212, 167, 79, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+  },
+  logoSubtitle: {
+    fontSize: 42,
+    fontWeight: "900",
+    color: "#D4A74F",
+    letterSpacing: 3,
+    textShadowColor: "rgba(212, 167, 79, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+  },
+  tabsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#D4A74F",
+    marginBottom: 40,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: "center",
+    borderBottomWidth: 3,
+    borderBottomColor: "transparent",
+  },
+  tabActive: {
+    borderBottomColor: "#D4A74F",
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#888",
+    letterSpacing: 1.5,
+  },
+  tabTextActive: {
+    color: "#D4A74F",
+    fontWeight: "700",
+  },
+  tabUnderline: {
+    position: "absolute",
+    bottom: -3,
+    height: 3,
+    backgroundColor: "#D4A74F",
+    width: "100%",
+  },
+  formContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  inputWrapper: {
+    marginBottom: 24,
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#D4A74F",
+    marginBottom: 8,
+    letterSpacing: 1,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#4CAF7F",
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    backgroundColor: "transparent",
+    height: 48,
+  },
+  inputIcon: {
+    fontSize: 20,
+    marginRight: 12,
+    color: "#4CAF7F",
+  },
+  input: {
+    flex: 1,
+    fontSize: 14,
+    color: "#fff",
+    fontWeight: "500",
+    outlineWidth: 0,
+  },
+  button: {
+    backgroundColor: "#D4A74F",
+    paddingVertical: 14,
+    borderRadius: 25,
+    alignItems: "center",
+    marginTop: 24,
+    marginBottom: 24,
+    shadowColor: "rgba(212, 167, 79, 0.4)",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  buttonText: {
+    color: "#1a0f2e",
+    fontWeight: "700",
+    fontSize: 16,
+    letterSpacing: 1,
+  },
   successText: {
-    color: "#A3E635",
+    color: "#4CAF7F",
     textAlign: "center",
     marginTop: 16,
+    fontWeight: "500",
   },
   errorText: {
-    color: "#F87171",
+    color: "#FF6B6B",
     textAlign: "center",
     marginTop: 16,
+    fontWeight: "500",
   },
 });
