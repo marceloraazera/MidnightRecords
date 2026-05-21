@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { useRouter } from "expo-router";
+import Feather from '@expo/vector-icons/Feather';
 
 export default function TelaLogin() {
   const router = useRouter();
@@ -103,7 +104,7 @@ export default function TelaLogin() {
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Senha</Text>
             <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>🔒</Text>
+              <Text style={styles.inputIcon}><Feather name="lock" size={18} color="#4CAF7F" /></Text>
               <TextInput
                 style={styles.input}
                 placeholder="••••••••"
