@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
+import { View, Text, Image, ImageBackground, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
@@ -56,11 +56,10 @@ export default function TelaCadastro() {
   }
 
   return (
-    <LinearGradient
-      colors={["#2d1b1b", "#1a0f2e", "#0f1a2e"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
+    <ImageBackground
+      source={require("../imagensMR/fundo-escuro.png")}
       style={styles.background}
+      imageStyle={styles.backgroundImage}
     >
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Logo Area */}
@@ -157,7 +156,7 @@ export default function TelaCadastro() {
           ) : null}
         </View>
       </ScrollView>
-    </LinearGradient>
+    </ImageBackground>
   );
 }
 
@@ -165,6 +164,9 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     backgroundColor: "#1a0f2e",
+  },
+  backgroundImage: {
+    resizeMode: "cover",
   },
   container: {
     flexGrow: 1,
