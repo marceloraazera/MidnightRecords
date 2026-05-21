@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
+import { View, Text, Image, ImageBackground, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
@@ -46,13 +46,18 @@ export default function TelaLogin() {
   }
 
   return (
-    <LinearGradient
-      colors={["#2d1b1b", "#1a0f2e", "#0f1a2e"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
+    <ImageBackground
+      source={require("../imagensMR/fundo-escuro.png")}
       style={styles.background}
+      imageStyle={styles.backgroundImage}
     >
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <LinearGradient
+        colors={["rgba(45,27,27,0.85)", "rgba(26,15,46,0.85)", "rgba(15,26,46,0.85)"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.gradientOverlay}
+      >
+        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Logo Area */}
         <View style={styles.logoContainer}>
           <Image
@@ -133,6 +138,7 @@ export default function TelaLogin() {
         </View>
       </ScrollView>
     </LinearGradient>
+    </ImageBackground>
   );
 }
 
@@ -140,6 +146,12 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     backgroundColor: "#1a0f2e",
+  },
+  backgroundImage: {
+    resizeMode: "cover",
+  },
+  gradientOverlay: {
+    flex: 1,
   },
   container: {
     flexGrow: 1,
