@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
+import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
@@ -65,8 +65,11 @@ export default function TelaCadastro() {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Logo Area */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>MIDNIGHT</Text>
-          <Text style={styles.logoSubtitle}>RECORDS</Text>
+          <Image
+            source={require("../imagensMR/logo-completa-midnight.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Tabs */}
@@ -174,16 +177,11 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     marginTop: 20,
   },
-  logo: {
-    fontSize: 42,
-    fontWeight: "900",
-    color: "#D4A74F",
-    letterSpacing: 3,
-    textShadowColor: "rgba(212, 167, 79, 0.3)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+  logoImage: {
+    width: 360,
+    height: 220,
   },
-  logoSubtitle: {
+  logo: {
     fontSize: 42,
     fontWeight: "900",
     color: "#D4A74F",
