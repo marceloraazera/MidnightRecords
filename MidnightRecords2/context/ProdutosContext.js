@@ -9,7 +9,6 @@ export function ProdutosProvider({ children }) {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Carregar produtos do AsyncStorage ao iniciar
   useEffect(() => {
     carregarProdutos();
   }, []);
@@ -22,7 +21,6 @@ export function ProdutosProvider({ children }) {
       if (jsonValue) {
         setProdutos(JSON.parse(jsonValue));
       } else {
-        // Produtos padrão
         const produtosPadrao = [
           { id: 1, nome: "The Queen Is Dead", preco: "R$ 250,00", imagem: "🎵" },
           { id: 2, nome: "Super Real Me", preco: "R$ 250,00", imagem: "🎵" },
@@ -53,10 +51,8 @@ export function ProdutosProvider({ children }) {
       console.log("Adicionando produto:", produto);
       console.log("Produtos atualizados:", produtosAtualizados);
       
-      // Atualizar estado local
       setProdutos(produtosAtualizados);
       
-      // Salvar no AsyncStorage
       await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosAtualizados));
       
       console.log("Produto salvo com sucesso");

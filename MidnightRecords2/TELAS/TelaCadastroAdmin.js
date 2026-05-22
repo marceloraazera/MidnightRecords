@@ -59,7 +59,6 @@ export default function TelaCadastroAdmin() {
 
     setLoading(true);
     try {
-      // Esperar um pouco para garantir que a imagem está pronta
       await new Promise(resolve => setTimeout(resolve, 100));
       
       console.log("Salvando produto com dados:", {
@@ -78,14 +77,12 @@ export default function TelaCadastroAdmin() {
 
       console.log("Produto salvo com sucesso!");
       
-      // Limpar campos
       setTitulo("");
       setPreco("");
       setLinkImagem("");
       setDescricao("");
       setImagePreview(null);
       
-      // Voltar para home com delay para garantir que o estado foi atualizado
       setTimeout(() => {
         router.replace("/(tabs)");
       }, 500);
@@ -100,7 +97,6 @@ export default function TelaCadastroAdmin() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
       <View style={styles.headerContainer}>
         <TouchableOpacity onPress={cancelar} style={styles.backButton}>
           <Text style={styles.backButtonText}>‹</Text>
@@ -109,9 +105,7 @@ export default function TelaCadastroAdmin() {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
-        {/* Informações Básicas */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>INFORMAÇÕES BÁSICAS</Text>
           <Text style={styles.sectionSubtitle}>Título do produto</Text>
@@ -124,7 +118,6 @@ export default function TelaCadastroAdmin() {
           />
         </View>
 
-        {/* Preço */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>PREÇO</Text>
           <Text style={styles.sectionSubtitle}>Preço do Produto</Text>
@@ -137,7 +130,6 @@ export default function TelaCadastroAdmin() {
           />
         </View>
 
-        {/* Fotos do Produto */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>FOTOS DO PRODUTO</Text>
           <Text style={styles.sectionSubtitle}>Link da imagem</Text>
@@ -164,7 +156,6 @@ export default function TelaCadastroAdmin() {
           />
         </View>
 
-        {/* Descrição */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>DESCRIÇÃO</Text>
           <Text style={styles.sectionSubtitle}>Descrição do produto</Text>
@@ -180,7 +171,6 @@ export default function TelaCadastroAdmin() {
           />
         </View>
 
-        {/* Buttons */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity 
             style={[styles.button, styles.cancelButton]}
@@ -209,7 +199,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#2a1f2f",
   },
   
-  // Header
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -236,13 +225,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // Content
   content: {
     paddingHorizontal: 12,
     paddingVertical: 20,
   },
 
-  // Section
   section: {
     marginBottom: 24,
   },
@@ -264,7 +251,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  // Input
   input: {
     backgroundColor: "#1a1420",
     color: "#ffffff",
@@ -276,13 +262,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // Text Area
   textArea: {
     paddingTop: 12,
     minHeight: 120,
   },
 
-  // Image
   imagePreviewContainer: {
     marginBottom: 12,
     borderRadius: 6,
@@ -309,7 +293,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // Buttons
   buttonsContainer: {
     flexDirection: "row",
     gap: 12,
