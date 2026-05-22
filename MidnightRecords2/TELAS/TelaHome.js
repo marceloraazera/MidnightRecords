@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ImageBackground } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, FlatList, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
 import Feather from '@expo/vector-icons/Feather';
@@ -119,7 +119,7 @@ export default function TelaHome() {
   return (
     <ImageBackground
       source={require("../assets/imagensMR/fundo-escuro.png")}
-      style={styles.container}
+      style={styles.background}
       imageStyle={styles.backgroundImage}
     >
       <FlatList
@@ -166,7 +166,15 @@ export default function TelaHome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#2a1f2f",
+    backgroundColor: "transparent",
+  },
+  
+  background: {
+    flex: 1,
+    backgroundColor: "#1a0f2e",
+  },
+  backgroundImage: {
+    resizeMode: "cover",
   },
 
   flatList: {
@@ -249,9 +257,6 @@ const styles = StyleSheet.create({
   produtoImageAtual: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
-  },
-  backgroundImage: {
     resizeMode: "cover",
   },
   cardContent: {
