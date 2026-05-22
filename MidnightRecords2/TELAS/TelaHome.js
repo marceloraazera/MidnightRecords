@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, FlatList, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
 
@@ -94,7 +94,12 @@ export default function TelaHome() {
   };
 
   return (
-    <FlatList
+    <ImageBackground
+      source={require("../assets/imagensMR/fundo-escuro.png")}
+      style={styles.background}
+      imageStyle={styles.backgroundImage}
+    >
+      <FlatList
       style={styles.container}
       data={produtos}
       keyExtractor={(item, index) => String(item.id ?? item.nome ?? index)}
@@ -130,14 +135,23 @@ export default function TelaHome() {
           </View>
         </>
       }
-    />
+      />
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#2a1f2f",
+    backgroundColor: "transparent",
+  },
+  
+  background: {
+    flex: 1,
+    backgroundColor: "#1a0f2e",
+  },
+  backgroundImage: {
+    resizeMode: "cover",
   },
 
   header: {
