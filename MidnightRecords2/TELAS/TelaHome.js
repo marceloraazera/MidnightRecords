@@ -109,21 +109,21 @@ export default function TelaHome() {
             <TouchableOpacity onPress={irParaAdmin} style={styles.addButton}>
               <Text style={styles.headerPlaceholder}>+</Text>
             </TouchableOpacity>
-            <Text style={styles.logo}>MIDNIGHT</Text>
+            <Image 
+              source={require("../assets/imagensMR/logo-midnight.png")}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
             <TouchableOpacity>
               <Text style={styles.headerIcon}>♡</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.novosDiscos}>
-            <View style={styles.discContainer}>
-              <Text style={styles.discImage}>💿</Text>
-            </View>
-            <View style={styles.discoTexto}>
-              <Text style={styles.novosTitle}>NOVOS DISCOS</Text>
-              <Text style={styles.novosSubtitle}>Chegaram raridades para a sua coleção.</Text>
-            </View>
-          </View>
+          <Image 
+            source={require("../assets/imagensMR/banner.png")}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
 
           <View style={styles.vitrineSection}>
             <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
@@ -163,19 +163,15 @@ const styles = StyleSheet.create({
     color: "#d4af37",
     letterSpacing: 2,
   },
+  logoImage: {
+    height: 130,
+    width: 300,
+  },
   headerIcon: {
     fontSize: 24,
     color: "#d4af37",
   },
 
-  novosDiscos: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-    backgroundColor: "#1f4d3d",
-    marginVertical: 16,
-    alignItems: "center",
-  },
   discContainer: {
     marginRight: 20,
   },
@@ -195,6 +191,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#a0d4b8",
     lineHeight: 18,
+  },
+
+  bannerImage: {
+    width: "100%",
+    height: 180,
+    marginVertical: 16,
   },
 
   vitrineSection: {
