@@ -38,12 +38,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1C1445",
     justifyContent: "center",
+    alignItems: "center",
     padding: 24,
   },
   title: {
+    fontFamily: "Poppins_700Bold",
     color: "#F1F6B3",
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: "bold",
     textAlign: "center",
+    lineHeight: 38,
   },
 });

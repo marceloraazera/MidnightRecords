@@ -205,8 +205,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
     backgroundColor: "#1a1420",
     borderBottomWidth: 1,
     borderBottomColor: "#3d3341",
@@ -215,11 +215,13 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   backButtonText: {
+    fontFamily: "Poppins_700Bold",
     fontSize: 32,
     color: "#d4af37",
     fontWeight: "bold",
   },
   headerTitle: {
+    fontFamily: "Poppins_600SemiBold",
     fontSize: 18,
     fontWeight: "600",
     color: "#ffffff",
@@ -228,7 +230,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 20,
     paddingVertical: 20,
   },
 
@@ -236,6 +238,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionLabel: {
+    fontFamily: "Poppins_600SemiBold",
     backgroundColor: "#8b6f47",
     color: "#ffffff",
     paddingHorizontal: 16,
@@ -247,26 +250,28 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionSubtitle: {
+    fontFamily: "Poppins_500Medium",
     color: "#d4af37",
     fontSize: 12,
     fontWeight: "500",
-    marginBottom: 8,
+    marginBottom: 10,
   },
 
   input: {
+    fontFamily: "Poppins_400Regular",
     backgroundColor: "#1a1420",
     color: "#ffffff",
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 6,
+    paddingVertical: 14,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: "#3d3341",
     fontSize: 14,
   },
 
   textArea: {
-    paddingTop: 12,
-    minHeight: 120,
+    paddingTop: 14,
+    minHeight: 140,
   },
 
   imagePreviewContainer: {
@@ -290,6 +295,7 @@ const styles = StyleSheet.create({
     borderColor: "#8b6f47",
   },
   imageSelectorButtonText: {
+    fontFamily: "Poppins_500Medium",
     color: "#d4af37",
     fontSize: 14,
     fontWeight: "500",
@@ -299,12 +305,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     marginBottom: 30,
-    marginTop: 20,
+    marginTop: 24,
   },
   button: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 6,
+    paddingVertical: 16,
+    borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -312,6 +318,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2d6a5c",
   },
   cancelButtonText: {
+    fontFamily: "Poppins_600SemiBold",
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "600",
@@ -320,6 +327,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#c97a3f",
   },
   saveButtonText: {
+    fontFamily: "Poppins_600SemiBold",
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "600",

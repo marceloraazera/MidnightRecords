@@ -13,6 +13,24 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarInactiveTintColor: '#8a8a8f',
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopColor: 'rgba(0, 0, 0, 0.08)',
+          height: 68,
+          paddingTop: 8,
+          paddingBottom: 10,
+          shadowColor: '#000',
+          shadowOpacity: 0.08,
+          shadowOffset: { width: 0, height: -4 },
+          shadowRadius: 12,
+          elevation: 12,
+        },
+        tabBarLabelStyle: {
+          fontFamily: 'Poppins_500Medium',
+          fontSize: 11,
+          marginBottom: 2,
+        },
         headerShown: false,
         tabBarButton: HapticTab,
       }}>
@@ -21,6 +39,13 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="add"
+        options={{
+          title: 'Adicionar',
+          tabBarIcon: ({ color }) => <IconSymbol size={32} name="plus.circle.fill" color={color} />,
         }}
       />
       <Tabs.Screen
