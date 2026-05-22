@@ -1,8 +1,5 @@
 import React from "react";
-<<<<<<< HEAD
-import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ImageBackground } from "react-native";
-=======
-import { View, Text, StyleSheet, Image, ImageBackground, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, FlatList, TouchableOpacity, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
 import Feather from '@expo/vector-icons/Feather';
@@ -40,6 +37,19 @@ const positionAlbumImages = {
 export default function TelaHome() {
   const router = useRouter();
   const { produtos } = useProdutosContext();
+  const [nomeUsuario, setNomeUsuario] = React.useState("");
+
+  React.useEffect(() => {
+    const recuperarNome = async () => {
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        const nome = localStorage.getItem("nomeUsuario");
+        if (nome) {
+          setNomeUsuario(nome);
+        }
+      }
+    };
+    recuperarNome();
+  }, []);
 
   const irParaAdmin = () => {
     router.push("/admin");
@@ -122,13 +132,6 @@ export default function TelaHome() {
   return (
     <ImageBackground
       source={require("../assets/imagensMR/fundo-escuro.png")}
-<<<<<<< HEAD
-=======
-      style={styles.background}
-      imageStyle={styles.backgroundImage}
-    >
-      <FlatList
->>>>>>> 4d48318f6bf5d49ea4af0256dc74ff2adc621b40
       style={styles.container}
       imageStyle={styles.backgroundImage}
     >
@@ -157,31 +160,25 @@ export default function TelaHome() {
               </TouchableOpacity>
             </View>
 
+            {nomeUsuario && (
+              <View style={styles.welcomeSection}>
+                <Text style={styles.welcomeText}>
+                  Olá, <Text style={styles.userName}>{nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1)}</Text>
+                </Text>
+              </View>
+            )}
+
             <Image 
               source={require("../assets/imagensMR/banner.png")}
               style={styles.bannerImage}
               resizeMode="cover"
             />
 
-<<<<<<< HEAD
             <View style={styles.vitrineSection}>
               <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
             </View>
           </>
         }
-=======
-          <Image 
-            source={require("../assets/imagensMR/banner.png")}
-            style={styles.bannerImage}
-            resizeMode="cover"
-          />
-
-          <View style={styles.vitrineSection}>
-            <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
-          </View>
-        </>
-      }
->>>>>>> 4d48318f6bf5d49ea4af0256dc74ff2adc621b40
       />
     </ImageBackground>
   );
@@ -231,6 +228,28 @@ const styles = StyleSheet.create({
   headerIcon: {
     fontSize: 24,
     color: "#d4af37",
+  },
+  
+  welcomeSection: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    marginBottom: 16,
+    alignItems: "left",
+    justifyContent: "left",
+   
+  },
+  welcomeText: {
+    fontSize: 18,
+    color: "#CCF7E4",
+    fontWeight: "600",
+    letterSpacing: 1.2,
+    textAlign: "left",
+  },
+  userName: {
+    fontSize: 20,
+    color: "#D4A74F",
+    fontWeight: "800",
+    letterSpacing: 2,
   },
   
   discoTexto: {

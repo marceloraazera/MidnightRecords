@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, ImageBackground, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from "react-native";
+import { View, Text, Image, ImageBackground, TextInput, TouchableOpacity, StyleSheet, Platform, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
@@ -20,18 +20,25 @@ export default function TelaCadastro() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("info");
   const [activeTab, setActiveTab] = useState("cadastro");
+  const [focusedInput, setFocusedInput] = useState(null);
+
+  const traduzirErro = (errorCode) => {
+    const erros = {
+      "auth/email-already-in-use": "Este e-mail já está cadastrado. Faça login ou use outro e-mail.",
+      "auth/weak-password": "Senha fraca. Use no mínimo 6 caracteres.",
+      "auth/invalid-email": "E-mail inválido. Verifique o formato.",
+      "auth/operation-not-allowed": "Operação não permitida. Tente mais tarde.",
+      "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos.",
+    };
+    return erros[errorCode] || "Erro ao cadastrar. Tente novamente mais tarde.";
+  };
 
   function showFeedback(title, text) {
     const finalMessage = text || title;
-    if (Platform.OS === "web") {
-      if (typeof window !== "undefined") {
-        window.alert(`${title}: ${finalMessage}`);
-      }
-    } else {
-      Alert.alert(title, finalMessage);
-    }
-    setMessage(`${title}: ${finalMessage}`);
+    setMessage(finalMessage);
     setMessageType(title === "Erro" ? "error" : "success");
+    
+    setTimeout(() => setMessage(""), 4000);
   }
 
   async function cadastrar() {
@@ -43,15 +50,12 @@ export default function TelaCadastro() {
     try {
       await createUserWithEmailAndPassword(auth, email, senha);
       await saveUserName(nome);
-
-      showFeedback("Sucesso", "Conta criada!");
-
-      router.push("/");
+      router.push("/(tabs)");
     } catch (error) {
       console.log("Cadastro erro", error);
       const errorCode = error?.code || "auth/unknown-error";
-      const errorMessage = error?.message || String(error);
-      showFeedback("Erro", `${errorCode}: ${errorMessage}`);
+      const mensagemAmigavel = traduzirErro(errorCode);
+      showFeedback("Erro", mensagemAmigavel);
     }
   }
 
@@ -94,7 +98,7 @@ export default function TelaCadastro() {
         <View style={styles.formContainer}>
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Nome</Text>
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, focusedInput === "nome" && styles.inputContainerFocused]}>
               <Text style={styles.inputIcon}><Feather name="user" size={20} color="#4CAF7F" /></Text>
               <TextInput
                 style={styles.input}
@@ -102,13 +106,15 @@ export default function TelaCadastro() {
                 placeholderTextColor="#999"
                 value={nome}
                 onChangeText={setNome}
+                onFocus={() => setFocusedInput("nome")}
+                onBlur={() => setFocusedInput(null)}
               />
             </View>
           </View>
 
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>E-mail</Text>
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, focusedInput === "email" && styles.inputContainerFocused]}>
               <Text style={styles.inputIcon}>✉</Text>
               <TextInput
                 style={styles.input}
@@ -116,6 +122,8 @@ export default function TelaCadastro() {
                 placeholderTextColor="#999"
                 value={email}
                 onChangeText={setEmail}
+                onFocus={() => setFocusedInput("email")}
+                onBlur={() => setFocusedInput(null)}
                 autoCapitalize="none"
                 keyboardType="email-address"
               />
@@ -124,7 +132,7 @@ export default function TelaCadastro() {
 
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Senha</Text>
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, focusedInput === "senha" && styles.inputContainerFocused]}>
               <Text style={styles.inputIcon}><Feather name="lock" size={18} color="#4CAF7F" /></Text>
               <TextInput
                 style={styles.input}
@@ -132,6 +140,8 @@ export default function TelaCadastro() {
                 placeholderTextColor="#999"
                 value={senha}
                 onChangeText={setSenha}
+                onFocus={() => setFocusedInput("senha")}
+                onBlur={() => setFocusedInput(null)}
                 secureTextEntry
               />
             </View>
@@ -140,13 +150,13 @@ export default function TelaCadastro() {
           <TouchableOpacity style={styles.button} onPress={cadastrar}>
             <Text style={styles.buttonText}>Cadastrar</Text>
           </TouchableOpacity>
-
-          {message ? (
-            <Text style={messageType === "error" ? styles.errorText : styles.successText}>
-              {message}
-            </Text>
-          ) : null}
         </View>
+
+        {message ? (
+          <View style={[styles.messageContainer, messageType === "error" ? styles.messageError : styles.messageSuccess]}>
+            <Text style={styles.messageText}>{message}</Text>
+          </View>
+        ) : null}
       </ScrollView>
     </ImageBackground>
   );
@@ -243,6 +253,10 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     height: 48,
   },
+  inputContainerFocused: {
+    backgroundColor: "transparent",
+    borderColor: "#4CAF7F",
+  },
   inputIcon: {
     fontSize: 20,
     marginRight: 12,
@@ -254,6 +268,8 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "500",
     outlineWidth: 0,
+    outline: 'none',
+    padding: 0,
   },
   button: {
     backgroundColor: "#D4A74F",
@@ -285,5 +301,33 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 16,
     fontWeight: "500",
+  },
+  messageContainer: {
+    position: "absolute",
+    bottom: 30,
+    left: 20,
+    right: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  messageSuccess: {
+    backgroundColor: "rgba(76, 175, 127, 0.95)",
+    borderWidth: 1,
+    borderColor: "#4CAF7F",
+  },
+  messageError: {
+    backgroundColor: "rgba(255, 107, 107, 0.95)",
+    borderWidth: 1,
+    borderColor: "#FF6B6B",
+  },
+  messageText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 13,
+    textAlign: "center",
   },
 });
