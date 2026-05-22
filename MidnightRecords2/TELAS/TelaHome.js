@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, ImageBackground, FlatList, TouchableOpacity, Platform } from "react-native";
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ImageBackground } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground, FlatList, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
