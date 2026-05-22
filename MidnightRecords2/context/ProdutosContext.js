@@ -87,7 +87,7 @@ export function ProdutosProvider({ children }) {
 
   const adicionarProduto = async (novoProduto) => {
     try {
-      const novoId = produtos.length > 0 ? Math.max(...produtos.map(p => p.id)) + 1 : 1;
+      const novoId = String(Date.now());
       
       const produto = {
         ...novoProduto,

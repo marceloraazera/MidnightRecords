@@ -61,16 +61,18 @@ export default function TelaCadastroAdmin() {
     try {
       await new Promise(resolve => setTimeout(resolve, 100));
       
+      const imagem = imagePreview || linkImagem || "🎵";
+
       console.log("Salvando produto com dados:", {
         nome: titulo,
         preco: preco,
-        imagem: imagePreview || "🎵",
+        imagem,
       });
 
       await adicionarProduto({
         nome: titulo,
         preco: preco,
-        imagem: imagePreview || "🎵",
+        imagem,
         descricao: descricao,
         linkImagem: linkImagem,
       });
