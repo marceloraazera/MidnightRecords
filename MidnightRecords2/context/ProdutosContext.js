@@ -22,10 +22,58 @@ export function ProdutosProvider({ children }) {
         setProdutos(JSON.parse(jsonValue));
       } else {
         const produtosPadrao = [
-          { id: 1, nome: "The Queen Is Dead", preco: "R$ 250,00", imagem: "🎵" },
-          { id: 2, nome: "Super Real Me", preco: "R$ 250,00", imagem: "🎵" },
-          { id: 3, nome: "Ocean Blvd", preco: "R$ 250,00", imagem: "🎵" },
-          { id: 4, nome: "GUTS", preco: "R$ 250,00", imagem: "🎵" },
+          {
+            id: "the-queen-is-dead",
+            nome: "The Queen Is Dead",
+            autor: "The Smiths",
+            descricao: "Álbum clássico do rock alternativo britânico com letras melancólicas e instrumentais marcantes. Uma das obras mais icônicas dos anos 80.",
+            precoCheio: 299.90,
+            precoDesconto: 250.00,
+            imagens: [
+              "Disco1 - 1.png",
+              "Disco1 - 2.png",
+              "Disco1 - 3.png"
+            ]
+          },
+          {
+            id: "super-real-me",
+            nome: "Super Real Me",
+            autor: "ILLIT",
+            descricao: "Mini álbum moderno do k-pop com sonoridade leve, energética e estética jovem. Mistura pop eletrônico com refrões viciantes.",
+            precoCheio: 299.90,
+            precoDesconto: 250.00,
+            imagens: [
+              "Disco2 - 1.png",
+              "Disco2 - 2.png",
+              "Disco2 - 3.png"
+            ]
+          },
+          {
+            id: "ocean-blvd",
+            nome: "Ocean Blvd",
+            autor: "Lana Del Rey",
+            descricao: "Projeto introspectivo e cinematográfico com vocais suaves e produção emocional. Um dos trabalhos mais profundos da cantora.",
+            precoCheio: 299.90,
+            precoDesconto: 250.00,
+            imagens: [
+              "Disco3 - 1.png",
+              "Disco3 - 2.png",
+              "Disco3 - 3.png"
+            ]
+          },
+          {
+            id: "guts",
+            nome: "GUTS",
+            autor: "Olivia Rodrigo",
+            descricao: "Álbum intenso e autêntico que mistura pop rock, emoções adolescentes e letras marcantes. Repleto de faixas explosivas e sentimentais.",
+            precoCheio: 299.90,
+            precoDesconto: 290.00,
+            imagens: [
+              "Disco4 - 1.png",
+              "Disco4 - 2.png",
+              "Disco4 - 3.png"
+            ]
+          }
         ];
         setProdutos(produtosPadrao);
         await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosPadrao));

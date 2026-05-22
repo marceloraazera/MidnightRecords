@@ -1,7 +1,22 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from "react-native";
+import React from "react";
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
+
+const imagemSources = {
+  "Disco1 - 1.png": require("../assets/discos/Disco1 - 1.png"),
+  "Disco1 - 2.png": require("../assets/discos/Disco1 - 2.png"),
+  "Disco1 - 3.png": require("../assets/discos/Disco1 - 3.png"),
+  "Disco2 - 1.png": require("../assets/discos/Disco2 - 1.png"),
+  "Disco2 - 2.png": require("../assets/discos/Disco2 - 2.png"),
+  "Disco2 - 3.png": require("../assets/discos/Disco2 - 3.png"),
+  "Disco3 - 1.png": require("../assets/discos/Disco3 - 1.png"),
+  "Disco3 - 2.png": require("../assets/discos/Disco3 - 2.png"),
+  "Disco3 - 3.png": require("../assets/discos/Disco3 - 3.png"),
+  "Disco4 - 1.png": require("../assets/discos/Disco4 - 1.png"),
+  "Disco4 - 2.png": require("../assets/discos/Disco4 - 2.png"),
+  "Disco4 - 3.png": require("../assets/discos/Disco4 - 3.png"),
+};
 
 export default function TelaInicio() {
   const router = useRouter();
@@ -11,56 +26,96 @@ export default function TelaInicio() {
     router.push("/admin");
   };
 
+  const getImageSource = (imagemNome) => {
+    return imagemSources[imagemNome] ?? null;
+  };
+
+  const parsePrice = (value) => {
+    if (value === null || value === undefined || value === "") {
+      return 0;
+    }
+    if (typeof value === "number") {
+      return value;
+    }
+    if (typeof value === "string") {
+      const normalized = value.replace(/[^0-9,.-]/g, "").replace(/,/g, ".");
+      const parsed = parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  };
+
+  const formatPrice = (value) => {
+    return `R$ ${Number(value).toFixed(2).replace(".", ",")}`;
+  };
+
+  const renderProduto = ({ item: produto }) => {
+    const imagemSource = getImageSource(produto.imagens?.[0]);
+    const precoBase = parsePrice(produto.precoCheio ?? produto.preco ?? produto.precoDesconto);
+    const precoOriginal = precoBase;
+    const precoDesconto = precoBase * 0.95;
+
+    return (
+      <View style={styles.produtoCard}>
+        <View style={styles.produtoImageContainer}>
+          {imagemSource ? (
+            <Image source={imagemSource} style={styles.produtoImageAtual} />
+          ) : (
+            <Text style={styles.produtoImagePlaceholder}>💿</Text>
+          )}
+        </View>
+        <View style={styles.cardContent}>
+          <Text style={styles.produtoNome}>{produto.nome}</Text>
+          <View style={styles.precoContainer}>
+            <Text style={styles.precoOriginal}>{formatPrice(precoOriginal)}</Text>
+            <Text style={styles.precoDesconto}>{formatPrice(precoDesconto)}</Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.favoritoButton}>
+          <Text style={styles.coracao}>♡</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={irParaAdmin} style={styles.addButton}>
-          <Text style={styles.headerPlaceholder}>+</Text>
-        </TouchableOpacity>
-        <Text style={styles.logo}>MIDNIGHT</Text>
-        <TouchableOpacity>
-          <Text style={styles.headerIcon}>♡</Text>
-        </TouchableOpacity>
-      </View>
+    <FlatList
+      style={styles.container}
+      data={produtos}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={renderProduto}
+      numColumns={2}
+      columnWrapperStyle={styles.columnWrapper}
+      contentContainerStyle={styles.flatListContent}
+      showsVerticalScrollIndicator={false}
+      ListHeaderComponent={
+        <>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={irParaAdmin} style={styles.addButton}>
+              <Text style={styles.headerPlaceholder}>+</Text>
+            </TouchableOpacity>
+            <Text style={styles.logo}>MIDNIGHT</Text>
+            <TouchableOpacity>
+              <Text style={styles.headerIcon}>♡</Text>
+            </TouchableOpacity>
+          </View>
 
-      <View style={styles.novosDischttps}>
-        <View style={styles.discContainer}>
-          <Text style={styles.discImage}>💿</Text>
-        </View>
-        <View style={styles.discoTexto}>
-          <Text style={styles.novosTitle}>NOVOS DISCOS</Text>
-          <Text style={styles.novosSubtitle}>Chegaram raridades para a sua coleção.</Text>
-        </View>
-      </View>
-
-      <View style={styles.vitrineSection}>
-        <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
-        
-        <View style={styles.produtosGrid}>
-          {produtos.map((produto) => (
-            <View key={produto.id} style={styles.produtoCard}>
-              <View style={styles.produtoImageContainer}>
-                {produto.imagem && (produto.imagem.startsWith("file://") || produto.imagem.startsWith("http")) ? (
-                  <Image
-                    source={{ uri: produto.imagem }}
-                    style={styles.produtoImageAtual}
-                  />
-                ) : (
-                  <Text style={styles.produtoImagePlaceholder}>{produto.imagem}</Text>
-                )}
-              </View>
-              <Text style={styles.produtoNome}>{produto.nome}</Text>
-              <View style={styles.produtoPreco}>
-                <Text style={styles.preco}>{produto.preco}</Text>
-                <TouchableOpacity>
-                  <Text style={styles.coracao}>♡</Text>
-                </TouchableOpacity>
-              </View>
+          <View style={styles.novosDischttps}>
+            <View style={styles.discContainer}>
+              <Text style={styles.discImage}>💿</Text>
             </View>
-          ))}
-        </View>
-      </View>
-    </ScrollView>
+            <View style={styles.discoTexto}>
+              <Text style={styles.novosTitle}>NOVOS DISCOS</Text>
+              <Text style={styles.novosSubtitle}>Chegaram raridades para a sua coleção.</Text>
+            </View>
+          </View>
+
+          <View style={styles.vitrineSection}>
+            <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
+          </View>
+        </>
+      }
+    />
   );
 }
 
@@ -165,28 +220,51 @@ const styles = StyleSheet.create({
   produtoImageAtual: {
     width: "100%",
     height: "100%",
+    resizeMode: "cover",
   },
-  produtoNome: {
-    fontSize: 13,
-    color: "#ffffff",
+  cardContent: {
     paddingHorizontal: 10,
     paddingTop: 12,
-    fontWeight: "500",
+    paddingBottom: 10,
   },
-  produtoPreco: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-  },
-  preco: {
+  produtoNome: {
     fontSize: 14,
-    fontWeight: "bold",
     color: "#ffffff",
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  precoContainer: {
+    flexDirection: "column",
+  },
+  precoOriginal: {
+    fontSize: 12,
+    color: "#c3b9a3",
+    textDecorationLine: "line-through",
+    marginBottom: 4,
+  },
+  precoDesconto: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#d4af37",
+  },
+  favoritoButton: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    borderRadius: 16,
+    padding: 6,
   },
   coracao: {
-    fontSize: 20,
+    fontSize: 18,
     color: "#d4af37",
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+  },
+  flatListContent: {
+    paddingBottom: 32,
+    paddingTop: 12,
   },
 });
