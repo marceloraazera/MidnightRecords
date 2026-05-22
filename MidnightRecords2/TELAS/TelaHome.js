@@ -1,5 +1,13 @@
 import React from "react";
+<<<<<<< HEAD
 import { View, Text, StyleSheet, Image, ImageBackground, FlatList, TouchableOpacity } from "react-native";
+=======
+<<<<<<< HEAD
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ImageBackground } from "react-native";
+=======
+import { View, Text, StyleSheet, Image, ImageBackground, FlatList, TouchableOpacity } from "react-native";
+>>>>>>> 4d48318f6bf5d49ea4af0256dc74ff2adc621b40
+>>>>>>> 24a0e9f1d43e576a0077711b87879e74bed36e72
 import { useRouter } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
 import Feather from '@expo/vector-icons/Feather';
@@ -119,10 +127,23 @@ export default function TelaHome() {
   return (
     <ImageBackground
       source={require("../assets/imagensMR/fundo-escuro.png")}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 24a0e9f1d43e576a0077711b87879e74bed36e72
       style={styles.background}
       imageStyle={styles.backgroundImage}
     >
       <FlatList
+<<<<<<< HEAD
+=======
+>>>>>>> 4d48318f6bf5d49ea4af0256dc74ff2adc621b40
+      style={styles.container}
+      imageStyle={styles.backgroundImage}
+    >
+      <FlatList
+>>>>>>> 24a0e9f1d43e576a0077711b87879e74bed36e72
         style={styles.flatList}
         data={produtos}
         keyExtractor={(item, index) => String(item.id ?? item.nome ?? index)}
@@ -153,11 +174,31 @@ export default function TelaHome() {
               resizeMode="cover"
             />
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 24a0e9f1d43e576a0077711b87879e74bed36e72
             <View style={styles.vitrineSection}>
               <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
             </View>
           </>
         }
+<<<<<<< HEAD
+=======
+=======
+          <Image 
+            source={require("../assets/imagensMR/banner.png")}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
+
+          <View style={styles.vitrineSection}>
+            <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
+          </View>
+        </>
+      }
+>>>>>>> 4d48318f6bf5d49ea4af0256dc74ff2adc621b40
+>>>>>>> 24a0e9f1d43e576a0077711b87879e74bed36e72
       />
     </ImageBackground>
   );
