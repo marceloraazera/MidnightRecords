@@ -3,7 +3,6 @@ import React from "react";
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ImageBackground } from "react-native";
 =======
 import { View, Text, StyleSheet, Image, ImageBackground, FlatList, TouchableOpacity } from "react-native";
->>>>>>> 4d48318f6bf5d49ea4af0256dc74ff2adc621b40
 import { useRouter } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
 import Feather from '@expo/vector-icons/Feather';
