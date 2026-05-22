@@ -18,7 +18,7 @@ const imagemSources = {
   "Disco4 - 3.png": require("../assets/discos/Disco4 - 3.png"),
 };
 
-export default function TelaInicio() {
+export default function TelaHome() {
   const router = useRouter();
   const { produtos } = useProdutosContext();
 
@@ -27,7 +27,20 @@ export default function TelaInicio() {
   };
 
   const getImageSource = (imagemNome) => {
-    return imagemSources[imagemNome] ?? null;
+    if (!imagemNome) {
+      return null;
+    }
+
+    if (typeof imagemNome === "string") {
+      const trimmed = imagemNome.trim();
+      if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) {
+        return { uri: trimmed };
+      }
+
+      return imagemSources[trimmed] ?? null;
+    }
+
+    return null;
   };
 
   const parsePrice = (value) => {
@@ -50,7 +63,9 @@ export default function TelaInicio() {
   };
 
   const renderProduto = ({ item: produto }) => {
-    const imagemSource = getImageSource(produto.imagens?.[0]);
+    const imagemSource = getImageSource(
+      produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem
+    );
     const precoBase = parsePrice(produto.precoCheio ?? produto.preco ?? produto.precoDesconto);
     const precoOriginal = precoBase;
     const precoDesconto = precoBase * 0.95;
@@ -82,7 +97,7 @@ export default function TelaInicio() {
     <FlatList
       style={styles.container}
       data={produtos}
-      keyExtractor={(item) => item.id.toString()}
+      keyExtractor={(item, index) => String(item.id ?? item.nome ?? index)}
       renderItem={renderProduto}
       numColumns={2}
       columnWrapperStyle={styles.columnWrapper}
@@ -100,7 +115,7 @@ export default function TelaInicio() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.novosDischttps}>
+          <View style={styles.novosDiscos}>
             <View style={styles.discContainer}>
               <Text style={styles.discImage}>💿</Text>
             </View>
@@ -153,7 +168,7 @@ const styles = StyleSheet.create({
     color: "#d4af37",
   },
 
-  novosDischttps: {
+  novosDiscos: {
     flexDirection: "row",
     paddingHorizontal: 16,
     paddingVertical: 24,

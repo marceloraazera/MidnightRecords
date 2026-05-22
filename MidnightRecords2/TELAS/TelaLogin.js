@@ -46,7 +46,7 @@ export default function TelaLogin() {
 
   return (
     <ImageBackground
-      source={require("../imagensMR/fundo-escuro.png")}
+      source={require("../assets/imagensMR/fundo-escuro.png")}
       style={styles.background}
       imageStyle={styles.backgroundImage}
     >
@@ -54,7 +54,7 @@ export default function TelaLogin() {
         {/* Logo Area */}
         <View style={styles.logoContainer}>
           <Image
-            source={require("../imagensMR/logo-completa-midnight.png")}
+            source={require("../assets/imagensMR/logo-completa-midnight.png")}
             style={styles.logoImage}
             resizeMode="contain"
           />
