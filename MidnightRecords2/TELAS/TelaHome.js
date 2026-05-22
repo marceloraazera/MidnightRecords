@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
+import Feather from '@expo/vector-icons/Feather';
 
 const imagemSources = {
   "Disco1 - 1.png": require("../assets/discos/Disco1 - 1.png"),
@@ -18,6 +19,21 @@ const imagemSources = {
   "Disco4 - 3.png": require("../assets/discos/Disco4 - 3.png"),
 };
 
+const imagemFallbackById = {
+  "the-queen-is-dead": imagemSources["Disco1 - 1.png"],
+  "super-real-me": imagemSources["Disco2 - 1.png"],
+  "ocean-blvd": imagemSources["Disco3 - 1.png"],
+  "guts": imagemSources["Disco4 - 1.png"],
+};
+
+const defaultAlbumImage = require("../assets/discos/Disco1 - 1.png");
+const positionAlbumImages = {
+  0: imagemSources["Disco3 - 1.png"],
+  1: imagemSources["Disco1 - 1.png"],
+  2: imagemSources["Disco4 - 1.png"],
+  3: imagemSources["Disco2 - 1.png"],
+};
+
 export default function TelaHome() {
   const router = useRouter();
   const { produtos } = useProdutosContext();
@@ -26,21 +42,30 @@ export default function TelaHome() {
     router.push("/admin");
   };
 
-  const getImageSource = (imagemNome) => {
-    if (!imagemNome) {
+  const sanitizeImageName = (imagemNome) => {
+    if (!imagemNome || typeof imagemNome !== "string") {
       return null;
     }
 
-    if (typeof imagemNome === "string") {
-      const trimmed = imagemNome.trim();
-      if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) {
-        return { uri: trimmed };
-      }
-
-      return imagemSources[trimmed] ?? null;
+    const trimmed = imagemNome.trim();
+    if (!trimmed) {
+      return null;
     }
 
-    return null;
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) {
+      return { uri: trimmed };
+    }
+
+    const fileName = trimmed.replace(/^.*[\\/]/, "");
+    return imagemSources[fileName] ?? imagemSources[fileName.toLowerCase()] ?? null;
+  };
+
+  const getImageSource = (imagemNome, produtoId) => {
+    const fonte = sanitizeImageName(imagemNome);
+    if (fonte) {
+      return fonte;
+    }
+    return imagemFallbackById[produtoId] ?? null;
   };
 
   const parsePrice = (value) => {
@@ -62,10 +87,11 @@ export default function TelaHome() {
     return `R$ ${Number(value).toFixed(2).replace(".", ",")}`;
   };
 
-  const renderProduto = ({ item: produto }) => {
-    const imagemSource = getImageSource(
-      produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem
-    );
+  const renderProduto = ({ item: produto, index }) => {
+    const imagemSource = positionAlbumImages[index] ?? getImageSource(
+      produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem,
+      produto.id
+    ) ?? defaultAlbumImage;
     const precoBase = parsePrice(produto.precoCheio ?? produto.preco ?? produto.precoDesconto);
     const precoOriginal = precoBase;
     const precoDesconto = precoBase * 0.95;
@@ -73,11 +99,7 @@ export default function TelaHome() {
     return (
       <View style={styles.produtoCard}>
         <View style={styles.produtoImageContainer}>
-          {imagemSource ? (
-            <Image source={imagemSource} style={styles.produtoImageAtual} />
-          ) : (
-            <Text style={styles.produtoImagePlaceholder}>💿</Text>
-          )}
+          <Image source={imagemSource} style={styles.produtoImageAtual} />
         </View>
         <View style={styles.cardContent}>
           <Text style={styles.produtoNome}>{produto.nome}</Text>
@@ -87,50 +109,57 @@ export default function TelaHome() {
           </View>
         </View>
         <TouchableOpacity style={styles.favoritoButton}>
-          <Text style={styles.coracao}>♡</Text>
+          <Text style={styles.coracao}><Feather name="heart" size={18} color="white" /></Text>
         </TouchableOpacity>
       </View>
+      
     );
   };
 
   return (
-    <FlatList
+    <ImageBackground
+      source={require("../assets/imagensMR/fundo-escuro.png")}
       style={styles.container}
-      data={produtos}
-      keyExtractor={(item, index) => String(item.id ?? item.nome ?? index)}
-      renderItem={renderProduto}
-      numColumns={2}
-      columnWrapperStyle={styles.columnWrapper}
-      contentContainerStyle={styles.flatListContent}
-      showsVerticalScrollIndicator={false}
-      ListHeaderComponent={
-        <>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={irParaAdmin} style={styles.addButton}>
-              <Text style={styles.headerPlaceholder}>+</Text>
-            </TouchableOpacity>
+      imageStyle={styles.backgroundImage}
+    >
+      <FlatList
+        style={styles.flatList}
+        data={produtos}
+        keyExtractor={(item, index) => String(item.id ?? item.nome ?? index)}
+        renderItem={renderProduto}
+        numColumns={2}
+        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={styles.flatListContent}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <>
+            <View style={styles.header}>
+              <TouchableOpacity onPress={irParaAdmin} style={styles.addButton}>
+                <Text style={styles.headerPlaceholder}>+</Text>
+              </TouchableOpacity>
+              <Image 
+                source={require("../assets/imagensMR/logo-midnight.png")}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
+              <TouchableOpacity>
+                <Text style={styles.headerIcon}>♡</Text>
+              </TouchableOpacity>
+            </View>
+
             <Image 
-              source={require("../assets/imagensMR/logo-midnight.png")}
-              style={styles.logoImage}
-              resizeMode="contain"
+              source={require("../assets/imagensMR/banner.png")}
+              style={styles.bannerImage}
+              resizeMode="cover"
             />
-            <TouchableOpacity>
-              <Text style={styles.headerIcon}>♡</Text>
-            </TouchableOpacity>
-          </View>
 
-          <Image 
-            source={require("../assets/imagensMR/banner.png")}
-            style={styles.bannerImage}
-            resizeMode="cover"
-          />
-
-          <View style={styles.vitrineSection}>
-            <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
-          </View>
-        </>
-      }
-    />
+            <View style={styles.vitrineSection}>
+              <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
+            </View>
+          </>
+        }
+      />
+    </ImageBackground>
   );
 }
 
@@ -140,18 +169,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#2a1f2f",
   },
 
+  flatList: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#1a1420",
-    marginTop: 12,
   },
-  addButton: {
-    padding: 8,
-  },
+ 
   headerPlaceholder: {
     fontSize: 32,
     color: "#d4af37",
@@ -171,43 +200,26 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#d4af37",
   },
-
-  discContainer: {
-    marginRight: 20,
-  },
-  discImage: {
-    fontSize: 60,
-  },
+  
   discoTexto: {
     flex: 1,
   },
-  novosTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#d4af37",
-    marginBottom: 4,
-  },
-  novosSubtitle: {
-    fontSize: 13,
-    color: "#a0d4b8",
-    lineHeight: 18,
-  },
+ 
 
   bannerImage: {
     width: "100%",
-    height: 180,
-    marginVertical: 16,
+    height: 200,  
   },
 
   vitrineSection: {
     paddingHorizontal: 12,
     paddingVertical: 24,
-    backgroundColor: "#2a1f2f",
+    
   },
   vitrineTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#ffffff",
+    color: "#CCF7E4",
     textAlign: "center",
     marginBottom: 20,
     letterSpacing: 1,
@@ -220,14 +232,14 @@ const styles = StyleSheet.create({
   produtoCard: {
     width: "48%",
     marginBottom: 20,
-    backgroundColor: "#3d3341",
+    backgroundColor: "#221F1A",
     borderRadius: 8,
     overflow: "hidden",
   },
   produtoImageContainer: {
     width: "100%",
     aspectRatio: 1,
-    backgroundColor: "#4a4050",
+    backgroundColor: "#221F1A",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -237,6 +249,9 @@ const styles = StyleSheet.create({
   produtoImageAtual: {
     width: "100%",
     height: "100%",
+    resizeMode: "cover",
+  },
+  backgroundImage: {
     resizeMode: "cover",
   },
   cardContent: {
@@ -268,13 +283,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 12,
     right: 12,
-    backgroundColor: "rgba(0,0,0,0.25)",
-    borderRadius: 16,
+    backgroundColor: "rgba(0, 0, 0, 0.36)",
+    borderRadius: '100%',
     padding: 6,
-  },
-  coracao: {
-    fontSize: 18,
-    color: "#d4af37",
   },
   columnWrapper: {
     justifyContent: "space-between",
