@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -30,7 +30,6 @@ const imagemSources = {
   "Disco4-3.png": require("../assets/discos/Disco4-3.png"),
 };
 
-// Mapeamentos sincronizados com TelaHome.js
 const imagemFallbackById = {
   "the-queen-is-dead": imagemSources["Disco3-1.png"],
   "super-real-me": imagemSources["Disco1-1.png"],
@@ -55,12 +54,10 @@ const sanitizeImageName = (imagemNome) => {
   if (!imagemNome || typeof imagemNome !== "string") {
     return null;
   }
-
   const trimmed = imagemNome.trim();
   if (!trimmed) {
     return null;
   }
-
   if (
     trimmed.startsWith("http://") ||
     trimmed.startsWith("https://") ||
@@ -68,7 +65,6 @@ const sanitizeImageName = (imagemNome) => {
   ) {
     return { uri: trimmed };
   }
-
   const fileName = trimmed.replace(/^.*[\/]/, "").replace(/\s*-\s*/g, "-");
   return imagemSources[fileName] ?? imagemSources[fileName.toLowerCase()] ?? null;
 };
@@ -81,13 +77,28 @@ const getImageSource = (imagemNome, produtoId, produtoNome) => {
   return imagemFallbackById[produtoId] ?? imagemFallbackByNome[produtoNome] ?? null;
 };
 
+const getImagesArray = (produtoId, produtoNome, defaultSource) => {
+  const idStr = String(produtoId).toLowerCase();
+  
+  if (idStr === "1" || idStr === "the-queen-is-dead" || produtoNome === "The Queen Is Dead") {
+    return [imagemSources["Disco3-1.png"], imagemSources["Disco3-2.png"], imagemSources["Disco3-3.png"]];
+  }
+  if (idStr === "2" || idStr === "super-real-me" || produtoNome === "Super Real Me") {
+    return [imagemSources["Disco1-1.png"], imagemSources["Disco1-2.png"], imagemSources["Disco1-3.png"]];
+  }
+  if (idStr === "3" || idStr === "ocean-blvd" || produtoNome === "Ocean Blvd") {
+    return [imagemSources["Disco4-1.png"], imagemSources["Disco4-2.png"], imagemSources["Disco4-3.png"]];
+  }
+  if (idStr === "4" || idStr === "guts" || produtoNome === "GUTS") {
+    return [imagemSources["Disco2-1.png"], imagemSources["Disco2-2.png"], imagemSources["Disco2-3.png"]];
+  }
+  
+  return [defaultSource];
+};
+
 const parsePrice = (value) => {
-  if (value === null || value === undefined || value === "") {
-    return 0;
-  }
-  if (typeof value === "number") {
-    return value;
-  }
+  if (value === null || value === undefined || value === "") return 0;
+  if (typeof value === "number") return value;
   if (typeof value === "string") {
     const normalized = value.replace(/[^0-9,.-]/g, "").replace(/,/g, ".");
     const parsed = parseFloat(normalized);
@@ -122,6 +133,9 @@ export default function DetalhesProduto() {
   const rawParams = useLocalSearchParams();
   const paramsId = Array.isArray(rawParams.id) ? rawParams.id[0] : rawParams.id;
   const { produtos, loading } = useProdutosContext();
+  
+  // Controle do scroll do carrossel
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const produto = produtos.find((item) => String(item.id) === String(paramsId));
 
@@ -147,16 +161,28 @@ export default function DetalhesProduto() {
     );
   }
 
-  const imagemSource =
-    getImageSource(
-      produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem,
-      produto.id,
-      produto.nome
-    ) ?? defaultAlbumImage;
+  const primarySource = getImageSource(
+    produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem,
+    produto.id,
+    produto.nome
+  ) ?? defaultAlbumImage;
+
+  const carouselImages = produto.imagens && produto.imagens.length > 1 
+                         ? produto.imagens.map(img => getImageSource(img, produto.id, produto.nome) ?? primarySource)
+                         : getImagesArray(produto.id, produto.nome, primarySource);
 
   const precoBase = parsePrice(produto.precoCheio ?? produto.preco ?? produto.precoDesconto);
   const precoCheio = precoBase;
   const precoDesconto = precoBase * 0.95;
+
+  const handleScroll = (event) => {
+    const slideSize = event.nativeEvent.layoutMeasurement.width;
+    const offset = event.nativeEvent.contentOffset.x;
+    const index = Math.round(offset / slideSize);
+    if (index !== currentImageIndex) {
+      setCurrentImageIndex(index);
+    }
+  };
 
   return (
     <ImageBackground
@@ -165,13 +191,13 @@ export default function DetalhesProduto() {
       imageStyle={styles.backgroundImage}
     >
       <View style={styles.mainContainer}>
-        {/* Conteúdo scrollável */}
+        {/* Conteúdo scrollável principal da tela */}
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Logo Midnight Records */}
+          {/* Logo Midnight Records Reduzida */}
           <View style={styles.logoContainer}>
             <Image
               source={require("../assets/imagensMR/logo-midnight.png")}
@@ -180,61 +206,85 @@ export default function DetalhesProduto() {
             />
           </View>
 
-          {/* Header: Voltar + Título */}
-          <View style={styles.headerBar}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
-              activeOpacity={0.7}
-            >
-              <Feather name="chevron-left" size={26} color="#D4A74F" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Detalhes do Produto</Text>
-            <View style={styles.headerPlaceholder} />
+          {/* Header Bar */}
+          <View style={styles.headerBox}>
+            <View style={styles.headerBar}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+                activeOpacity={0.7}
+              >
+                <Feather name="chevron-left" size={24} color="#D4A74F" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Detalhes do Produto</Text>
+              <View style={styles.headerPlaceholder} />
+            </View>
+            <View style={styles.headerDivider} />
           </View>
 
-          {/* Imagem do álbum com efeito vinil */}
-          <View style={styles.artSection}>
-            <View style={styles.artWrapper}>
-              {/* Disco de vinil atrás */}
-              <View style={styles.vinylDisc}>
-                <View style={styles.vinylOuter}>
-                  <View style={styles.vinylMiddle}>
-                    <View style={styles.vinylInner}>
-                      <View style={styles.vinylCenter} />
+          {/* Imagem do álbum (Carrossel) */}
+          <View style={styles.carouselContainer}>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+            >
+              {carouselImages.map((imgSrc, index) => (
+                <View key={index} style={styles.carouselItem}>
+                  <View style={styles.artWrapper}>
+                    {/* Disco de vinil atrás SOMENTE na primeira imagem */}
+                    {index === 0 && (
+                      <View style={styles.vinylDisc}>
+                        <View style={styles.vinylOuter}>
+                          <View style={styles.vinylMiddle}>
+                            <View style={styles.vinylInner}>
+                              <View style={styles.vinylCenter} />
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    )}
+                    
+                    {/* Capa do álbum */}
+                    <View style={styles.albumCover}>
+                      <Image source={imgSrc} style={styles.albumImage} />
                     </View>
                   </View>
                 </View>
+              ))}
+            </ScrollView>
+            
+            {/* Indicadores do carrossel (dots) */}
+            {carouselImages.length > 1 && (
+              <View style={styles.paginationDots}>
+                {carouselImages.map((_, index) => (
+                  <View 
+                    key={index} 
+                    style={[
+                      styles.dot, 
+                      index === currentImageIndex ? styles.activeDot : styles.inactiveDot
+                    ]} 
+                  />
+                ))}
               </View>
-              {/* Capa do álbum */}
-              <View style={styles.albumCover}>
-                <Image source={imagemSource} style={styles.albumImage} />
-              </View>
-            </View>
+            )}
           </View>
 
           {/* Informações do produto */}
           <View style={styles.infoSection}>
-            {/* Título do álbum */}
             <Text style={styles.albumTitle}>{produto.nome?.toUpperCase()}</Text>
 
-            {/* Preço */}
             <View style={styles.priceSection}>
               <Text style={styles.priceOld}>
-                De:{" "}
-                <Text style={styles.priceOldValue}>
-                  {formatPrice(precoCheio)}
-                </Text>
+                De: <Text style={styles.priceOldValue}>{formatPrice(precoCheio)}</Text>
               </Text>
               <Text style={styles.priceNew}>
-                Por:{" "}
-                <Text style={styles.priceNewValue}>
-                  {formatPrice(precoDesconto)}
-                </Text>
+                Por: <Text style={styles.priceNewValue}>{formatPrice(precoDesconto)}</Text>
               </Text>
             </View>
 
-            {/* Descrição */}
             <View style={styles.descriptionSection}>
               <Text style={styles.descriptionLabel}>Descrição</Text>
               <Text style={styles.descriptionText}>
@@ -243,25 +293,14 @@ export default function DetalhesProduto() {
             </View>
           </View>
 
-          {/* Botões de ação */}
+          {/* Botões de ação lado a lado */}
           <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.saveButton}
-              activeOpacity={0.85}
-            >
+            <TouchableOpacity style={styles.saveButton} activeOpacity={0.85}>
               <Text style={styles.saveButtonText}>Salvar produto</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.favButton}
-              activeOpacity={0.85}
-            >
-              <Feather
-                name="heart"
-                size={18}
-                color="#ffffff"
-                style={styles.favIcon}
-              />
+            <TouchableOpacity style={styles.favButton} activeOpacity={0.85}>
+              <Feather name="heart" size={18} color="#ffffff" style={styles.favIcon} />
               <Text style={styles.favButtonText}>Favoritar</Text>
             </TouchableOpacity>
           </View>
@@ -269,34 +308,19 @@ export default function DetalhesProduto() {
 
         {/* Barra de navegação inferior fixa */}
         <View style={styles.bottomNav}>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => router.replace("/(tabs)")}
-          >
+          <TouchableOpacity style={styles.navItem} onPress={() => router.replace("/(tabs)")}>
             <Feather name="home" size={24} color="#CCF7E4" />
             <Text style={styles.navLabel}>Home</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => router.replace("/(tabs)/add")}
-          >
+          <TouchableOpacity style={styles.navItem} onPress={() => router.replace("/(tabs)/add")}>
             <Feather name="plus-circle" size={24} color="#CCF7E4" />
             <Text style={styles.navLabel}>Criar</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => router.replace("/(tabs)/favoritos")}
-          >
+          <TouchableOpacity style={styles.navItem} onPress={() => router.replace("/(tabs)/favoritos")}>
             <Feather name="heart" size={24} color="#CCF7E4" />
             <Text style={styles.navLabel}>Favoritos</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => router.replace("/(tabs)/perfil")}
-          >
+          <TouchableOpacity style={styles.navItem} onPress={() => router.replace("/(tabs)/perfil")}>
             <Feather name="user" size={24} color="#CCF7E4" />
             <Text style={styles.navLabel}>Perfil</Text>
           </TouchableOpacity>
@@ -306,7 +330,8 @@ export default function DetalhesProduto() {
   );
 }
 
-const ALBUM_SIZE = SCREEN_WIDTH * 0.48; // Reduzido para caber melhor na tela e futuramente no carrossel
+// Proporções atualizadas para o carrossel (aumentando a capa para parecer mais com a ref)
+const ALBUM_SIZE = SCREEN_WIDTH * 0.60;
 const VINYL_SIZE = ALBUM_SIZE * 0.92;
 
 const styles = StyleSheet.create({
@@ -351,99 +376,108 @@ const styles = StyleSheet.create({
   /* Logo */
   logoContainer: {
     alignItems: "center",
-    paddingTop: 42,
-    paddingBottom: 6,
   },
   logoImage: {
-    width: 160,
-    height: 60,
+    height: 80,
   },
 
-  /* Header bar */
+  /* Header bar escuro (como na imagem) */
+  headerBox: {
+    marginHorizontal: 16,
+    marginBottom: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.05)",
+    overflow: "hidden",
+  },
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  headerDivider: {
+    height: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     marginHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    borderWidth: 1,
-    borderColor: "rgba(212, 167, 79, 0.16)",
+    marginBottom: 4,  
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(212, 167, 79, 0.12)",
+    backgroundColor: "rgba(212, 167, 79, 0.15)",
   },
   headerTitle: {
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 16,
+    fontSize: 15,
     color: "#ffffff",
     letterSpacing: 0.5,
   },
   headerPlaceholder: {
-    width: 40,
+    width: 36,
   },
 
-  /* Arte do álbum com vinil */
-  artSection: {
+  /* Carrossel e Arte */
+  carouselContainer: {
+    marginBottom: 16,
+  },
+  carouselItem: {
+    width: SCREEN_WIDTH,
     alignItems: "center",
-    marginBottom: 28,
-    paddingHorizontal: 16,
+    justifyContent: "center",
   },
   artWrapper: {
-    width: ALBUM_SIZE + VINYL_SIZE * 0.4,
+    width: ALBUM_SIZE,
     height: ALBUM_SIZE,
     position: "relative",
-    alignItems: "flex-start",
+    justifyContent: "center",
+    alignItems: "center",
   },
   vinylDisc: {
     position: "absolute",
-    right: 0,
+    right: -VINYL_SIZE * 0.4,
     top: (ALBUM_SIZE - VINYL_SIZE) / 2,
     width: VINYL_SIZE,
     height: VINYL_SIZE,
     borderRadius: VINYL_SIZE / 2,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#111",
     justifyContent: "center",
     alignItems: "center",
     elevation: 4,
     shadowColor: "#000",
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
+    shadowOffset: { width: 6, height: 6 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
   },
   vinylOuter: {
     width: VINYL_SIZE * 0.88,
     height: VINYL_SIZE * 0.88,
     borderRadius: VINYL_SIZE * 0.44,
-    backgroundColor: "#222",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
-  },
-  vinylMiddle: {
-    width: VINYL_SIZE * 0.5,
-    height: VINYL_SIZE * 0.5,
-    borderRadius: VINYL_SIZE * 0.25,
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#1a1a1a",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.04)",
   },
+  vinylMiddle: {
+    width: VINYL_SIZE * 0.5,
+    height: VINYL_SIZE * 0.5,
+    borderRadius: VINYL_SIZE * 0.25,
+    backgroundColor: "#222",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.03)",
+  },
   vinylInner: {
     width: VINYL_SIZE * 0.3,
     height: VINYL_SIZE * 0.3,
     borderRadius: VINYL_SIZE * 0.15,
-    backgroundColor: "#333",
+    backgroundColor: "#2a2a2a",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -451,52 +485,66 @@ const styles = StyleSheet.create({
     width: VINYL_SIZE * 0.08,
     height: VINYL_SIZE * 0.08,
     borderRadius: VINYL_SIZE * 0.04,
-    backgroundColor: "#555",
+    backgroundColor: "#444",
   },
   albumCover: {
     width: ALBUM_SIZE,
     height: ALBUM_SIZE,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: "#221F1A",
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    zIndex: 2,
+    borderRadius: 10,
+    backgroundColor: "transparent",
+    
   },
   albumImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
+    resizeMode: "contain",
+    borderRadius: 10,
+  },
+  paginationDots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 14,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: "#D4A74F",
+    width: 16,
+  },
+  inactiveDot: {
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
 
   /* Informações */
   infoSection: {
     paddingHorizontal: 24,
     marginBottom: 8,
+    alignItems: "flex-start",
   },
   albumTitle: {
     fontFamily: "Poppins_700Bold",
-    fontSize: 24,
-    color: "#ffffff",
+    fontSize: 26,
+    color: "#CCF7E4",
     letterSpacing: 0.5,
-    marginBottom: 14,
+    marginBottom: 10,
   },
   priceSection: {
-    marginBottom: 22,
+    marginBottom: 18,
   },
   priceOld: {
     fontFamily: "Poppins_400Regular",
-    fontSize: 14,
-    color: "#c3b9a3",
-    marginBottom: 4,
+    fontSize: 13,
+    color: "#999080",
+    marginBottom: 6,
     fontStyle: "italic",
   },
   priceOldValue: {
     textDecorationLine: "line-through",
-    color: "#c3b9a3",
+    color: "#999080",
   },
   priceNew: {
     fontFamily: "Poppins_600SemiBold",
@@ -506,27 +554,28 @@ const styles = StyleSheet.create({
   },
   priceNewValue: {
     fontFamily: "Poppins_700Bold",
-    fontSize: 22,
-    color: "#ffffff",
+    fontSize: 24,
+    color: "#CCF7E4",
     fontStyle: "normal",
   },
 
   /* Descrição */
   descriptionSection: {
-    marginBottom: 10,
+    marginBottom: 12,
   },
   descriptionLabel: {
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 15,
+    fontSize: 14,
     color: "#D4A74F",
-    marginBottom: 8,
+    marginBottom: 6,
     fontStyle: "italic",
   },
   descriptionText: {
     fontFamily: "Poppins_400Regular",
     fontSize: 13,
-    color: "#e0d6c8",
-    lineHeight: 21,
+    color: "#f0f0f0",
+    lineHeight: 20,
+    paddingRight: 10, // Para a largura se assemelhar à ref
   },
 
   /* Botões de ação */
@@ -534,14 +583,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingHorizontal: 24,
     gap: 12,
-    marginTop: 14,
+    marginTop: 10,
     marginBottom: 10,
+    justifyContent: "space-between",
   },
   saveButton: {
     flex: 1,
-    backgroundColor: "#2d6a5c",
-    borderRadius: 28,
-    minHeight: 52,
+    backgroundColor: "#2A6A56", // Mais fiel à ref (verde floresta escuro)
+    borderRadius: 24,
+    minHeight: 50,
     justifyContent: "center",
     alignItems: "center",
     elevation: 3,
@@ -550,13 +600,12 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_600SemiBold",
     color: "#ffffff",
     fontSize: 14,
-    letterSpacing: 0.5,
   },
   favButton: {
     flex: 1,
-    backgroundColor: "#3d3341",
-    borderRadius: 28,
-    minHeight: 52,
+    backgroundColor: "#3A3342", // Tom roxo/grafite escuro da ref
+    borderRadius: 24,
+    minHeight: 50,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -569,7 +618,6 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_600SemiBold",
     color: "#ffffff",
     fontSize: 14,
-    letterSpacing: 0.5,
   },
 
   /* Barra de navegação inferior */
