@@ -10,7 +10,7 @@ import {
   Platform
 } from "react-native";
 import { useRouter } from "expo-router";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { useProdutosContext } from "../context/ProdutosContext";
 import Feather from '@expo/vector-icons/Feather';
@@ -31,10 +31,21 @@ const imagemSources = {
 };
 
 const imagemFallbackById = {
-  "the-queen-is-dead": imagemSources["Disco1-1.png"],
-  "super-real-me": imagemSources["Disco2-1.png"],
-  "ocean-blvd": imagemSources["Disco3-1.png"],
-  "guts": imagemSources["Disco4-1.png"],
+  "the-queen-is-dead": imagemSources["Disco3-1.png"],
+  "super-real-me": imagemSources["Disco1-1.png"],
+  "ocean-blvd": imagemSources["Disco4-1.png"],
+  "guts": imagemSources["Disco2-1.png"],
+  1: imagemSources["Disco3-1.png"],
+  2: imagemSources["Disco1-1.png"],
+  3: imagemSources["Disco4-1.png"],
+  4: imagemSources["Disco2-1.png"],
+};
+
+const imagemFallbackByNome = {
+  "The Queen Is Dead": imagemSources["Disco1-1.png"],
+  "Super Real Me": imagemSources["Disco2-1.png"],
+  "Ocean Blvd": imagemSources["Disco3-1.png"],
+  "GUTS": imagemSources["Disco4-1.png"],
 };
 
 const defaultAlbumImage = require("../assets/discos/Disco1-1.png");
@@ -57,15 +68,29 @@ export default function TelaHome() {
   };
 
   React.useEffect(() => {
-    const recuperarNome = async () => {
-      if (Platform.OS === "web" && typeof window !== "undefined") {
-        const nome = localStorage.getItem("nomeUsuario");
-        if (nome) {
-          setNomeUsuario(nome);
+    // Tenta buscar o nome salvo no localStorage (web)
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      const nomeSalvo = localStorage.getItem("nomeUsuario");
+      if (nomeSalvo) {
+        setNomeUsuario(nomeSalvo);
+        return;
+      }
+    }
+
+    // Para todas as plataformas: pega nome/email do usuário autenticado no Firebase
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (user.displayName) {
+          setNomeUsuario(user.displayName);
+        } else if (user.email) {
+          // Usa a parte antes do @ como nome
+          const nomeDoEmail = user.email.split("@")[0];
+          setNomeUsuario(nomeDoEmail);
         }
       }
-    };
-    recuperarNome();
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const sairConta = async () => {
@@ -98,12 +123,12 @@ export default function TelaHome() {
     return imagemSources[fileName] ?? imagemSources[fileName.toLowerCase()] ?? null;
   };
 
-  const getImageSource = (imagemNome, produtoId) => {
+  const getImageSource = (imagemNome, produtoId, produtoNome) => {
     const fonte = sanitizeImageName(imagemNome);
     if (fonte) {
       return fonte;
     }
-    return imagemFallbackById[produtoId] ?? null;
+    return imagemFallbackById[produtoId] ?? imagemFallbackByNome[produtoNome] ?? null;
   };
 
   const parsePrice = (value) => {
@@ -128,7 +153,8 @@ export default function TelaHome() {
   const renderProduto = ({ item: produto, index }) => {
     const imagemSource = getImageSource(
       produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem,
-      produto.id
+      produto.id,
+      produto.nome
     ) ?? defaultAlbumImage;
     const precoBase = parsePrice(produto.precoCheio ?? produto.preco ?? produto.precoDesconto);
     const precoOriginal = precoBase;
@@ -199,7 +225,7 @@ export default function TelaHome() {
             {nomeUsuario && (
               <View style={styles.welcomeSection}>
                 <Text style={styles.welcomeText}>
-                  Olá, <Text style={styles.userName}>{nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1)}</Text>
+                  Olá, <Text style={styles.userName}>{nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1)}.</Text> Seja bem-vindo(a)!
                 </Text>
               </View>
             )}
@@ -407,7 +433,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   flatListContent: {
-    paddingBottom: 36,
-    paddingTop: 16,
-  },
+  paddingBottom: 110,
+  paddingTop: 16,
+},
 });

@@ -1,13 +1,21 @@
 import { Tabs } from "expo-router";
-import React from "react";
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: { display: "none" },
+        tabBarActiveTintColor: "#D4A74F",
+        tabBarInactiveTintColor: "#CCF7E4",
+        tabBarStyle: {
+          height: 72,
+          backgroundColor: "#15101F",
+          borderTopWidth: 1,
+          borderTopColor: "rgba(212, 167, 79, 0.25)",
+          paddingTop: 8,
+          paddingBottom: 10,
+        },
       }}
     >
       <Tabs.Screen
@@ -23,7 +31,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="add"
         options={{
-          title: "Adicionar",
+          title: "Criar",
           tabBarIcon: ({ color, size }) => (
             <Feather name="plus-circle" size={size} color={color} />
           ),
@@ -31,11 +39,21 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="explore"
+        name="favoritos"
         options={{
-          title: "Explore",
+          title: "Favoritos",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="send" size={size} color={color} />
+            <Feather name="heart" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="perfil"
+        options={{
+          title: "Perfil",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="user" size={size} color={color} />
           ),
         }}
       />
