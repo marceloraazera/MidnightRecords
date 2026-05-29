@@ -99,21 +99,13 @@ export default function TelaFavoritos() {
   style={styles.background}
   imageStyle={styles.backgroundImage}
 >
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton}>
-          <Feather name="plus" size={24} color="#D97B46" />
-        </TouchableOpacity>
-
+        <View style={styles.logoContainer}>
         <Image
-          source={require("../assets/imagensMR/logo-midnight.png")}
+          source={require("../assets/imagensMR/logo-completa-midnight.png")}
           style={styles.logo}
           resizeMode="contain"
         />
-
-        <TouchableOpacity style={styles.iconButton}>
-          <Ionicons name="heart" size={25} color="#D97B46" />
-        </TouchableOpacity>
-      </View>
+        </View>
 
       <View style={styles.titleBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -159,9 +151,12 @@ background: {
     borderBottomWidth: 1,
     borderBottomColor: "rgba(217, 123, 70, 0.32)",
   },
+  logoContainer: {
+    alignItems: "center",
+  },
   logo: {
-    width: 170,
-    height: 70,
+    width: 200,
+    height: 120,
   },
   iconButton: {
     width: 36,
