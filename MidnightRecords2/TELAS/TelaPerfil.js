@@ -3,6 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
+  ImageBackground,
   TouchableOpacity,
   TextInput,
   Alert,
@@ -23,7 +24,7 @@ function CampoTexto({
   keyboardType = "default",
 }) {
   return (
-    <>
+    <View style={styles.fieldBox}>
       <Text style={styles.label}>{label}</Text>
 
       {editando && editable ? (
@@ -36,9 +37,11 @@ function CampoTexto({
           keyboardType={keyboardType}
         />
       ) : (
-        <Text style={styles.value}>{value?.trim() ? value : "Não informado"}</Text>
+        <View style={styles.fieldValueBox}>
+          <Text style={styles.value}>{value?.trim() ? value : "Não informado"}</Text>
+        </View>
       )}
-    </>
+    </View>
   );
 }
 
@@ -146,23 +149,36 @@ const sairConta = async () => {
 };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.card}>
-        <View style={styles.avatar}>
-          <Feather name="user" size={42} color="#D4A74F" />
-        </View>
+    <ImageBackground
+      source={require("../assets/imagensMR/fundo-escuro.png")}
+      style={styles.background}
+      imageStyle={styles.backgroundImage}
+    >
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <View style={styles.card}>
+          <View style={styles.headerSection}>
+            <View style={styles.avatar}>
+              <Feather name="user" size={42} color="#D4A74F" />
+            </View>
+            <View style={styles.headerText}>
+              <Text style={styles.title}>Meu Perfil</Text>
+              <Text style={styles.subtitle}>Atualize seus dados e mantenha seu cadastro alinhado ao estilo da loja.</Text>
+            </View>
+          </View>
 
-        <Text style={styles.title}>Meu Perfil</Text>
+          <CampoTexto label="Nome" value={nome} onChangeText={setNome} editando={editando} />
+          <CampoTexto label="E-mail" value={email} editando={editando} editable={false} />
 
-        <CampoTexto label="Nome" value={nome} onChangeText={setNome} editando={editando} />
-        <CampoTexto label="E-mail" value={email} editando={editando} editable={false} />
-        <CampoTexto label="Telefone" value={telefone} onChangeText={setTelefone} editando={editando} keyboardType="phone-pad" />
-        <CampoTexto label="CEP" value={cep} onChangeText={setCep} editando={editando} keyboardType="numeric" />
-        <CampoTexto label="Endereço" value={endereco} onChangeText={setEndereco} editando={editando} />
-        <CampoTexto label="Número" value={numero} onChangeText={setNumero} editando={editando} keyboardType="numeric" />
-        <CampoTexto label="Complemento" value={complemento} onChangeText={setComplemento} editando={editando} />
-        <CampoTexto label="Cidade" value={cidade} onChangeText={setCidade} editando={editando} />
-        <CampoTexto label="Estado" value={estado} onChangeText={setEstado} editando={editando} />
+          <Text style={styles.sectionTitle}>Contato</Text>
+          <CampoTexto label="Telefone" value={telefone} onChangeText={setTelefone} editando={editando} keyboardType="phone-pad" />
+          <CampoTexto label="CEP" value={cep} onChangeText={setCep} editando={editando} keyboardType="numeric" />
+
+          <Text style={styles.sectionTitle}>Endereço</Text>
+          <CampoTexto label="Endereço" value={endereco} onChangeText={setEndereco} editando={editando} />
+          <CampoTexto label="Número" value={numero} onChangeText={setNumero} editando={editando} keyboardType="numeric" />
+          <CampoTexto label="Complemento" value={complemento} onChangeText={setComplemento} editando={editando} />
+          <CampoTexto label="Cidade" value={cidade} onChangeText={setCidade} editando={editando} />
+          <CampoTexto label="Estado" value={estado} onChangeText={setEstado} editando={editando} />
 
         {editando ? (
           <TouchableOpacity style={styles.button} onPress={salvarPerfil}>
@@ -189,13 +205,21 @@ const sairConta = async () => {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: "#1a0f2e",
+  },
+  backgroundImage: {
+    resizeMode: "cover",
+  },
   container: {
     flex: 1,
-    backgroundColor: "#1C1445",
+    backgroundColor: "transparent",
   },
   content: {
     padding: 24,
@@ -203,50 +227,97 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "100%",
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderRadius: 24,
+    backgroundColor: "rgba(8, 8, 22, 0.82)",
+    borderRadius: 28,
     padding: 24,
     borderWidth: 1,
-    borderColor: "rgba(212,167,79,0.25)",
+    borderColor: "rgba(212,167,79,0.22)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.14,
+    shadowRadius: 18,
+    elevation: 8,
   },
   avatar: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: "rgba(212,167,79,0.12)",
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: "rgba(212,167,79,0.16)",
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
-    marginBottom: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(212,167,79,0.35)",
   },
   title: {
     fontFamily: "Poppins_700Bold",
     fontSize: 26,
     color: "#F1F6B3",
-    textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 14,
+    color: "#CCF7E4",
+    lineHeight: 20,
+  },
+  headerSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 22,
+  },
+  headerText: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  sectionTitle: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 14,
+    color: "#CCF7E4",
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  fieldsRow: {
+    flexDirection: "column",
+  },
+  fieldHalf: {
+    width: "100%",
+    marginBottom: 14,
   },
   label: {
     fontFamily: "Poppins_500Medium",
-    fontSize: 13,
+    fontSize: 12,
     color: "#D4A74F",
-    marginTop: 12,
+    marginBottom: 8,
   },
   value: {
-    fontFamily: "Poppins_600SemiBold",
-    fontSize: 16,
-    color: "#FFFFFF",
-    marginTop: 4,
+    fontFamily: "Poppins_500Medium",
+    fontSize: 15,
+    color: "#F4F7F0",
+  },
+  fieldBox: {
+    marginBottom: 18,
+    padding: 20,
+    borderRadius: 24,
+    backgroundColor: "rgba(20, 14, 44, 0.72)",
+    borderWidth: 1,
+    borderColor: "rgba(212,167,79,0.14)",
+  },
+  fieldValueBox: {
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderRadius: 16,
+    padding: 14,
   },
   input: {
     fontFamily: "Poppins_400Regular",
-    backgroundColor: "#1a1420",
+    backgroundColor: "rgba(255,255,255,0.08)",
     color: "#ffffff",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "rgba(212,167,79,0.35)",
+    borderColor: "rgba(212,167,79,0.25)",
     marginTop: 6,
   },
   button: {
