@@ -9,11 +9,21 @@ import {
   TouchableOpacity,
   Platform
 } from "react-native";
+import {
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+} from "firebase/firestore";
+import { auth, db } from "../config/firebaseConfig";
 import { useRouter } from "expo-router";
 import { signOut, onAuthStateChanged } from "firebase/auth";
-import { auth } from "../config/firebaseConfig";
 import { useProdutosContext } from "../context/ProdutosContext";
 import Feather from '@expo/vector-icons/Feather';
+import { useFocusEffect } from "@react-navigation/native";
+
+
 
 const imagemSources = {
   "Disco1-1.png": require("../assets/discos/Disco1-1.png"),
@@ -56,11 +66,66 @@ export default function TelaHome() {
   const [favoriteIds, setFavoriteIds] = React.useState([]);
   const [nomeUsuario, setNomeUsuario] = React.useState("");
 
-  const toggleFavorito = (id) => {
-    setFavoriteIds((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
-    );
-  };
+  const carregarFavoritos = async () => {
+  try {
+    const usuario = auth.currentUser;
+
+    if (!usuario) {
+      return;
+    }
+
+    const favoritosRef = collection(db, "favoritos", usuario.uid, "itens");
+    const snapshot = await getDocs(favoritosRef);
+
+    const ids = snapshot.docs.map((item) => item.id);
+
+    setFavoriteIds(ids);
+  } catch (error) {
+    console.log("Erro ao carregar favoritos:", error);
+  }
+};
+useFocusEffect(
+  React.useCallback(() => {
+    carregarFavoritos();
+  }, [])
+);
+  const toggleFavorito = async (produto) => {
+  try {
+    const usuario = auth.currentUser;
+
+    if (!usuario) {
+      alert("Você precisa estar logado para favoritar.");
+      return;
+    }
+
+    const produtoId = String(produto.id ?? produto.nome);
+    const favoritoRef = doc(db, "favoritos", usuario.uid, "itens", produtoId);
+
+    const jaFavoritado = favoriteIds.includes(produtoId);
+
+    if (jaFavoritado) {
+      await deleteDoc(favoritoRef);
+      setFavoriteIds((current) => current.filter((id) => id !== produtoId));
+    } else {
+      await setDoc(favoritoRef, {
+        id: produtoId,
+        nome: produto.nome,
+        preco: produto.preco,
+        precoCheio: produto.precoCheio ?? "",
+        precoDesconto: produto.precoDesconto ?? "",
+        imagem: produto.imagem ?? "",
+        linkImagem: produto.linkImagem ?? "",
+        descricao: produto.descricao ?? "",
+        criadoEm: new Date().toISOString(),
+      });
+
+      setFavoriteIds((current) => [...current, produtoId]);
+    }
+  } catch (error) {
+    console.log("Erro ao favoritar:", error);
+    alert("Erro ao favoritar produto.");
+  }
+};
 
   const irParaDetalhes = (produtoId) => {
     const encodedId = encodeURIComponent(produtoId);
@@ -159,7 +224,8 @@ export default function TelaHome() {
     const precoBase = parsePrice(produto.precoCheio ?? produto.preco ?? produto.precoDesconto);
     const precoOriginal = precoBase;
     const precoDesconto = precoBase * 0.95;
-    const isFavorito = favoriteIds.includes(produto.id);
+    const produtoId = String(produto.id ?? produto.nome);
+    const isFavorito = favoriteIds.includes(produtoId);
 
     return (
       <TouchableOpacity
@@ -180,7 +246,7 @@ export default function TelaHome() {
           </View>
           <TouchableOpacity
             style={[styles.favoritoButton, isFavorito && styles.favoritoButtonActive]}
-            onPress={() => toggleFavorito(produto.id)}
+            onPress={() => toggleFavorito(produto)}
           >
             <Feather
               name="heart"
