@@ -14,6 +14,34 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebaseConfig";
 import Feather from "@expo/vector-icons/Feather";
 
+function CampoTexto({
+  label,
+  value,
+  onChangeText,
+  editando,
+  editable = true,
+  keyboardType = "default",
+}) {
+  return (
+    <>
+      <Text style={styles.label}>{label}</Text>
+
+      {editando && editable ? (
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={label}
+          placeholderTextColor="#aaa"
+          keyboardType={keyboardType}
+        />
+      ) : (
+        <Text style={styles.value}>{value?.trim() ? value : "Não informado"}</Text>
+      )}
+    </>
+  );
+}
+
 export default function TelaPerfil() {
   const router = useRouter();
 
@@ -35,16 +63,12 @@ export default function TelaPerfil() {
   const carregarPerfil = async () => {
     try {
       const usuario = auth.currentUser;
-
-      if (!usuario) {
-        return;
-      }
+      if (!usuario) return;
 
       setNome(usuario.displayName || "");
       setEmail(usuario.email || "");
 
-      const documentoRef = doc(db, "usuarios", usuario.uid);
-      const documento = await getDoc(documentoRef);
+      const documento = await getDoc(doc(db, "usuarios", usuario.uid));
 
       if (documento.exists()) {
         const dados = documento.data();
@@ -105,36 +129,23 @@ export default function TelaPerfil() {
     }
   };
 
-  const sairConta = async () => {
-    try {
-      await signOut(auth);
-      router.replace("/");
-    } catch (error) {
-      console.log("Erro ao sair:", error);
-      Alert.alert("Erro", "Não foi possível sair da conta.");
-    }
+  const cancelarEdicao = () => {
+    setEditando(false);
+    carregarPerfil();
   };
 
-  const CampoTexto = ({ label, value, onChangeText, editable = true, keyboardType = "default" }) => {
-    return (
-      <>
-        <Text style={styles.label}>{label}</Text>
+const sairConta = async () => {
+  try {
+    await signOut(auth);
 
-        {editando && editable ? (
-          <TextInput
-            style={styles.input}
-            value={value}
-            onChangeText={onChangeText}
-            placeholder={label}
-            placeholderTextColor="#aaa"
-            keyboardType={keyboardType}
-          />
-        ) : (
-          <Text style={styles.value}>{value || "Não informado"}</Text>
-        )}
-      </>
-    );
-  };
+    router.dismissAll?.();
+
+    router.replace("/index");
+  } catch (error) {
+    console.log("Erro ao sair:", error);
+    Alert.alert("Erro", "Não foi possível sair da conta.");
+  }
+};
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -145,62 +156,15 @@ export default function TelaPerfil() {
 
         <Text style={styles.title}>Meu Perfil</Text>
 
-        <CampoTexto
-          label="Nome"
-          value={nome}
-          onChangeText={setNome}
-        />
-
-        <CampoTexto
-          label="E-mail"
-          value={email}
-          editable={false}
-        />
-
-        <CampoTexto
-          label="Telefone"
-          value={telefone}
-          onChangeText={setTelefone}
-          keyboardType="phone-pad"
-        />
-
-        <CampoTexto
-          label="CEP"
-          value={cep}
-          onChangeText={setCep}
-          keyboardType="numeric"
-        />
-
-        <CampoTexto
-          label="Endereço"
-          value={endereco}
-          onChangeText={setEndereco}
-        />
-
-        <CampoTexto
-          label="Número"
-          value={numero}
-          onChangeText={setNumero}
-          keyboardType="numeric"
-        />
-
-        <CampoTexto
-          label="Complemento"
-          value={complemento}
-          onChangeText={setComplemento}
-        />
-
-        <CampoTexto
-          label="Cidade"
-          value={cidade}
-          onChangeText={setCidade}
-        />
-
-        <CampoTexto
-          label="Estado"
-          value={estado}
-          onChangeText={setEstado}
-        />
+        <CampoTexto label="Nome" value={nome} onChangeText={setNome} editando={editando} />
+        <CampoTexto label="E-mail" value={email} editando={editando} editable={false} />
+        <CampoTexto label="Telefone" value={telefone} onChangeText={setTelefone} editando={editando} keyboardType="phone-pad" />
+        <CampoTexto label="CEP" value={cep} onChangeText={setCep} editando={editando} keyboardType="numeric" />
+        <CampoTexto label="Endereço" value={endereco} onChangeText={setEndereco} editando={editando} />
+        <CampoTexto label="Número" value={numero} onChangeText={setNumero} editando={editando} keyboardType="numeric" />
+        <CampoTexto label="Complemento" value={complemento} onChangeText={setComplemento} editando={editando} />
+        <CampoTexto label="Cidade" value={cidade} onChangeText={setCidade} editando={editando} />
+        <CampoTexto label="Estado" value={estado} onChangeText={setEstado} editando={editando} />
 
         {editando ? (
           <TouchableOpacity style={styles.button} onPress={salvarPerfil}>
@@ -215,7 +179,7 @@ export default function TelaPerfil() {
         )}
 
         {editando && (
-          <TouchableOpacity style={styles.cancelButton} onPress={() => setEditando(false)}>
+          <TouchableOpacity style={styles.cancelButton} onPress={cancelarEdicao}>
             <Feather name="x" size={18} color="#CCF7E4" />
             <Text style={styles.cancelButtonText}>Cancelar</Text>
           </TouchableOpacity>
