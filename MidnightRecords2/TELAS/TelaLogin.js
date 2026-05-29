@@ -39,22 +39,26 @@ export default function TelaLogin() {
   }
 
   async function fazerLogin() {
-    if (!email || !senha) {
-      showFeedback("Erro", "Preencha e-mail e senha para continuar.");
-      return;
-    }
-
-    try {
-      await signInWithEmailAndPassword(auth, email, senha);
-      showFeedback("Sucesso", "Login realizado!");
-      router.push("/(tabs)");
-    } catch (error) {
-      console.log("Login erro", error);
-      const errorCode = error?.code || "auth/unknown-error";
-      const mensagemAmigavel = traduzirErro(errorCode);
-      showFeedback("Erro", mensagemAmigavel);
-    }
+  if (!email || !senha) {
+    showFeedback("Erro", "Preencha e-mail e senha para continuar.");
+    return;
   }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, senha);
+
+    showFeedback("Sucesso", "Login realizado!");
+
+    setTimeout(() => {
+      router.replace("/(tabs)");
+    }, 400);
+  } catch (error) {
+    console.log("Login erro", error);
+    const errorCode = error?.code || "auth/unknown-error";
+    const mensagemAmigavel = traduzirErro(errorCode);
+    showFeedback("Erro", mensagemAmigavel);
+  }
+}
 
   async function recuperarSenha() {
     if (!emailRecuperacao) {

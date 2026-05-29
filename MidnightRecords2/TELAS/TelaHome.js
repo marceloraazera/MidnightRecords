@@ -159,16 +159,20 @@ useFocusEffect(
   }, []);
 
   const sairConta = async () => {
-    try {
-      await signOut(auth);
-      if (Platform.OS === "web" && typeof window !== "undefined") {
-        localStorage.removeItem("nomeUsuario");
-      }
-      router.replace("/");
-    } catch (error) {
-      console.error("Erro ao sair:", error);
+  try {
+    await signOut(auth);
+
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      localStorage.clear();
+      window.location.href = "/";
+      return;
     }
-  };
+
+    router.replace("/");
+  } catch (error) {
+    console.log("Erro ao sair:", error);
+  }
+};
 
   const sanitizeImageName = (imagemNome) => {
     if (!imagemNome || typeof imagemNome !== "string") {

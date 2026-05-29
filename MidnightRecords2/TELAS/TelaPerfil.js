@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { signOut, updateProfile } from "firebase/auth";
@@ -141,11 +142,15 @@ const sairConta = async () => {
   try {
     await signOut(auth);
 
-    router.dismissAll();
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      localStorage.clear();
+      window.location.href = "/";
+      return;
+    }
 
-    router.replace("/index");
+    router.replace("/");
   } catch (error) {
-    console.log(error);
+    console.log("Erro ao sair:", error);
   }
 };
 
