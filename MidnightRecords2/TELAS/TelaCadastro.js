@@ -59,28 +59,41 @@ export default function TelaCadastro() {
   }
 
   async function cadastrar() {
-    if (!nome || !email || !senha) {
-      showFeedback("Erro", "Preencha nome, e-mail e senha para continuar.");
-      return;
-    }
-
-    try {
-      const credencial = await createUserWithEmailAndPassword(auth, email, senha);
-
-      await updateProfile(credencial.user, {
-        displayName: nome,
-      });
-
-      await saveUserData(nome, email);
-
-      router.push("/(tabs)");
-    } catch (error) {
-      console.log("Cadastro erro", error);
-      const errorCode = error?.code || "auth/unknown-error";
-      const mensagemAmigavel = traduzirErro(errorCode);
-      showFeedback("Erro", mensagemAmigavel);
-    }
+  if (!nome || !email || !senha) {
+    showFeedback("Erro", "Preencha nome, e-mail e senha para continuar.");
+    return;
   }
+
+  try {
+    const credencial = await createUserWithEmailAndPassword(auth, email, senha);
+
+    await updateProfile(credencial.user, {
+      displayName: nome,
+    });
+
+    await setDoc(doc(db, "usuarios", credencial.user.uid), {
+      nome: nome,
+      email: email,
+      telefone: "",
+      cep: "",
+      endereco: "",
+      numero: "",
+      complemento: "",
+      cidade: "",
+      estado: "",
+      criadoEm: new Date().toISOString(),
+    });
+
+    await saveUserData(nome, email);
+
+    router.push("/(tabs)");
+  } catch (error) {
+    console.log("Cadastro erro", error);
+    const errorCode = error?.code || "auth/unknown-error";
+    const mensagemAmigavel = traduzirErro(errorCode);
+    showFeedback("Erro", mensagemAmigavel);
+  }
+}
 
   return (
     <ImageBackground
