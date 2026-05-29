@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   
   welcomeSection: {
     paddingHorizontal: 20,
-    paddingTop: 20px
+    paddingTop: 20px,
     alignItems: "center",
     justifyContent: "center",
   },
