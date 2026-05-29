@@ -4,13 +4,13 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBKWUKhsV-crkXZAnWdVXnko2o7jRJKj3g",
-  authDomain: "midnightrecords-83d4b.firebaseapp.com",
-  projectId: "midnightrecords-83d4b",
-  storageBucket: "midnightrecords-83d4b.firebasestorage.app",
-  messagingSenderId: "551663771505",
-  appId: "1:551663771505:web:66dc7ebaf6eee6d6c860d0",
-  measurementId: "G-070NV77X4J"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
