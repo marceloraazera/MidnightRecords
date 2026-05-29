@@ -15,6 +15,17 @@ import Feather from "@expo/vector-icons/Feather";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 
+const imagemSources = {
+  "the-queen-is-dead": require("../assets/discos/Disco1-1.png"),
+  "super-real-me": require("../assets/discos/Disco2-1.png"),
+  "ocean-blvd": require("../assets/discos/Disco3-1.png"),
+  "guts": require("../assets/discos/Disco4-1.png"),
+  "The Queen Is Dead": require("../assets/discos/Disco1-1.png"),
+  "Super Real Me": require("../assets/discos/Disco2-1.png"),
+  "Ocean Blvd": require("../assets/discos/Disco3-1.png"),
+  "GUTS": require("../assets/discos/Disco4-1.png"),
+};
+
 export default function TelaFavoritos() {
   const router = useRouter();
 
@@ -70,12 +81,13 @@ export default function TelaFavoritos() {
   };
 
   const renderProduto = ({ item }) => {
-    const imagem =
-      item.linkImagem || item.imagem || "https://via.placeholder.com/300";
-
+  const imagem =
+  item.linkImagem || item.imagem
+    ? { uri: item.linkImagem || item.imagem }
+    : imagemSources[item.imagemKey] || imagemSources[item.id] || imagemSources[item.nome];
     return (
       <View style={styles.card}>
-        <Image source={{ uri: imagem }} style={styles.image} />
+        <Image source={imagem} style={styles.image} resizeMode="cover" />
 
         <Text style={styles.nome} numberOfLines={2}>
           {item.nome}
@@ -199,25 +211,28 @@ background: {
     justifyContent: "space-between",
   },
   card: {
-    width: "46.5%",
-    backgroundColor: "#FFF4C8",
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 22,
-    minHeight: 207,
-    position: "relative",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  image: {
-    width: "100%",
-    aspectRatio: 1,
-    borderRadius: 7,
-    backgroundColor: "#D9D9D9",
-  },
+  width: "46.5%",
+  backgroundColor: "#FFF4C8",
+  borderRadius: 8,
+  padding: 12,
+  marginBottom: 22,
+  minHeight: 210,
+  maxHeight: 210,
+  position: "relative",
+  shadowColor: "#000",
+  shadowOpacity: 0.08,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 4 },
+  elevation: 3,
+},
+
+image: {
+  width: "100%",
+  height: 112,
+  borderRadius: 7,
+  backgroundColor: "#D9D9D9",
+  resizeMode: "cover",
+},
   nome: {
     fontFamily: "Poppins_500Medium",
     color: "#111",
@@ -234,8 +249,8 @@ background: {
     paddingRight: 28,
   },
   heartButton: {
-    position: "absolute",
-    right: 11,
-    bottom: 28,
-  },
+  position: "absolute",
+  right: 10,
+  bottom: 18,
+},
 });

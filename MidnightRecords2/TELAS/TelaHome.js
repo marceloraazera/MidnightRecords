@@ -39,21 +39,21 @@ const imagemSources = {
 };
 
 const imagemFallbackById = {
-  "the-queen-is-dead": imagemSources["Disco3-1.png"],
-  "super-real-me": imagemSources["Disco1-1.png"],
-  "ocean-blvd": imagemSources["Disco4-1.png"],
-  "guts": imagemSources["Disco2-1.png"],
-  1: imagemSources["Disco3-1.png"],
-  2: imagemSources["Disco1-1.png"],
-  3: imagemSources["Disco4-1.png"],
-  4: imagemSources["Disco2-1.png"],
+  "the-queen-is-dead": imagemSources["Disco1-1.png"],
+  "super-real-me": imagemSources["Disco2-1.png"],
+  "ocean-blvd": imagemSources["Disco3-1.png"],
+  "guts": imagemSources["Disco4-1.png"],
+  1: imagemSources["Disco1-1.png"],
+  2: imagemSources["Disco2-1.png"],
+  3: imagemSources["Disco3-1.png"],
+  4: imagemSources["Disco4-1.png"],
 };
 
 const imagemFallbackByNome = {
-  "The Queen Is Dead": imagemSources["Disco3-1.png"],
-  "Super Real Me": imagemSources["Disco1-1.png"],
-  "Ocean Blvd": imagemSources["Disco4-1.png"],
-  GUTS: imagemSources["Disco2-1.png"],
+  "The Queen Is Dead": imagemSources["Disco1-1.png"],
+  "Super Real Me": imagemSources["Disco2-1.png"],
+  "Ocean Blvd": imagemSources["Disco3-1.png"],
+  GUTS: imagemSources["Disco4-1.png"],
 };
 
 const defaultAlbumImage = require("../assets/discos/Disco1-1.png");
@@ -76,7 +76,6 @@ export default function TelaHome() {
 
       const favoritosRef = collection(db, "favoritos", usuario.uid, "itens");
       const snapshot = await getDocs(favoritosRef);
-
       const ids = snapshot.docs.map((item) => item.id);
 
       setFavoriteIds(ids);
@@ -106,20 +105,17 @@ export default function TelaHome() {
 
       if (jaFavoritado) {
         await deleteDoc(favoritoRef);
-
-        setFavoriteIds((current) =>
-          current.filter((id) => id !== produtoId)
-        );
+        setFavoriteIds((current) => current.filter((id) => id !== produtoId));
       } else {
         await setDoc(favoritoRef, {
           id: produtoId,
           nome: produto.nome ?? "",
-          preco: produto.preco ?? "",
+          preco: produto.precoDesconto || produto.preco || produto.precoCheio || "R$ 0,00",
           precoCheio: produto.precoCheio ?? "",
           precoDesconto: produto.precoDesconto ?? "",
+          imagemKey: produto.id ?? produto.nome ?? "",
           imagem: typeof produto.imagem === "string" ? produto.imagem : "",
-          linkImagem:
-            typeof produto.linkImagem === "string" ? produto.linkImagem : "",
+          linkImagem: typeof produto.linkImagem === "string" ? produto.linkImagem : "",
           descricao: produto.descricao ?? "",
           criadoEm: new Date().toISOString(),
         });
@@ -295,11 +291,13 @@ export default function TelaHome() {
   };
 
   return (
-    <ImageBackground
-      source={require("../assets/imagensMR/fundo-escuro.png")}
-      style={styles.background}
-      imageStyle={styles.backgroundImage}
-    >
+    <View style={styles.screen}>
+      <ImageBackground
+        source={require("../assets/imagensMR/fundo-escuro.png")}
+        style={StyleSheet.absoluteFillObject}
+        imageStyle={styles.backgroundImage}
+      />
+
       <FlatList
         style={styles.flatList}
         data={produtos}
@@ -346,19 +344,15 @@ export default function TelaHome() {
           </>
         }
       />
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "transparent",
-  },
-
-  background: {
+  screen: {
     flex: 1,
     backgroundColor: "#1a0f2e",
+    overflow: "hidden",
   },
 
   backgroundImage: {
@@ -403,11 +397,11 @@ const styles = StyleSheet.create({
   },
 
   welcomeSection: {
-  paddingHorizontal: 20,
-  paddingTop: 20,
-  alignItems: "center",
-  justifyContent: "center",
-},
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   welcomeText: {
     fontFamily: "Poppins_400Regular",
@@ -422,10 +416,6 @@ const styles = StyleSheet.create({
     color: "#D4A74F",
   },
 
-  discoTexto: {
-    flex: 1,
-  },
-
   vitrineSection: {
     paddingHorizontal: 20,
     paddingBottom: 24,
@@ -438,12 +428,6 @@ const styles = StyleSheet.create({
     color: "#CCF7E4",
     textAlign: "center",
     letterSpacing: 3,
-  },
-
-  produtosGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
   },
 
   produtoCardButton: {
@@ -467,11 +451,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#221F1A",
     justifyContent: "center",
     alignItems: "center",
-  },
-
-  produtoImagePlaceholder: {
-    fontFamily: "Poppins_700Bold",
-    fontSize: 50,
   },
 
   produtoImageAtual: {

@@ -1,5 +1,6 @@
+
 import React, { useState } from "react";
-import { View, Text, Image, ImageBackground, TextInput, TouchableOpacity, StyleSheet, Platform, ScrollView, Modal } from "react-native";
+import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Platform, Modal } from "react-native";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { useRouter } from "expo-router";
@@ -39,26 +40,26 @@ export default function TelaLogin() {
   }
 
   async function fazerLogin() {
-  if (!email || !senha) {
-    showFeedback("Erro", "Preencha e-mail e senha para continuar.");
-    return;
+    if (!email || !senha) {
+      showFeedback("Erro", "Preencha e-mail e senha para continuar.");
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
+
+      showFeedback("Sucesso", "Login realizado!");
+
+      setTimeout(() => {
+        router.replace("/(tabs)");
+      }, 400);
+    } catch (error) {
+      console.log("Login erro", error);
+      const errorCode = error?.code || "auth/unknown-error";
+      const mensagemAmigavel = traduzirErro(errorCode);
+      showFeedback("Erro", mensagemAmigavel);
+    }
   }
-
-  try {
-    await signInWithEmailAndPassword(auth, email, senha);
-
-    showFeedback("Sucesso", "Login realizado!");
-
-    setTimeout(() => {
-      router.replace("/(tabs)");
-    }, 400);
-  } catch (error) {
-    console.log("Login erro", error);
-    const errorCode = error?.code || "auth/unknown-error";
-    const mensagemAmigavel = traduzirErro(errorCode);
-    showFeedback("Erro", mensagemAmigavel);
-  }
-}
 
   async function recuperarSenha() {
     if (!emailRecuperacao) {
@@ -80,101 +81,102 @@ export default function TelaLogin() {
   }
 
   return (
-    <>
-      <ImageBackground
+    <View style={styles.background}>
+      {/* Imagem de Fundo Totalmente Fixa */}
+      <Image
         source={require("../assets/imagensMR/fundo-escuro.png")}
-        style={styles.background}
-        imageStyle={styles.backgroundImage}
-      >
-        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          {/* Logo Area */}
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../assets/imagensMR/logo-completa-midnight.png")}
-              style={styles.logoImage}
-              resizeMode="contain"
-            />
-          </View>
+        style={StyleSheet.absoluteFillObject}
+        resizeMode="cover"
+      />
 
-          {/* Tabs */}
-          <View style={styles.tabsContainer}>
-            <TouchableOpacity 
-              style={[styles.tab, activeTab === "login" && styles.tabActive]}
-              onPress={() => setActiveTab("login")}
-            >
-              <Text style={[styles.tabText, activeTab === "login" && styles.tabTextActive]}>LOGIN</Text>
-              {activeTab === "login" && <View style={styles.tabUnderline} />}
-            </TouchableOpacity>
+      <View style={styles.container}>
+        {/* Logo Area */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("../assets/imagensMR/logo-completa-midnight.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </View>
 
-            <TouchableOpacity 
-              style={[styles.tab, activeTab === "cadastro" && styles.tabActive]}
-              onPress={() => {
-                setActiveTab("cadastro");
-                router.push("/cadastro");
-              }}
-            >
-              <Text style={[styles.tabText, activeTab === "cadastro" && styles.tabTextActive]}>CADASTRO</Text>
-              {activeTab === "cadastro" && <View style={styles.tabUnderline} />}
-            </TouchableOpacity>
-          </View>
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === "login" && styles.tabActive]}
+            onPress={() => setActiveTab("login")}
+          >
+            <Text style={[styles.tabText, activeTab === "login" && styles.tabTextActive]}>LOGIN</Text>
+            {activeTab === "login" && <View style={styles.tabUnderline} />}
+          </TouchableOpacity>
 
-          {/* Form Container */}
-          <View style={styles.formContainer}>
-            {/* Email Input */}
-            <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>E-mail</Text>
-              <View style={[styles.inputContainer, focusedInput === "email" && styles.inputContainerFocused]}>
-                <Text style={styles.inputIcon}>✉</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="seu@email.com"
-                  placeholderTextColor="#999"
-                  value={email}
-                  onChangeText={setEmail}
-                  onFocus={() => setFocusedInput("email")}
-                  onBlur={() => setFocusedInput(null)}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-              </View>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === "cadastro" && styles.tabActive]}
+            onPress={() => {
+              setActiveTab("cadastro");
+              router.push("/cadastro");
+            }}
+          >
+            <Text style={[styles.tabText, activeTab === "cadastro" && styles.tabTextActive]}>CADASTRO</Text>
+            {activeTab === "cadastro" && <View style={styles.tabUnderline} />}
+          </TouchableOpacity>
+        </View>
+
+        {/* Form Container */}
+        <View style={styles.formContainer}>
+          {/* Email Input */}
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>E-mail</Text>
+            <View style={[styles.inputContainer, focusedInput === "email" && styles.inputContainerFocused]}>
+              <Text style={styles.inputIcon}>✉</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="seu@email.com"
+                placeholderTextColor="#999"
+                value={email}
+                onChangeText={setEmail}
+                onFocus={() => setFocusedInput("email")}
+                onBlur={() => setFocusedInput(null)}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
             </View>
+          </View>
 
-            {/* Password Input */}
-            <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Senha</Text>
-              <View style={[styles.inputContainer, focusedInput === "senha" && styles.inputContainerFocused]}>
-                <Text style={styles.inputIcon}><Feather name="lock" size={18} color="#4CAF7F" /></Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="••••••••"
-                  placeholderTextColor="#999"
-                  value={senha}
-                  onChangeText={setSenha}
-                  onFocus={() => setFocusedInput("senha")}
-                  onBlur={() => setFocusedInput(null)}
-                  secureTextEntry
-                />
-              </View>
+          {/* Password Input */}
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>Senha</Text>
+            <View style={[styles.inputContainer, focusedInput === "senha" && styles.inputContainerFocused]}>
+              <Text style={styles.inputIcon}><Feather name="lock" size={18} color="#4CAF7F" /></Text>
+              <TextInput
+                style={styles.input}
+                placeholder="••••••••"
+                placeholderTextColor="#999"
+                value={senha}
+                onChangeText={setSenha}
+                onFocus={() => setFocusedInput("senha")}
+                onBlur={() => setFocusedInput(null)}
+                secureTextEntry
+              />
             </View>
-
-            {/* Enter Button */}
-            <TouchableOpacity style={styles.button} onPress={fazerLogin}>
-              <Text style={styles.buttonText}>Entrar</Text>
-            </TouchableOpacity>
-
-            {/* Forgot Password Button */}
-            <TouchableOpacity onPress={() => setShowForgotPassword(true)} style={styles.forgotPasswordButton}>
-              <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
-            </TouchableOpacity>
           </View>
-        </ScrollView>
 
-        {message ? (
-          <View style={[styles.messageContainer, messageType === "error" ? styles.messageError : styles.messageSuccess]}>
-            <Text style={styles.messageText}>{message}</Text>
-          </View>
-        ) : null}
-      </ImageBackground>
+          {/* Enter Button */}
+          <TouchableOpacity style={styles.button} onPress={fazerLogin}>
+            <Text style={styles.buttonText}>Entrar</Text>
+          </TouchableOpacity>
+
+          {/* Forgot Password Button */}
+          <TouchableOpacity onPress={() => setShowForgotPassword(true)} style={styles.forgotPasswordButton}>
+            <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {message ? (
+        <View style={[styles.messageContainer, messageType === "error" ? styles.messageError : styles.messageSuccess]}>
+          <Text style={styles.messageText}>{message}</Text>
+        </View>
+      ) : null}
 
       <Modal
         visible={showForgotPassword}
@@ -216,7 +218,7 @@ export default function TelaLogin() {
           </View>
         </View>
       </Modal>
-    </>
+    </View>
   );
 }
 
@@ -225,15 +227,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1a0f2e",
   },
-  backgroundImage: {
-    resizeMode: "cover",
-  },
   container: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 40,
-    justifyContent: "space-between",
-  },
+  flex: 1,
+  paddingHorizontal: 24,
+  paddingVertical: 40,
+  justifyContent: "space-between",
+},
   logoContainer: {
     alignItems: "center",
     marginBottom: 40,

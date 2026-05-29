@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
-  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -101,7 +100,7 @@ export default function TelaCadastro() {
       style={styles.background}
       imageStyle={styles.backgroundImage}
     >
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.container}>
         <View style={styles.logoContainer}>
           <Image
             source={require("../assets/imagensMR/logo-completa-midnight.png")}
@@ -206,7 +205,7 @@ export default function TelaCadastro() {
             <Text style={styles.messageText}>{message}</Text>
           </View>
         ) : null}
-      </ScrollView>
+      </View>
     </ImageBackground>
   );
 }
