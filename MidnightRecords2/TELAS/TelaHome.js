@@ -42,10 +42,10 @@ const imagemFallbackById = {
 };
 
 const imagemFallbackByNome = {
-  "The Queen Is Dead": imagemSources["Disco1-1.png"],
-  "Super Real Me": imagemSources["Disco2-1.png"],
-  "Ocean Blvd": imagemSources["Disco3-1.png"],
-  "GUTS": imagemSources["Disco4-1.png"],
+  "The Queen Is Dead": imagemSources["Disco3-1.png"],
+  "Super Real Me": imagemSources["Disco1-1.png"],
+  "Ocean Blvd": imagemSources["Disco4-1.png"],
+  "GUTS": imagemSources["Disco2-1.png"],
 };
 
 const defaultAlbumImage = require("../assets/discos/Disco1-1.png");
@@ -210,14 +210,14 @@ export default function TelaHome() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <>
-            <View style={styles.header}>
+            <View style={styles.headerContainer}>
               <Image 
-                source={require("../assets/imagensMR/logo-midnight.png")}
-                style={styles.logoImage}
-                resizeMode="contain"
+                source={require("../assets/imagensMR/logo-com-fundo-novo.png")}
+                style={styles.headerImage}
+                resizeMode="cover"
               />
               <TouchableOpacity style={styles.logoutButton} onPress={sairConta} activeOpacity={0.8}>
-                <Feather name="log-out" size={18} color="#D4A74F" />
+                <Feather name="log-out" size={14} color="#D4A74F" />
                 <Text style={styles.logoutText}>Sair</Text>
               </TouchableOpacity>
             </View>
@@ -225,16 +225,10 @@ export default function TelaHome() {
             {nomeUsuario && (
               <View style={styles.welcomeSection}>
                 <Text style={styles.welcomeText}>
-                  Olá, <Text style={styles.userName}>{nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1)}.</Text> Seja bem-vindo(a)!
+                  Olá, <Text style={styles.userName}>{nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1)}</Text>. Seja bem-vindo(a)!
                 </Text>
               </View>
             )}
-
-            <Image 
-              source={require("../assets/imagensMR/banner.png")}
-              style={styles.bannerImage}
-              resizeMode="cover"
-            />
 
             <View style={styles.vitrineSection}>
               <Text style={styles.vitrineTitle}>VITRINE DE OFERTAS</Text>
@@ -265,90 +259,67 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginHorizontal: 16,
-    marginTop: 14,
-    marginBottom: 16,
-    padding: 14,
-    borderRadius: 24,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    borderWidth: 1,
-    borderColor: "rgba(212, 167, 79, 0.16)",
+  headerContainer: {
+    width: "100%",
+    height: 300,
+    position: "relative",
   },
-  logoImage: {
-    height: 72,
-    width: 180,
-    maxWidth: 180,
+  headerImage: {
+    width: "100%",
+    height: "100%",
   },
   logoutButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 22,
-    backgroundColor: "rgba(212, 167, 79, 0.12)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: "rgba(20, 15, 20, 0.6)",
     borderWidth: 1,
-    borderColor: "rgba(212, 167, 79, 0.3)",
-    minWidth: 72,
-    maxWidth: 100,
+    borderColor: "rgba(212, 167, 79, 0.4)",
   },
   logoutText: {
-    fontFamily: "Poppins_600SemiBold",
+    fontFamily: "Poppins_500Medium",
     color: "#D4A74F",
     fontSize: 12,
-    marginLeft: 4,
+    marginLeft: 6,
   },
   
   welcomeSection: {
     paddingHorizontal: 20,
-    paddingVertical: 18,
-    marginBottom: 18,
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
+    alignItems: "center",
+    justifyContent: "center",
   },
   welcomeText: {
-    fontFamily: "Poppins_500Medium",
-    fontSize: 18,
+    fontFamily: "Poppins_400Regular",
+    fontSize: 16,
     color: "#CCF7E4",
-    fontWeight: "600",
-    letterSpacing: 1.2,
-    textAlign: "left",
+    textAlign: "center",
+    letterSpacing: 0.5,
   },
   userName: {
-    fontFamily: "Poppins_700Bold",
-    fontSize: 20,
+    fontFamily: "Poppins_600SemiBold",
     color: "#D4A74F",
-    fontWeight: "800",
-    letterSpacing: 2,
   },
   
   discoTexto: {
     flex: 1,
   },
- 
-
-  bannerImage: {
-    width: "100%",
-    height: 210,
-    marginBottom: 16,
-  },
 
   vitrineSection: {
     paddingHorizontal: 20,
-    paddingVertical: 20,
-    marginBottom: 16,
+    paddingBottom: 24,
+    alignItems: "center",
   },
   vitrineTitle: {
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 32,
     color: "#CCF7E4",
     textAlign: "center",
-    marginBottom: 20,
-    letterSpacing: 1,
+    letterSpacing: 3,
   },
   produtosGrid: {
     flexDirection: "row",
@@ -387,14 +358,14 @@ const styles = StyleSheet.create({
   cardContent: {
     paddingHorizontal: 14,
     paddingTop: 14,
-    paddingBottom: 14,
+
   },
   produtoNome: {
     fontFamily: "Poppins_600SemiBold",
     fontSize: 15,
     color: "#ffffff",
     fontWeight: "600",
-    marginBottom: 10,
+
   },
   precoContainer: {
     flexDirection: "column",

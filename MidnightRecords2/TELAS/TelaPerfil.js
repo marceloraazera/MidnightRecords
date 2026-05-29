@@ -3,118 +3,168 @@ import {
   View,
   Text,
   StyleSheet,
-  Platform,
   TouchableOpacity,
   TextInput,
-  Image,
   Alert,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { signOut, updateProfile } from "firebase/auth";
-import { auth } from "../config/firebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "../config/firebaseConfig";
 import Feather from "@expo/vector-icons/Feather";
+
+function CampoTexto({
+  label,
+  value,
+  onChangeText,
+  editando,
+  editable = true,
+  keyboardType = "default",
+}) {
+  return (
+    <>
+      <Text style={styles.label}>{label}</Text>
+
+      {editando && editable ? (
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={label}
+          placeholderTextColor="#aaa"
+          keyboardType={keyboardType}
+        />
+      ) : (
+        <Text style={styles.value}>{value?.trim() ? value : "Não informado"}</Text>
+      )}
+    </>
+  );
+}
 
 export default function TelaPerfil() {
   const router = useRouter();
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [foto, setFoto] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [cep, setCep] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [numero, setNumero] = useState("");
+  const [complemento, setComplemento] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
   const [editando, setEditando] = useState(false);
 
   useEffect(() => {
-    const usuario = auth.currentUser;
+    carregarPerfil();
+  }, []);
 
-    if (usuario) {
+  const carregarPerfil = async () => {
+    try {
+      const usuario = auth.currentUser;
+      if (!usuario) return;
+
       setNome(usuario.displayName || "");
       setEmail(usuario.email || "");
-      setFoto(usuario.photoURL || "");
-    }
 
-    if (Platform.OS === "web" && typeof window !== "undefined") {
-      const nomeSalvo = localStorage.getItem("nomeUsuario");
-      if (nomeSalvo && !usuario?.displayName) {
-        setNome(nomeSalvo);
+      const documento = await getDoc(doc(db, "usuarios", usuario.uid));
+
+      if (documento.exists()) {
+        const dados = documento.data();
+
+        setNome(dados.nome || usuario.displayName || "");
+        setEmail(dados.email || usuario.email || "");
+        setTelefone(dados.telefone || "");
+        setCep(dados.cep || "");
+        setEndereco(dados.endereco || "");
+        setNumero(dados.numero || "");
+        setComplemento(dados.complemento || "");
+        setCidade(dados.cidade || "");
+        setEstado(dados.estado || "");
       }
+    } catch (error) {
+      console.log("Erro ao carregar perfil:", error);
+      Alert.alert("Erro", "Não foi possível carregar os dados do perfil.");
     }
-  }, []);
+  };
 
   const salvarPerfil = async () => {
     try {
       const usuario = auth.currentUser;
 
-      if (usuario) {
-        await updateProfile(usuario, {
-          displayName: nome,
-          photoURL: foto,
-        });
+      if (!usuario) {
+        Alert.alert("Erro", "Usuário não encontrado.");
+        return;
       }
 
-      if (Platform.OS === "web" && typeof window !== "undefined") {
-        localStorage.setItem("nomeUsuario", nome);
-        localStorage.setItem("fotoUsuario", foto);
-      }
+      await updateProfile(usuario, {
+        displayName: nome,
+      });
 
+      await setDoc(
+        doc(db, "usuarios", usuario.uid),
+        {
+          nome,
+          email: usuario.email,
+          telefone,
+          cep,
+          endereco,
+          numero,
+          complemento,
+          cidade,
+          estado,
+          atualizadoEm: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+
+      setEmail(usuario.email || "");
       setEditando(false);
+
       Alert.alert("Perfil atualizado", "Suas informações foram salvas.");
     } catch (error) {
-      console.log(error);
+      console.log("Erro ao salvar perfil:", error);
       Alert.alert("Erro", "Não foi possível atualizar o perfil.");
     }
   };
 
-  const sairConta = async () => {
-    await signOut(auth);
-
-    if (Platform.OS === "web" && typeof window !== "undefined") {
-      localStorage.removeItem("nomeUsuario");
-      localStorage.removeItem("fotoUsuario");
-    }
-
-    router.replace("/");
+  const cancelarEdicao = () => {
+    setEditando(false);
+    carregarPerfil();
   };
 
+const sairConta = async () => {
+  try {
+    await signOut(auth);
+
+    router.dismissAll?.();
+
+    router.replace("/index");
+  } catch (error) {
+    console.log("Erro ao sair:", error);
+    Alert.alert("Erro", "Não foi possível sair da conta.");
+  }
+};
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.card}>
         <View style={styles.avatar}>
-          {foto ? (
-            <Image source={{ uri: foto }} style={styles.avatarImage} />
-          ) : (
-            <Feather name="user" size={42} color="#D4A74F" />
-          )}
+          <Feather name="user" size={42} color="#D4A74F" />
         </View>
 
         <Text style={styles.title}>Meu Perfil</Text>
 
-        <Text style={styles.label}>Nome</Text>
-        {editando ? (
-          <TextInput
-            style={styles.input}
-            value={nome}
-            onChangeText={setNome}
-            placeholder="Digite seu nome"
-            placeholderTextColor="#aaa"
-          />
-        ) : (
-          <Text style={styles.value}>{nome || "Usuário"}</Text>
-        )}
-
-        <Text style={styles.label}>E-mail</Text>
-        <Text style={styles.value}>{email || "E-mail não encontrado"}</Text>
-
-        {editando && (
-          <>
-            <Text style={styles.label}>Foto do perfil</Text>
-            <TextInput
-              style={styles.input}
-              value={foto}
-              onChangeText={setFoto}
-              placeholder="Cole o link da imagem"
-              placeholderTextColor="#aaa"
-            />
-          </>
-        )}
+        <CampoTexto label="Nome" value={nome} onChangeText={setNome} editando={editando} />
+        <CampoTexto label="E-mail" value={email} editando={editando} editable={false} />
+        <CampoTexto label="Telefone" value={telefone} onChangeText={setTelefone} editando={editando} keyboardType="phone-pad" />
+        <CampoTexto label="CEP" value={cep} onChangeText={setCep} editando={editando} keyboardType="numeric" />
+        <CampoTexto label="Endereço" value={endereco} onChangeText={setEndereco} editando={editando} />
+        <CampoTexto label="Número" value={numero} onChangeText={setNumero} editando={editando} keyboardType="numeric" />
+        <CampoTexto label="Complemento" value={complemento} onChangeText={setComplemento} editando={editando} />
+        <CampoTexto label="Cidade" value={cidade} onChangeText={setCidade} editando={editando} />
+        <CampoTexto label="Estado" value={estado} onChangeText={setEstado} editando={editando} />
 
         {editando ? (
           <TouchableOpacity style={styles.button} onPress={salvarPerfil}>
@@ -128,12 +178,19 @@ export default function TelaPerfil() {
           </TouchableOpacity>
         )}
 
+        {editando && (
+          <TouchableOpacity style={styles.cancelButton} onPress={cancelarEdicao}>
+            <Feather name="x" size={18} color="#CCF7E4" />
+            <Text style={styles.cancelButtonText}>Cancelar</Text>
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity style={styles.logoutButton} onPress={sairConta}>
           <Feather name="log-out" size={18} color="#D4A74F" />
           <Text style={styles.buttonText}>Sair da conta</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -141,10 +198,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1C1445",
-    justifyContent: "center",
-    alignItems: "center",
+  },
+  content: {
     padding: 24,
-    paddingBottom: 100,
+    paddingBottom: 110,
   },
   card: {
     width: "100%",
@@ -163,11 +220,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
     marginBottom: 18,
-    overflow: "hidden",
-  },
-  avatarImage: {
-    width: "100%",
-    height: "100%",
   },
   title: {
     fontFamily: "Poppins_700Bold",
@@ -184,7 +236,7 @@ const styles = StyleSheet.create({
   },
   value: {
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 17,
+    fontSize: 16,
     color: "#FFFFFF",
     marginTop: 4,
   },
@@ -210,6 +262,23 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(212,167,79,0.12)",
     borderWidth: 1,
     borderColor: "rgba(212,167,79,0.4)",
+  },
+  cancelButton: {
+    marginTop: 12,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 24,
+    backgroundColor: "rgba(204,247,228,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(204,247,228,0.25)",
+  },
+  cancelButtonText: {
+    fontFamily: "Poppins_600SemiBold",
+    color: "#CCF7E4",
+    fontSize: 14,
   },
   logoutButton: {
     marginTop: 12,
