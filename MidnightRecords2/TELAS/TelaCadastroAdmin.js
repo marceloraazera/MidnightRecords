@@ -1,17 +1,30 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Image, Platform } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  Image,
+  Platform,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
+import { collection, addDoc } from "firebase/firestore";
+import { auth, db } from "../config/firebaseConfig";
 
 let ImagePicker = null;
-if (Platform.OS !== 'web') {
-  ImagePicker = require('expo-image-picker');
+
+if (Platform.OS !== "web") {
+  ImagePicker = require("expo-image-picker");
 }
 
 export default function TelaCadastroAdmin() {
   const router = useRouter();
   const { adicionarProduto } = useProdutosContext();
-  
+
   const [titulo, setTitulo] = useState("");
   const [preco, setPreco] = useState("");
   const [linkImagem, setLinkImagem] = useState("");
@@ -52,45 +65,53 @@ export default function TelaCadastroAdmin() {
       Alert.alert("Erro", "Informe o título do produto");
       return;
     }
+
     if (!preco.trim()) {
       Alert.alert("Erro", "Informe o preço do produto");
       return;
     }
 
     setLoading(true);
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      const usuario = auth.currentUser;
       const imagem = imagePreview || linkImagem || "🎵";
 
-      console.log("Salvando produto com dados:", {
-        nome: titulo,
-        preco: preco,
-        imagem,
-      });
+      if (usuario) {
+        const docRef = await addDoc(collection(db, "produtos"), {
+          nome: titulo,
+          preco: preco,
+          imagem: imagem,
+          descricao: descricao,
+          linkImagem: linkImagem,
+          criadoPor: usuario.uid,
+          criadoEm: new Date().toISOString(),
+        });
+
+        console.log("Produto salvo no Firestore com ID:", docRef.id);
+      } else {
+        console.log("Usuário não encontrado no Firebase Auth. Salvando apenas no app.");
+      }
 
       await adicionarProduto({
         nome: titulo,
         preco: preco,
-        imagem,
+        imagem: imagem,
         descricao: descricao,
         linkImagem: linkImagem,
       });
 
-      console.log("Produto salvo com sucesso!");
-      
       setTitulo("");
       setPreco("");
       setLinkImagem("");
       setDescricao("");
       setImagePreview(null);
-      
-      setTimeout(() => {
-        router.replace("/(tabs)");
-      }, 500);
-      
+
+      Alert.alert("Sucesso", "Produto cadastrado com sucesso!");
+
+      router.replace("/(tabs)");
     } catch (error) {
-      console.error("Erro ao salvar:", error);
+      console.error("Erro ao salvar produto:", error);
       Alert.alert("Erro", "Erro ao salvar produto: " + error.message);
     } finally {
       setLoading(false);
@@ -103,7 +124,9 @@ export default function TelaCadastroAdmin() {
         <TouchableOpacity onPress={cancelar} style={styles.backButton}>
           <Text style={styles.backButtonText}>‹</Text>
         </TouchableOpacity>
+
         <Text style={styles.headerTitle}>Cadastrar produto</Text>
+
         <View style={{ width: 40 }} />
       </View>
 
@@ -111,6 +134,7 @@ export default function TelaCadastroAdmin() {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>INFORMAÇÕES BÁSICAS</Text>
           <Text style={styles.sectionSubtitle}>Título do produto</Text>
+
           <TextInput
             style={styles.input}
             placeholder="Ex: Disco Luz Djavan"
@@ -123,6 +147,7 @@ export default function TelaCadastroAdmin() {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>PREÇO</Text>
           <Text style={styles.sectionSubtitle}>Preço do Produto</Text>
+
           <TextInput
             style={styles.input}
             placeholder="Ex: R$ 250,00"
@@ -135,16 +160,13 @@ export default function TelaCadastroAdmin() {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>FOTOS DO PRODUTO</Text>
           <Text style={styles.sectionSubtitle}>Link da imagem</Text>
-          
+
           {imagePreview && (
             <View style={styles.imagePreviewContainer}>
-              <Image
-                source={{ uri: imagePreview }}
-                style={styles.imagePreview}
-              />
+              <Image source={{ uri: imagePreview }} style={styles.imagePreview} />
             </View>
           )}
-          
+
           <TouchableOpacity style={styles.imageSelectorButton} onPress={selecionarImagem}>
             <Text style={styles.imageSelectorButtonText}>📁 Selecionar Imagem</Text>
           </TouchableOpacity>
@@ -161,20 +183,21 @@ export default function TelaCadastroAdmin() {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>DESCRIÇÃO</Text>
           <Text style={styles.sectionSubtitle}>Descrição do produto</Text>
+
           <TextInput
             style={[styles.input, styles.textArea]}
             placeholder="Ex: Produto novo, importado..."
             placeholderTextColor="#666"
             value={descricao}
             onChangeText={setDescricao}
-            multiline={true}
+            multiline
             numberOfLines={5}
             textAlignVertical="top"
           />
         </View>
 
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
             onPress={cancelar}
             disabled={loading}
@@ -182,12 +205,14 @@ export default function TelaCadastroAdmin() {
             <Text style={styles.cancelButtonText}>Cancelar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.button, styles.saveButton]}
             onPress={salvarProduto}
             disabled={loading}
           >
-            <Text style={styles.saveButtonText}>{loading ? "Salvando..." : "Salvar produto"}</Text>
+            <Text style={styles.saveButtonText}>
+              {loading ? "Salvando..." : "Salvar produto"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -200,7 +225,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#2a1f2f",
   },
-  
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -228,12 +252,10 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
   },
-
   content: {
     paddingHorizontal: 20,
     paddingVertical: 20,
   },
-
   section: {
     marginBottom: 24,
   },
@@ -256,7 +278,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 10,
   },
-
   input: {
     fontFamily: "Poppins_400Regular",
     backgroundColor: "#1a1420",
@@ -268,12 +289,10 @@ const styles = StyleSheet.create({
     borderColor: "#3d3341",
     fontSize: 14,
   },
-
   textArea: {
     paddingTop: 14,
     minHeight: 140,
   },
-
   imagePreviewContainer: {
     marginBottom: 12,
     borderRadius: 6,
@@ -300,7 +319,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
   },
-
   buttonsContainer: {
     flexDirection: "row",
     gap: 12,
