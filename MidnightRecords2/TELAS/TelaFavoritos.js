@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { auth, db } from "../config/firebaseConfig";
-import Feather from "@expo/vector-icons/Feather";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function TelaFavoritos() {
@@ -76,11 +76,11 @@ export default function TelaFavoritos() {
         <Text style={styles.preco}>{item.preco || "R$ 0,00"}</Text>
 
         <TouchableOpacity
-          style={styles.heartButton}
-          onPress={() => removerFavorito(item.id)}
-        >
-          <Feather name="heart" size={24} color="#D97B46" />
-        </TouchableOpacity>
+  style={styles.heartButton}
+  onPress={() => removerFavorito(item.id)}
+>
+  <Ionicons name="heart" size={26} color="#D97B46" />
+</TouchableOpacity>
       </View>
     );
   };
