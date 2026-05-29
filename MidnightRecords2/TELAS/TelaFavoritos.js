@@ -1,52 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   Image,
+  ImageBackground,
   TouchableOpacity,
 } from "react-native";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { auth, db } from "../config/firebaseConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Feather from "@expo/vector-icons/Feather";
 import { useFocusEffect } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 
 export default function TelaFavoritos() {
+  const router = useRouter();
+
   const [favoritos, setFavoritos] = useState([]);
   const [nome, setNome] = useState("");
 
   useFocusEffect(
-  React.useCallback(() => {
-    carregarFavoritos();
-  }, [])
-);
+    React.useCallback(() => {
+      carregarFavoritos();
+    }, [])
+  );
 
   const carregarFavoritos = async () => {
-  try {
-    const usuario = auth.currentUser;
+    try {
+      const usuario = auth.currentUser;
 
-    if (!usuario) {
-      setFavoritos([]);
-      setNome("Usuário");
-      return;
+      if (!usuario) {
+        setFavoritos([]);
+        setNome("Usuário");
+        return;
+      }
+
+      setNome(usuario.displayName || "Usuário");
+
+      const favoritosRef = collection(db, "favoritos", usuario.uid, "itens");
+      const snapshot = await getDocs(favoritosRef);
+
+      const lista = snapshot.docs.map((item) => ({
+        id: item.id,
+        ...item.data(),
+      }));
+
+      setFavoritos(lista);
+    } catch (error) {
+      console.log("Erro ao carregar favoritos:", error);
     }
-
-    setNome(usuario.displayName || "Usuário");
-
-    const favoritosRef = collection(db, "favoritos", usuario.uid, "itens");
-    const snapshot = await getDocs(favoritosRef);
-
-    const lista = snapshot.docs.map((item) => ({
-      id: item.id,
-      ...item.data(),
-    }));
-
-    setFavoritos(lista);
-  } catch (error) {
-    console.log("Erro ao carregar favoritos:", error);
-  }
-};
+  };
 
   const removerFavorito = async (produtoId) => {
     try {
@@ -72,22 +77,53 @@ export default function TelaFavoritos() {
       <View style={styles.card}>
         <Image source={{ uri: imagem }} style={styles.image} />
 
-        <Text style={styles.nome}>{item.nome}</Text>
+        <Text style={styles.nome} numberOfLines={2}>
+          {item.nome}
+        </Text>
+
         <Text style={styles.preco}>{item.preco || "R$ 0,00"}</Text>
 
         <TouchableOpacity
-  style={styles.heartButton}
-  onPress={() => removerFavorito(item.id)}
->
-  <Ionicons name="heart" size={26} color="#D97B46" />
-</TouchableOpacity>
+          style={styles.heartButton}
+          onPress={() => removerFavorito(item.id)}
+        >
+          <Ionicons name="heart" size={30} color="#D97B46" />
+        </TouchableOpacity>
       </View>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Favoritos de {nome || "Usuário"}</Text>
+    <ImageBackground
+  source={require("../assets/imagensMR/fundo-claro.png")}
+  style={styles.background}
+  imageStyle={styles.backgroundImage}
+>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.iconButton}>
+          <Feather name="plus" size={24} color="#D97B46" />
+        </TouchableOpacity>
+
+        <Image
+          source={require("../assets/imagensMR/logo-midnight.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+
+        <TouchableOpacity style={styles.iconButton}>
+          <Ionicons name="heart" size={25} color="#D97B46" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.titleBar}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Feather name="chevron-left" size={24} color="#D97B46" />
+        </TouchableOpacity>
+
+        <Text style={styles.title}>Favoritados</Text>
+
+        <View style={{ width: 40 }} />
+      </View>
 
       {favoritos.length === 0 ? (
         <Text style={styles.empty}>Nenhum produto favoritado ainda.</Text>
@@ -102,67 +138,109 @@ export default function TelaFavoritos() {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#1C1445",
-    paddingHorizontal: 20,
-    paddingTop: 40,
-    paddingBottom: 100,
+background: {
+  flex: 1,
+},
+  backgroundImage: {
+  resizeMode: "cover",
+},
+  header: {
+    height: 102,
+    paddingHorizontal: 26,
+    paddingTop: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(217, 123, 70, 0.32)",
+  },
+  logo: {
+    width: 170,
+    height: 70,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  titleBar: {
+    height: 42,
+    paddingHorizontal: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(217, 123, 70, 0.28)",
+  },
+  backButton: {
+    width: 40,
+    justifyContent: "center",
   },
   title: {
-    fontFamily: "Poppins_700Bold",
-    color: "#F1F6B3",
-    fontSize: 28,
+    fontFamily: "Poppins_600SemiBold",
+    color: "#D97B46",
+    fontSize: 17,
     textAlign: "center",
-    marginBottom: 24,
   },
   empty: {
     fontFamily: "Poppins_500Medium",
-    color: "#ffffff",
+    color: "#1a0f2e",
     textAlign: "center",
-    marginTop: 40,
+    marginTop: 50,
     fontSize: 16,
   },
   list: {
-    paddingBottom: 30,
+    paddingHorizontal: 34,
+    paddingTop: 16,
+    paddingBottom: 110,
   },
   row: {
     justifyContent: "space-between",
   },
   card: {
-    width: "48%",
-    backgroundColor: "#FFF3C9",
-    borderRadius: 12,
-    padding: 12,
+    width: "46.5%",
+    backgroundColor: "#FFF4C8",
+    borderRadius: 8,
+    padding: 14,
     marginBottom: 22,
+    minHeight: 207,
     position: "relative",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
   image: {
     width: "100%",
     aspectRatio: 1,
-    borderRadius: 8,
-    backgroundColor: "#ddd",
+    borderRadius: 7,
+    backgroundColor: "#D9D9D9",
   },
   nome: {
     fontFamily: "Poppins_500Medium",
     color: "#111",
-    fontSize: 13,
-    marginTop: 10,
+    fontSize: 12,
+    lineHeight: 13,
+    marginTop: 8,
+    paddingRight: 28,
   },
   preco: {
     fontFamily: "Poppins_700Bold",
     color: "#111",
-    fontSize: 16,
+    fontSize: 15,
     marginTop: 2,
+    paddingRight: 28,
   },
   heartButton: {
     position: "absolute",
-    right: 10,
-    bottom: 12,
+    right: 11,
+    bottom: 28,
   },
 });
