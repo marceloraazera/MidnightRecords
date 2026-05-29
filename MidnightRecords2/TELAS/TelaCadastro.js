@@ -1,14 +1,30 @@
 import React, { useState } from "react";
-import { View, Text, Image, ImageBackground, TextInput, TouchableOpacity, StyleSheet, Platform, ScrollView } from "react-native";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../config/firebaseConfig";
+import {
+  View,
+  Text,
+  Image,
+  ImageBackground,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { useRouter } from "expo-router";
-import Feather from '@expo/vector-icons/Feather';
+import Feather from "@expo/vector-icons/Feather";
 
-const saveUserName = async (nome) => {
+const saveUserData = async (nome, email) => {
   if (Platform.OS === "web" && typeof window !== "undefined") {
     localStorage.setItem("nomeUsuario", nome);
+    localStorage.setItem("emailUsuario", email);
   }
 };
 
@@ -30,6 +46,7 @@ export default function TelaCadastro() {
       "auth/operation-not-allowed": "Operação não permitida. Tente mais tarde.",
       "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos.",
     };
+
     return erros[errorCode] || "Erro ao cadastrar. Tente novamente mais tarde.";
   };
 
@@ -37,7 +54,7 @@ export default function TelaCadastro() {
     const finalMessage = text || title;
     setMessage(finalMessage);
     setMessageType(title === "Erro" ? "error" : "success");
-    
+
     setTimeout(() => setMessage(""), 4000);
   }
 
@@ -48,8 +65,14 @@ export default function TelaCadastro() {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, senha);
-      await saveUserName(nome);
+      const credencial = await createUserWithEmailAndPassword(auth, email, senha);
+
+      await updateProfile(credencial.user, {
+        displayName: nome,
+      });
+
+      await saveUserData(nome, email);
+
       router.push("/(tabs)");
     } catch (error) {
       console.log("Cadastro erro", error);
@@ -75,22 +98,26 @@ export default function TelaCadastro() {
         </View>
 
         <View style={styles.tabsContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tab, activeTab === "login" && styles.tabActive]}
             onPress={() => {
               setActiveTab("login");
               router.push("/");
             }}
           >
-            <Text style={[styles.tabText, activeTab === "login" && styles.tabTextActive]}>LOGIN</Text>
+            <Text style={[styles.tabText, activeTab === "login" && styles.tabTextActive]}>
+              LOGIN
+            </Text>
             {activeTab === "login" && <View style={styles.tabUnderline} />}
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tab, activeTab === "cadastro" && styles.tabActive]}
             onPress={() => setActiveTab("cadastro")}
           >
-            <Text style={[styles.tabText, activeTab === "cadastro" && styles.tabTextActive]}>CADASTRO</Text>
+            <Text style={[styles.tabText, activeTab === "cadastro" && styles.tabTextActive]}>
+              CADASTRO
+            </Text>
             {activeTab === "cadastro" && <View style={styles.tabUnderline} />}
           </TouchableOpacity>
         </View>
@@ -99,7 +126,9 @@ export default function TelaCadastro() {
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Nome</Text>
             <View style={[styles.inputContainer, focusedInput === "nome" && styles.inputContainerFocused]}>
-              <Text style={styles.inputIcon}><Feather name="user" size={20} color="#4CAF7F" /></Text>
+              <Text style={styles.inputIcon}>
+                <Feather name="user" size={20} color="#4CAF7F" />
+              </Text>
               <TextInput
                 style={styles.input}
                 placeholder="seu nome"
@@ -133,7 +162,9 @@ export default function TelaCadastro() {
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Senha</Text>
             <View style={[styles.inputContainer, focusedInput === "senha" && styles.inputContainerFocused]}>
-              <Text style={styles.inputIcon}><Feather name="lock" size={18} color="#4CAF7F" /></Text>
+              <Text style={styles.inputIcon}>
+                <Feather name="lock" size={18} color="#4CAF7F" />
+              </Text>
               <TextInput
                 style={styles.input}
                 placeholder="••••••••"
@@ -153,7 +184,12 @@ export default function TelaCadastro() {
         </View>
 
         {message ? (
-          <View style={[styles.messageContainer, messageType === "error" ? styles.messageError : styles.messageSuccess]}>
+          <View
+            style={[
+              styles.messageContainer,
+              messageType === "error" ? styles.messageError : styles.messageSuccess,
+            ]}
+          >
             <Text style={styles.messageText}>{message}</Text>
           </View>
         ) : null}
