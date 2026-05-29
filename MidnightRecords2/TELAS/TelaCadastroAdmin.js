@@ -12,6 +12,7 @@ import {
   Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
+import Feather from "@expo/vector-icons/Feather";
 import { useProdutosContext } from "../context/ProdutosContext";
 import { collection, addDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebaseConfig";
@@ -127,8 +128,22 @@ export default function TelaCadastroAdmin() {
       imageStyle={styles.backgroundImage}
     >
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.pageHeader}>
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("../assets/imagensMR/logo-completa-midnight.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </View>
+
+        <View style={styles.titleBar}>
+          <TouchableOpacity onPress={cancelar} style={styles.backButton}>
+            <Feather name="chevron-left" size={26} color="#F1F6B3" />
+          </TouchableOpacity>
           <Text style={styles.pageTitle}>Cadastrar produto</Text>
+        </View>
+
+        <View style={styles.subtitleContainer}>
           <Text style={styles.pageSubtitle}>Adicione um novo disco à vitrine com imagem, preço e descrição.</Text>
         </View>
 
@@ -240,18 +255,41 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingVertical: 30,
   },
-  pageHeader: {
-    marginBottom: 32,
+  logoContainer: {
     alignItems: "center",
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  logoImage: {
+    width: 220,
+    height: 70,
+  },
+  titleBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "rgba(241,246,179,0.25)",
+    paddingVertical: 18,
+    marginBottom: 20,
+    marginHorizontal: -24,
+  },
+  backButton: {
+    position: "absolute",
+    left: 20,
+    padding: 8,
   },
   pageTitle: {
-    fontFamily: "Poppins_700Bold",
-    fontSize: 28,
+    fontFamily: "Poppins_500Medium",
+    fontSize: 20,
     color: "#F1F6B3",
-    marginBottom: 8,
     textAlign: "center",
+  },
+  subtitleContainer: {
+    marginBottom: 26,
   },
   pageSubtitle: {
     fontFamily: "Poppins_400Regular",
