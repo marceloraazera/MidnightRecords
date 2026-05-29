@@ -23,6 +23,17 @@ const imagemFallbackById = {
   "super-real-me": imagemSources["Disco2-1.png"],
   "ocean-blvd": imagemSources["Disco3-1.png"],
   guts: imagemSources["Disco4-1.png"],
+  1: imagemSources["Disco1-1.png"],
+  2: imagemSources["Disco2-1.png"],
+  3: imagemSources["Disco3-1.png"],
+  4: imagemSources["Disco4-1.png"],
+};
+
+const imagemFallbackByNome = {
+  "The Queen Is Dead": imagemSources["Disco1-1.png"],
+  "Super Real Me": imagemSources["Disco2-1.png"],
+  "Ocean Blvd": imagemSources["Disco3-1.png"],
+  "GUTS": imagemSources["Disco4-1.png"],
 };
 
 const defaultAlbumImage = require("../assets/discos/Disco1-1.png");
@@ -41,12 +52,12 @@ const sanitizeImageName = (imagemNome) => {
   return imagemSources[fileName] ?? imagemSources[fileName.toLowerCase()] ?? null;
 };
 
-const getImageSource = (imagemNome, produtoId) => {
+const getImageSource = (imagemNome, produtoId, produtoNome) => {
   const fonte = sanitizeImageName(imagemNome);
   if (fonte) {
     return fonte;
   }
-  return imagemFallbackById[produtoId] ?? null;
+  return imagemFallbackById[produtoId] ?? imagemFallbackByNome[produtoNome] ?? null;
 };
 
 const formatPrice = (value) => {
@@ -77,7 +88,7 @@ export default function DetalhesProduto() {
     );
   }
 
-  const imagemSource = getImageSource(produto.imagens?.[0], produto.id) ?? defaultAlbumImage;
+  const imagemSource = getImageSource(produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem, produto.id, produto.nome) ?? defaultAlbumImage;
 
   return (
     <ImageBackground
