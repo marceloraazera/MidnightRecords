@@ -138,9 +138,7 @@ const sairConta = async () => {
   try {
     await signOut(auth);
 
-    router.dismissAll?.();
-
-    router.replace("/index");
+    router.replace("/");
   } catch (error) {
     console.log("Erro ao sair:", error);
     Alert.alert("Erro", "Não foi possível sair da conta.");
