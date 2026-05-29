@@ -28,7 +28,7 @@ export default function TelaCadastro() {
         window.alert(`${title}: ${finalMessage}`);
       }
     } else {
-      Alert.alert(title, finalMessage);
+      Alert.alert(title, finalMessage);  
     }
     setMessage(`${title}: ${finalMessage}`);
     setMessageType(title === "Erro" ? "error" : "success");
