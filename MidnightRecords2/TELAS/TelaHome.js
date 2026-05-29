@@ -7,7 +7,7 @@ import {
   ImageBackground,
   FlatList,
   TouchableOpacity,
-  Platform
+  Platform,
 } from "react-native";
 import {
   doc,
@@ -20,10 +20,8 @@ import { auth, db } from "../config/firebaseConfig";
 import { useRouter } from "expo-router";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { useProdutosContext } from "../context/ProdutosContext";
-import Feather from '@expo/vector-icons/Feather';
+import Feather from "@expo/vector-icons/Feather";
 import { useFocusEffect } from "@react-navigation/native";
-
-
 
 const imagemSources = {
   "Disco1-1.png": require("../assets/discos/Disco1-1.png"),
@@ -55,7 +53,7 @@ const imagemFallbackByNome = {
   "The Queen Is Dead": imagemSources["Disco3-1.png"],
   "Super Real Me": imagemSources["Disco1-1.png"],
   "Ocean Blvd": imagemSources["Disco4-1.png"],
-  "GUTS": imagemSources["Disco2-1.png"],
+  GUTS: imagemSources["Disco2-1.png"],
 };
 
 const defaultAlbumImage = require("../assets/discos/Disco1-1.png");
@@ -63,69 +61,76 @@ const defaultAlbumImage = require("../assets/discos/Disco1-1.png");
 export default function TelaHome() {
   const router = useRouter();
   const { produtos } = useProdutosContext();
+
   const [favoriteIds, setFavoriteIds] = React.useState([]);
   const [nomeUsuario, setNomeUsuario] = React.useState("");
 
   const carregarFavoritos = async () => {
-  try {
-    const usuario = auth.currentUser;
+    try {
+      const usuario = auth.currentUser;
 
-    if (!usuario) {
-      return;
+      if (!usuario) {
+        setFavoriteIds([]);
+        return;
+      }
+
+      const favoritosRef = collection(db, "favoritos", usuario.uid, "itens");
+      const snapshot = await getDocs(favoritosRef);
+
+      const ids = snapshot.docs.map((item) => item.id);
+
+      setFavoriteIds(ids);
+    } catch (error) {
+      console.log("Erro ao carregar favoritos:", error);
     }
+  };
 
-    const favoritosRef = collection(db, "favoritos", usuario.uid, "itens");
-    const snapshot = await getDocs(favoritosRef);
+  useFocusEffect(
+    React.useCallback(() => {
+      carregarFavoritos();
+    }, [])
+  );
 
-    const ids = snapshot.docs.map((item) => item.id);
-
-    setFavoriteIds(ids);
-  } catch (error) {
-    console.log("Erro ao carregar favoritos:", error);
-  }
-};
-useFocusEffect(
-  React.useCallback(() => {
-    carregarFavoritos();
-  }, [])
-);
   const toggleFavorito = async (produto) => {
-  try {
-    const usuario = auth.currentUser;
+    try {
+      const usuario = auth.currentUser;
 
-    if (!usuario) {
-      alert("Você precisa estar logado para favoritar.");
-      return;
+      if (!usuario) {
+        alert("Você precisa estar logado para favoritar.");
+        return;
+      }
+
+      const produtoId = String(produto.id ?? produto.nome);
+      const favoritoRef = doc(db, "favoritos", usuario.uid, "itens", produtoId);
+      const jaFavoritado = favoriteIds.includes(produtoId);
+
+      if (jaFavoritado) {
+        await deleteDoc(favoritoRef);
+
+        setFavoriteIds((current) =>
+          current.filter((id) => id !== produtoId)
+        );
+      } else {
+        await setDoc(favoritoRef, {
+          id: produtoId,
+          nome: produto.nome ?? "",
+          preco: produto.preco ?? "",
+          precoCheio: produto.precoCheio ?? "",
+          precoDesconto: produto.precoDesconto ?? "",
+          imagem: typeof produto.imagem === "string" ? produto.imagem : "",
+          linkImagem:
+            typeof produto.linkImagem === "string" ? produto.linkImagem : "",
+          descricao: produto.descricao ?? "",
+          criadoEm: new Date().toISOString(),
+        });
+
+        setFavoriteIds((current) => [...current, produtoId]);
+      }
+    } catch (error) {
+      console.log("Erro ao favoritar:", error);
+      alert("Erro ao favoritar produto: " + error.message);
     }
-
-    const produtoId = String(produto.id ?? produto.nome);
-    const favoritoRef = doc(db, "favoritos", usuario.uid, "itens", produtoId);
-
-    const jaFavoritado = favoriteIds.includes(produtoId);
-
-    if (jaFavoritado) {
-      await deleteDoc(favoritoRef);
-      setFavoriteIds((current) => current.filter((id) => id !== produtoId));
-    } else {
-      await setDoc(favoritoRef, {
-        id: produtoId,
-        nome: produto.nome,
-        preco: produto.preco,
-        precoCheio: produto.precoCheio ?? "",
-        precoDesconto: produto.precoDesconto ?? "",
-        imagem: produto.imagem ?? "",
-        linkImagem: produto.linkImagem ?? "",
-        descricao: produto.descricao ?? "",
-        criadoEm: new Date().toISOString(),
-      });
-
-      setFavoriteIds((current) => [...current, produtoId]);
-    }
-  } catch (error) {
-    console.log("Erro ao favoritar:", error);
-    alert("Erro ao favoritar produto.");
-  }
-};
+  };
 
   const irParaDetalhes = (produtoId) => {
     const encodedId = encodeURIComponent(produtoId);
@@ -133,24 +138,21 @@ useFocusEffect(
   };
 
   React.useEffect(() => {
-    // Tenta buscar o nome salvo no localStorage (web)
     if (Platform.OS === "web" && typeof window !== "undefined") {
       const nomeSalvo = localStorage.getItem("nomeUsuario");
+
       if (nomeSalvo) {
         setNomeUsuario(nomeSalvo);
         return;
       }
     }
 
-    // Para todas as plataformas: pega nome/email do usuário autenticado no Firebase
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         if (user.displayName) {
           setNomeUsuario(user.displayName);
         } else if (user.email) {
-          // Usa a parte antes do @ como nome
-          const nomeDoEmail = user.email.split("@")[0];
-          setNomeUsuario(nomeDoEmail);
+          setNomeUsuario(user.email.split("@")[0]);
         }
       }
     });
@@ -159,20 +161,20 @@ useFocusEffect(
   }, []);
 
   const sairConta = async () => {
-  try {
-    await signOut(auth);
+    try {
+      await signOut(auth);
 
-    if (Platform.OS === "web" && typeof window !== "undefined") {
-      localStorage.clear();
-      window.location.href = "/";
-      return;
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        localStorage.clear();
+        window.location.href = "/";
+        return;
+      }
+
+      router.replace("/");
+    } catch (error) {
+      console.log("Erro ao sair:", error);
     }
-
-    router.replace("/");
-  } catch (error) {
-    console.log("Erro ao sair:", error);
-  }
-};
+  };
 
   const sanitizeImageName = (imagemNome) => {
     if (!imagemNome || typeof imagemNome !== "string") {
@@ -180,23 +182,31 @@ useFocusEffect(
     }
 
     const trimmed = imagemNome.trim();
+
     if (!trimmed) {
       return null;
     }
 
-    if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) {
+    if (
+      trimmed.startsWith("http://") ||
+      trimmed.startsWith("https://") ||
+      trimmed.startsWith("data:")
+    ) {
       return { uri: trimmed };
     }
 
     const fileName = trimmed.replace(/^.*[\/]/, "").replace(/\s*-\s*/g, "-");
+
     return imagemSources[fileName] ?? imagemSources[fileName.toLowerCase()] ?? null;
   };
 
   const getImageSource = (imagemNome, produtoId, produtoNome) => {
     const fonte = sanitizeImageName(imagemNome);
+
     if (fonte) {
       return fonte;
     }
+
     return imagemFallbackById[produtoId] ?? imagemFallbackByNome[produtoNome] ?? null;
   };
 
@@ -204,14 +214,18 @@ useFocusEffect(
     if (value === null || value === undefined || value === "") {
       return 0;
     }
+
     if (typeof value === "number") {
       return value;
     }
+
     if (typeof value === "string") {
       const normalized = value.replace(/[^0-9,.-]/g, "").replace(/,/g, ".");
       const parsed = parseFloat(normalized);
+
       return Number.isFinite(parsed) ? parsed : 0;
     }
+
     return 0;
   };
 
@@ -219,15 +233,21 @@ useFocusEffect(
     return `R$ ${Number(value).toFixed(2).replace(".", ",")}`;
   };
 
-  const renderProduto = ({ item: produto, index }) => {
-    const imagemSource = getImageSource(
-      produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem,
-      produto.id,
-      produto.nome
-    ) ?? defaultAlbumImage;
-    const precoBase = parsePrice(produto.precoCheio ?? produto.preco ?? produto.precoDesconto);
+  const renderProduto = ({ item: produto }) => {
+    const imagemSource =
+      getImageSource(
+        produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem,
+        produto.id,
+        produto.nome
+      ) ?? defaultAlbumImage;
+
+    const precoBase = parsePrice(
+      produto.precoCheio ?? produto.preco ?? produto.precoDesconto
+    );
+
     const precoOriginal = precoBase;
     const precoDesconto = precoBase * 0.95;
+
     const produtoId = String(produto.id ?? produto.nome);
     const isFavorito = favoriteIds.includes(produtoId);
 
@@ -241,15 +261,26 @@ useFocusEffect(
           <View style={styles.produtoImageContainer}>
             <Image source={imagemSource} style={styles.produtoImageAtual} />
           </View>
+
           <View style={styles.cardContent}>
             <Text style={styles.produtoNome}>{produto.nome}</Text>
+
             <View style={styles.precoContainer}>
-              <Text style={styles.precoOriginal}>{formatPrice(precoOriginal)}</Text>
-              <Text style={styles.precoDesconto}>{formatPrice(precoDesconto)}</Text>
+              <Text style={styles.precoOriginal}>
+                {formatPrice(precoOriginal)}
+              </Text>
+
+              <Text style={styles.precoDesconto}>
+                {formatPrice(precoDesconto)}
+              </Text>
             </View>
           </View>
+
           <TouchableOpacity
-            style={[styles.favoritoButton, isFavorito && styles.favoritoButtonActive]}
+            style={[
+              styles.favoritoButton,
+              isFavorito && styles.favoritoButtonActive,
+            ]}
             onPress={() => toggleFavorito(produto)}
           >
             <Feather
@@ -281,12 +312,17 @@ useFocusEffect(
         ListHeaderComponent={
           <>
             <View style={styles.headerContainer}>
-              <Image 
+              <Image
                 source={require("../assets/imagensMR/logo-com-fundo-novo.png")}
                 style={styles.headerImage}
                 resizeMode="cover"
               />
-              <TouchableOpacity style={styles.logoutButton} onPress={sairConta} activeOpacity={0.8}>
+
+              <TouchableOpacity
+                style={styles.logoutButton}
+                onPress={sairConta}
+                activeOpacity={0.8}
+              >
                 <Feather name="log-out" size={14} color="#D4A74F" />
                 <Text style={styles.logoutText}>Sair</Text>
               </TouchableOpacity>
@@ -295,7 +331,11 @@ useFocusEffect(
             {nomeUsuario && (
               <View style={styles.welcomeSection}>
                 <Text style={styles.welcomeText}>
-                  Olá, <Text style={styles.userName}>{nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1)}</Text>. Seja bem-vindo(a)!
+                  Olá,{" "}
+                  <Text style={styles.userName}>
+                    {nomeUsuario.charAt(0).toUpperCase() + nomeUsuario.slice(1)}
+                  </Text>
+                  . Seja bem-vindo(a)!
                 </Text>
               </View>
             )}
@@ -315,11 +355,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "transparent",
   },
-  
+
   background: {
     flex: 1,
     backgroundColor: "#1a0f2e",
   },
+
   backgroundImage: {
     resizeMode: "cover",
   },
@@ -334,10 +375,12 @@ const styles = StyleSheet.create({
     height: 300,
     position: "relative",
   },
+
   headerImage: {
     width: "100%",
     height: "100%",
   },
+
   logoutButton: {
     position: "absolute",
     top: 10,
@@ -351,19 +394,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(212, 167, 79, 0.4)",
   },
+
   logoutText: {
     fontFamily: "Poppins_500Medium",
     color: "#D4A74F",
     fontSize: 12,
     marginLeft: 6,
   },
-  
+
   welcomeSection: {
     paddingHorizontal: 20,
     paddingTop: 20,
     alignItems: "center",
     justifyContent: "center",
   },
+
   welcomeText: {
     fontFamily: "Poppins_400Regular",
     fontSize: 16,
@@ -371,11 +416,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: 0.5,
   },
+
   userName: {
     fontFamily: "Poppins_600SemiBold",
     color: "#D4A74F",
   },
-  
+
   discoTexto: {
     flex: 1,
   },
@@ -385,6 +431,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     alignItems: "center",
   },
+
   vitrineTitle: {
     fontFamily: "Poppins_600SemiBold",
     fontSize: 32,
@@ -392,15 +439,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: 3,
   },
+
   produtosGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
+
   produtoCardButton: {
     width: "48%",
     marginBottom: 20,
   },
+
   produtoCard: {
     width: "100%",
     backgroundColor: "#221F1A",
@@ -410,6 +460,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.08)",
   },
+
   produtoImageContainer: {
     width: "100%",
     aspectRatio: 1,
@@ -417,30 +468,34 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   produtoImagePlaceholder: {
     fontFamily: "Poppins_700Bold",
     fontSize: 50,
   },
+
   produtoImageAtual: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
+
   cardContent: {
     paddingHorizontal: 14,
     paddingTop: 14,
-
   },
+
   produtoNome: {
     fontFamily: "Poppins_600SemiBold",
     fontSize: 15,
     color: "#ffffff",
     fontWeight: "600",
-
   },
+
   precoContainer: {
     flexDirection: "column",
   },
+
   precoOriginal: {
     fontFamily: "Poppins_400Regular",
     fontSize: 12,
@@ -448,12 +503,14 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
     marginBottom: 4,
   },
+
   precoDesconto: {
     fontFamily: "Poppins_700Bold",
     fontSize: 18,
     fontWeight: "bold",
     color: "#d4af37",
   },
+
   favoritoButton: {
     position: "absolute",
     top: 12,
@@ -465,17 +522,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   favoritoButtonActive: {
     backgroundColor: "rgba(255, 165, 0, 0.18)",
     borderWidth: 1,
     borderColor: "rgba(255, 165, 0, 0.8)",
   },
+
   columnWrapper: {
     justifyContent: "space-between",
     paddingHorizontal: 16,
   },
+
   flatListContent: {
-  paddingBottom: 110,
-  paddingTop: 16,
-},
+    paddingBottom: 110,
+    paddingTop: 16,
+  },
 });
