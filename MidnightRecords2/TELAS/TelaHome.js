@@ -403,11 +403,11 @@ const styles = StyleSheet.create({
   },
 
   welcomeSection: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  paddingHorizontal: 20,
+  paddingTop: 20,
+  alignItems: "center",
+  justifyContent: "center",
+},
 
   welcomeText: {
     fontFamily: "Poppins_400Regular",
