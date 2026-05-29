@@ -8,6 +8,7 @@ import {
   ScrollView,
   Alert,
   Image,
+  ImageBackground,
   Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -30,6 +31,7 @@ export default function TelaCadastroAdmin() {
   const [linkImagem, setLinkImagem] = useState("");
   const [descricao, setDescricao] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [focusedInput, setFocusedInput] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const selecionarImagem = async () => {
@@ -75,7 +77,7 @@ export default function TelaCadastroAdmin() {
 
     try {
       const usuario = auth.currentUser;
-      const imagem = imagePreview || linkImagem || "🎵";
+      const imagem = imagePreview || linkImagem || "";
 
       if (usuario) {
         const docRef = await addDoc(collection(db, "produtos"), {
@@ -119,184 +121,243 @@ export default function TelaCadastroAdmin() {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={cancelar} style={styles.backButton}>
-          <Text style={styles.backButtonText}>‹</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>Cadastrar produto</Text>
-
-        <View style={{ width: 40 }} />
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>INFORMAÇÕES BÁSICAS</Text>
-          <Text style={styles.sectionSubtitle}>Título do produto</Text>
-
-          <TextInput
-            style={styles.input}
-            placeholder="Ex: Disco Luz Djavan"
-            placeholderTextColor="#666"
-            value={titulo}
-            onChangeText={setTitulo}
-          />
+    <ImageBackground
+      source={require("../assets/imagensMR/fundo-escuro.png")}
+      style={styles.background}
+      imageStyle={styles.backgroundImage}
+    >
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.pageHeader}>
+          <Text style={styles.pageTitle}>Cadastrar produto</Text>
+          <Text style={styles.pageSubtitle}>Adicione um novo disco à vitrine com imagem, preço e descrição.</Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>PREÇO</Text>
-          <Text style={styles.sectionSubtitle}>Preço do Produto</Text>
-
-          <TextInput
-            style={styles.input}
-            placeholder="Ex: R$ 250,00"
-            placeholderTextColor="#666"
-            value={preco}
-            onChangeText={setPreco}
-          />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>FOTOS DO PRODUTO</Text>
-          <Text style={styles.sectionSubtitle}>Link da imagem</Text>
-
-          {imagePreview && (
-            <View style={styles.imagePreviewContainer}>
-              <Image source={{ uri: imagePreview }} style={styles.imagePreview} />
+        <View style={styles.formContainer}>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>Título do produto</Text>
+            <View style={[styles.inputContainer, focusedInput === "titulo" && styles.inputContainerFocused]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Ex: Disco Luz Djavan"
+                placeholderTextColor="#D8E3C3"
+                value={titulo}
+                onChangeText={setTitulo}
+                onFocus={() => setFocusedInput("titulo")}
+                onBlur={() => setFocusedInput(null)}
+              />
             </View>
-          )}
+          </View>
 
-          <TouchableOpacity style={styles.imageSelectorButton} onPress={selecionarImagem}>
-            <Text style={styles.imageSelectorButtonText}>📁 Selecionar Imagem</Text>
-          </TouchableOpacity>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>Preço do produto</Text>
+            <View style={[styles.inputContainer, focusedInput === "preco" && styles.inputContainerFocused]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Ex: R$ 250,00"
+                placeholderTextColor="#D8E3C3"
+                value={preco}
+                onChangeText={setPreco}
+                onFocus={() => setFocusedInput("preco")}
+                onBlur={() => setFocusedInput(null)}
+              />
+            </View>
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="URL da imagem"
-            placeholderTextColor="#666"
-            value={linkImagem}
-            onChangeText={setLinkImagem}
-          />
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>Fotos do produto</Text>
+            {imagePreview && (
+              <View style={styles.imagePreviewContainer}>
+                <Image source={{ uri: imagePreview }} style={styles.imagePreview} />
+              </View>
+            )}
+            <TouchableOpacity style={styles.imageSelectorButton} onPress={selecionarImagem}>
+              <Text style={styles.imageSelectorButtonText}>Selecionar imagem</Text>
+            </TouchableOpacity>
+            <View style={[styles.inputContainer, focusedInput === "linkImagem" && styles.inputContainerFocused]}>
+              <TextInput
+                style={styles.input}
+                placeholder="URL da imagem"
+                placeholderTextColor="#D8E3C3"
+                value={linkImagem}
+                onChangeText={setLinkImagem}
+                onFocus={() => setFocusedInput("linkImagem")}
+                onBlur={() => setFocusedInput(null)}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>Descrição</Text>
+            <View style={[styles.inputContainer, styles.textAreaContainer, focusedInput === "descricao" && styles.inputContainerFocused]}>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Ex: Produto novo, importado..."
+                placeholderTextColor="#D8E3C3"
+                value={descricao}
+                onChangeText={setDescricao}
+                onFocus={() => setFocusedInput("descricao")}
+                onBlur={() => setFocusedInput(null)}
+                multiline
+                numberOfLines={5}
+                textAlignVertical="top"
+              />
+            </View>
+          </View>
+
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.cancelButton]}
+              onPress={cancelar}
+              disabled={loading}
+            >
+              <Text style={styles.cancelButtonText}>Cancelar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.button, styles.saveButton]}
+              onPress={salvarProduto}
+              disabled={loading}
+            >
+              <Text style={styles.saveButtonText}>
+                {loading ? "Salvando..." : "Salvar produto"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>DESCRIÇÃO</Text>
-          <Text style={styles.sectionSubtitle}>Descrição do produto</Text>
-
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Ex: Produto novo, importado..."
-            placeholderTextColor="#666"
-            value={descricao}
-            onChangeText={setDescricao}
-            multiline
-            numberOfLines={5}
-            textAlignVertical="top"
-          />
-        </View>
-
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.cancelButton]}
-            onPress={cancelar}
-            disabled={loading}
-          >
-            <Text style={styles.cancelButtonText}>Cancelar</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.saveButton]}
-            onPress={salvarProduto}
-            disabled={loading}
-          >
-            <Text style={styles.saveButtonText}>
-              {loading ? "Salvando..." : "Salvar produto"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: "#300322",
+  },
+  backgroundImage: {
+    resizeMode: "cover",
+  },
   container: {
-    flex: 1,
-    backgroundColor: "#2a1f2f",
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 40,
   },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  pageHeader: {
+    marginBottom: 32,
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    backgroundColor: "#1a1420",
-    borderBottomWidth: 1,
-    borderBottomColor: "#3d3341",
   },
-  backButton: {
-    padding: 8,
-  },
-  backButtonText: {
+  pageTitle: {
     fontFamily: "Poppins_700Bold",
-    fontSize: 32,
-    color: "#d4af37",
-    fontWeight: "bold",
-  },
-  headerTitle: {
-    fontFamily: "Poppins_600SemiBold",
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#ffffff",
-    flex: 1,
+    fontSize: 28,
+    color: "#F1F6B3",
+    marginBottom: 8,
     textAlign: "center",
   },
+  pageSubtitle: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 14,
+    color: "#CCF7E4",
+    lineHeight: 20,
+    textAlign: "center",
+  },
+  formContainer: {
+    backgroundColor: "rgba(8, 8, 22, 0.76)",
+    borderRadius: 30,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: "rgba(212,167,79,0.18)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.18,
+    shadowRadius: 30,
+    elevation: 10,
+  },
+  inputWrapper: {
+    marginBottom: 18,
+  },
+  inputLabel: {
+    fontFamily: "Poppins_500Medium",
+    color: "#CCF7E4",
+    fontSize: 13,
+    marginBottom: 10,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(241,246,179,0.08)",
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: "rgba(241,246,179,0.1)",
+    paddingHorizontal: 16,
+    minHeight: 52,
+  },
+  inputContainerFocused: {
+    borderColor: "rgba(223,159,88,0.9)",
+    backgroundColor: "rgba(241,246,179,0.12)",
+  },
+  textAreaContainer: {
+    alignItems: "flex-start",
+    paddingVertical: 12,
+  },
   content: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 34,
   },
   section: {
     marginBottom: 24,
+    padding: 18,
+    borderRadius: 20,
+    backgroundColor: "rgba(48, 3, 34, 0.78)",
+    borderWidth: 1,
+    borderColor: "rgba(241,246,179,0.16)",
   },
   sectionLabel: {
     fontFamily: "Poppins_600SemiBold",
-    backgroundColor: "#8b6f47",
-    color: "#ffffff",
+    backgroundColor: "#DF9F58",
+    color: "#300322",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     fontWeight: "600",
     fontSize: 13,
     letterSpacing: 0.5,
     marginBottom: 12,
+    alignSelf: "flex-start",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
   },
   sectionSubtitle: {
     fontFamily: "Poppins_500Medium",
-    color: "#d4af37",
-    fontSize: 12,
+    color: "#E4F9EA",
+    fontSize: 13,
     fontWeight: "500",
     marginBottom: 10,
   },
   input: {
+    flex: 1,
     fontFamily: "Poppins_400Regular",
-    backgroundColor: "#1a1420",
-    color: "#ffffff",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#3d3341",
+    color: "#F1F6B3",
     fontSize: 14,
+    fontWeight: "500",
+    outlineWidth: 0,
+    outlineStyle: "none",
+    outlineColor: "transparent",
+    padding: 0,
   },
   textArea: {
-    paddingTop: 14,
-    minHeight: 140,
+    minHeight: 120,
+    width: "100%",
   },
   imagePreviewContainer: {
     marginBottom: 12,
-    borderRadius: 6,
+    borderRadius: 16,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(241,246,179,0.16)",
   },
   imagePreview: {
     width: "100%",
@@ -304,18 +365,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#1a1420",
   },
   imageSelectorButton: {
-    backgroundColor: "#3d3341",
-    paddingVertical: 12,
+    backgroundColor: "rgba(24, 107, 89, 0.9)",
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 6,
+    borderRadius: 16,
     marginBottom: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#8b6f47",
+    borderColor: "rgba(223, 159, 88, 0.9)",
   },
   imageSelectorButtonText: {
     fontFamily: "Poppins_500Medium",
-    color: "#d4af37",
+    color: "#F1F6B3",
     fontSize: 14,
     fontWeight: "500",
   },
@@ -327,26 +388,35 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    paddingVertical: 16,
+    minHeight: 56,
     borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "rgba(212, 167, 79, 0.4)",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   cancelButton: {
-    backgroundColor: "#2d6a5c",
+    backgroundColor: "#186B59",
+    borderWidth: 1,
+    borderColor: "rgba(241,246,179,0.18)",
   },
   cancelButtonText: {
     fontFamily: "Poppins_600SemiBold",
-    color: "#ffffff",
+    color: "#F1F6B3",
     fontSize: 14,
     fontWeight: "600",
   },
   saveButton: {
-    backgroundColor: "#c97a3f",
+    backgroundColor: "#DF9F58",
+    borderWidth: 1,
+    borderColor: "rgba(48,3,34,0.18)",
   },
   saveButtonText: {
     fontFamily: "Poppins_600SemiBold",
-    color: "#ffffff",
+    color: "#300322",
     fontSize: 14,
     fontWeight: "600",
   },
