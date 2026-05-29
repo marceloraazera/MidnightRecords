@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     flex: 1,
-    backgroundColor: "#2A6A56", // Mais fiel à ref (verde floresta escuro)
+    backgroundColor: "#CA743C", // Mais fiel à ref (verde floresta escuro)
     borderRadius: 24,
     minHeight: 50,
     justifyContent: "center",
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
   },
   favButton: {
     flex: 1,
-    backgroundColor: "#3A3342", // Tom roxo/grafite escuro da ref
+    backgroundColor: "#1C5544", // Tom roxo/grafite escuro da ref
     borderRadius: 24,
     minHeight: 50,
     flexDirection: "row",
