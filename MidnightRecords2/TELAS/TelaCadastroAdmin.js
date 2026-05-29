@@ -259,12 +259,11 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: "center",
-    marginBottom: 20,
-    marginTop: 10,
+
   },
   logoImage: {
-    width: 220,
-    height: 70,
+    width: 640,
+    height: 200,
   },
   titleBar: {
     flexDirection: "row",
