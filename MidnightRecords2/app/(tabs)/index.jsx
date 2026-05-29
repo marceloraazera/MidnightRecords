@@ -1,5 +1,1 @@
-import TelaHome from "../../TELAS/TelaHome";
-
-export default function HomeScreen() {
-  return <TelaHome />;
-}
+export { default } from "../../TELAS/TelaHome";

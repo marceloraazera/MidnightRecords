@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   flatListContent: {
-    paddingBottom: 36,
-    paddingTop: 16,
-  },
+  paddingBottom: 110,
+  paddingTop: 16,
+},
 });
