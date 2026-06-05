@@ -20,7 +20,7 @@ service cloud.firestore {
         && request.resource.data.criadoEm == resource.data.criadoEm;
 
       allow delete: if isSignedIn()
-        && resource.data.criadoPor == request.auth.uid;
+        && (resource.data.criadoPor == request.auth.uid || !resource.data.criadoPor);
     }
 
     // Favoritos são privados do usuário.
