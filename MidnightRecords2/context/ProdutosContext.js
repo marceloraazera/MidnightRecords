@@ -1,5 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { auth, db } from "../config/firebaseConfig";
 
 const PRODUTOS_STORAGE_KEY = "@midnight_produtos";
 
@@ -10,7 +21,57 @@ export function ProdutosProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    carregarProdutos();
+    const carregarProdutosLocal = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem(PRODUTOS_STORAGE_KEY);
+        if (jsonValue) {
+          setProdutos(JSON.parse(jsonValue));
+        }
+      } catch (error) {
+        console.error("Erro ao carregar produtos locais:", error);
+      }
+    };
+
+    carregarProdutosLocal();
+
+    const produtosRef = collection(db, "produtos");
+    const produtosQuery = query(produtosRef);
+
+    const unsubscribe = onSnapshot(
+      produtosQuery,
+      async (snapshot) => {
+        const produtosRemotos = snapshot.docs.map((document) => ({
+          id: document.id,
+          ...document.data(),
+        }));
+
+        setProdutos(produtosRemotos);
+
+        try {
+          await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosRemotos));
+        } catch (error) {
+          console.error("Erro ao salvar produtos locais:", error);
+        }
+
+        setLoading(false);
+      },
+      async (error) => {
+        console.error("Erro ao carregar produtos do Firestore:", error);
+
+        try {
+          const jsonValue = await AsyncStorage.getItem(PRODUTOS_STORAGE_KEY);
+          if (jsonValue) {
+            setProdutos(JSON.parse(jsonValue));
+          }
+        } catch (storageError) {
+          console.error("Erro ao carregar fallback local:", storageError);
+        }
+
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
   }, []);
 
   const carregarProdutos = async () => {
@@ -87,24 +148,20 @@ export function ProdutosProvider({ children }) {
 
   const adicionarProduto = async (novoProduto) => {
     try {
-      const novoId = String(Date.now());
-      
+      const usuario = auth.currentUser;
+      if (!usuario) {
+        throw new Error("Você precisa estar logado para cadastrar um produto.");
+      }
+
       const produto = {
         ...novoProduto,
-        id: novoId,
+        criadoPor: usuario.uid,
+        criadoEm: serverTimestamp(),
       };
-      
-      const produtosAtualizados = [...produtos, produto];
-      
-      console.log("Adicionando produto:", produto);
-      console.log("Produtos atualizados:", produtosAtualizados);
-      
-      setProdutos(produtosAtualizados);
-      
-      await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosAtualizados));
-      
-      console.log("Produto salvo com sucesso");
-      return produto;
+
+      const docRef = await addDoc(collection(db, "produtos"), produto);
+
+      return { id: docRef.id, ...produto };
     } catch (error) {
       console.error("Erro ao adicionar produto:", error);
       throw error;
@@ -126,7 +183,23 @@ export function ProdutosProvider({ children }) {
 
   const deletarProduto = async (id) => {
     try {
-      const produtosAtualizados = produtos.filter(p => p.id !== id);
+      const usuario = auth.currentUser;
+      if (!usuario) {
+        throw new Error("Você precisa estar logado para excluir um produto.");
+      }
+
+      const produto = produtos.find((p) => String(p.id) === String(id));
+      if (!produto) {
+        throw new Error("Produto não encontrado.");
+      }
+
+      if (produto.criadoPor !== usuario.uid) {
+        throw new Error("Você só pode excluir produtos criados por você.");
+      }
+
+      await deleteDoc(doc(db, "produtos", id));
+
+      const produtosAtualizados = produtos.filter((p) => String(p.id) !== String(id));
       setProdutos(produtosAtualizados);
       await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosAtualizados));
     } catch (error) {

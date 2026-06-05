@@ -8,9 +8,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
+import { auth, db } from "../config/firebaseConfig";
+import { doc, deleteDoc } from "firebase/firestore";
 import Feather from "@expo/vector-icons/Feather";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -139,6 +142,29 @@ export default function DetalhesProduto() {
 
   const produto = produtos.find((item) => String(item.id) === String(paramsId));
 
+  const podeExcluir = auth.currentUser && produto?.criadoPor === auth.currentUser.uid;
+
+  const excluirProduto = async () => {
+    try {
+      await deleteDoc(doc(db, "produtos", produto.id));
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.error("Erro ao excluir produto:", error);
+      Alert.alert("Erro", "Não foi possível excluir este produto.");
+    }
+  };
+
+  const confirmarExclusao = () => {
+    Alert.alert(
+      "Excluir produto",
+      "Tem certeza que deseja excluir este produto? Essa ação não pode ser desfeita.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Excluir", style: "destructive", onPress: excluirProduto },
+      ]
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.fallbackContainer}>
@@ -193,7 +219,7 @@ export default function DetalhesProduto() {
       <View style={styles.mainContainer}>
         {/* Conteúdo scrollável principal da tela */}
         <ScrollView
-          style={{ flex: 1 }}
+          style={styles.scrollArea}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           bounces={false}
@@ -253,7 +279,7 @@ export default function DetalhesProduto() {
                     
                     {/* Capa do álbum */}
                     <View style={styles.albumCover}>
-                      <Image source={imgSrc} style={styles.albumImage} />
+                      <Image source={imgSrc} style={styles.albumImage} resizeMode="cover" />
                     </View>
                   </View>
                 </View>
@@ -308,6 +334,18 @@ export default function DetalhesProduto() {
               <Text style={styles.favButtonText}>Favoritar</Text>
             </TouchableOpacity>
           </View>
+
+          {podeExcluir && (
+            <View style={styles.deleteButtonWrapper}>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={confirmarExclusao}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.deleteButtonText}>Excluir produto</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </ScrollView>
 
         {/* Barra de navegação inferior fixa */}
@@ -371,10 +409,12 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    justifyContent: "space-between",
+  },
+  scrollArea: {
+    flex: 1,
   },
   scrollContent: {
-    paddingBottom: 24,
+    paddingBottom: 120,
   },
 
   /* Logo */
@@ -496,12 +536,12 @@ const styles = StyleSheet.create({
     height: ALBUM_SIZE,
     borderRadius: 10,
     backgroundColor: "transparent",
-    
+    overflow: "hidden",
   },
   albumImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "contain",
+    resizeMode: "cover",
     borderRadius: 10,
   },
   paginationDots: {
@@ -623,9 +663,30 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 14,
   },
+  deleteButtonWrapper: {
+    paddingHorizontal: 24,
+    marginBottom: 18,
+  },
+  deleteButton: {
+    backgroundColor: "#A82E2E",
+    borderRadius: 24,
+    minHeight: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 3,
+  },
+  deleteButtonText: {
+    fontFamily: "Poppins_600SemiBold",
+    color: "#ffffff",
+    fontSize: 14,
+  },
 
   /* Barra de navegação inferior */
   bottomNav: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
     flexDirection: "row",
     height: 72,
     backgroundColor: "#15101F",
@@ -635,6 +696,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     justifyContent: "space-around",
     alignItems: "center",
+    zIndex: 10,
   },
   navItem: {
     alignItems: "center",

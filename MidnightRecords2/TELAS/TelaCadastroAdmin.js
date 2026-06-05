@@ -14,8 +14,7 @@ import {
 import { useRouter } from "expo-router";
 import Feather from "@expo/vector-icons/Feather";
 import { useProdutosContext } from "../context/ProdutosContext";
-import { collection, addDoc } from "firebase/firestore";
-import { auth, db } from "../config/firebaseConfig";
+import { auth } from "../config/firebaseConfig";
 
 let ImagePicker = null;
 
@@ -78,23 +77,13 @@ export default function TelaCadastroAdmin() {
 
     try {
       const usuario = auth.currentUser;
-      const imagem = imagePreview || linkImagem || "";
-
-      if (usuario) {
-        const docRef = await addDoc(collection(db, "produtos"), {
-          nome: titulo,
-          preco: preco,
-          imagem: imagem,
-          descricao: descricao,
-          linkImagem: linkImagem,
-          criadoPor: usuario.uid,
-          criadoEm: new Date().toISOString(),
-        });
-
-        console.log("Produto salvo no Firestore com ID:", docRef.id);
-      } else {
-        console.log("Usuário não encontrado no Firebase Auth. Salvando apenas no app.");
+      if (!usuario) {
+        Alert.alert("Erro", "Você precisa estar logado para cadastrar um produto.");
+        setLoading(false);
+        return;
       }
+
+      const imagem = imagePreview || linkImagem || "";
 
       await adicionarProduto({
         nome: titulo,
