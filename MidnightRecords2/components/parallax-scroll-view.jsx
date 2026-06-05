@@ -47,6 +47,15 @@ export default function ParallaxScrollView({
       ref={scrollRef}
       style={{ backgroundColor, flex: 1 }}
       scrollEventThrottle={16}
+      scrollIndicatorInsets={{ bottom }}
+      contentContainerStyle={{ paddingBottom: bottom }}
+      bounces={false}
+      overScrollMode="never"
+    >
+      scrollIndicatorInsets={{ bottom }}
+      contentContainerStyle={{ paddingBottom: bottom }}
+      bounces={false}
+      overScrollMode="never"
     >
       <Animated.View
         style={[
