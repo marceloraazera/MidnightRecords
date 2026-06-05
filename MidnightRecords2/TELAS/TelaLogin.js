@@ -230,8 +230,7 @@ const styles = StyleSheet.create({
   container: {
   flex: 1,
   paddingHorizontal: 24,
-  paddingVertical: 40,
-  justifyContent: "space-between",
+  paddingTop: 40,
 },
   logoContainer: {
     alignItems: "center",
@@ -239,9 +238,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   logoImage: {
-    width: 360,
-    height: 220,
-  },
+  width: 220,
+  height: 120,
+},
   logo: {
     fontFamily: "Poppins_700Bold",
     fontSize: 42,
@@ -299,19 +298,12 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   formContainer: {
-    flex: 1,
-    justifyContent: "center",
-    backgroundColor: "rgba(10, 15, 30, 0.65)",
-    borderRadius: 30,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: "rgba(212, 167, 79, 0.24)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.18,
-    shadowRadius: 30,
-    elevation: 10,
-  },
+  backgroundColor: "rgba(10, 15, 30, 0.65)",
+  borderRadius: 30,
+  padding: 24,
+  borderWidth: 1,
+  borderColor: "rgba(212, 167, 79, 0.24)",
+},
   inputWrapper: {
     marginBottom: 18,
   },

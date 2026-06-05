@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Produtos visíveis para todos os usuários autenticados.
+    // Apenas o criador pode excluir ou alterar seu próprio produto.
+    match /produtos/{produtoId} {
+      allow read: if request.auth != null;
+
+      allow create: if isSignedIn()
+        && request.resource.data.criadoPor == request.auth.uid
+        && request.resource.data.criadoEm is timestamp
+        && request.resource.data.nome is string
+        && request.resource.data.preco is string
+        && request.resource.data.descricao is string;
+
+      allow update: if isSignedIn()
+        && resource.data.criadoPor == request.auth.uid
+        && request.resource.data.criadoPor == resource.data.criadoPor
+        && request.resource.data.criadoEm == resource.data.criadoEm;
+
+      allow delete: if isSignedIn()
+        && resource.data.criadoPor == request.auth.uid;
+    }
+
+    // Favoritos são privados do usuário.
+    match /favoritos/{userId}/itens/{produtoId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+  }
+}
