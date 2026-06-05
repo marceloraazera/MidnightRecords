@@ -5,6 +5,7 @@ import Animated, {
   useAnimatedStyle,
   useScrollOffset,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedView } from "@/components/themed-view";
 
@@ -17,6 +18,9 @@ export default function ParallaxScrollView({
 }) {
   const colorScheme = useColorScheme() ?? "light";
   const backgroundColor = colorScheme === "dark" ? "#151718" : "#ffffff";
+  const { bottom } = useSafeAreaInsets();
+
+  const headerBackground = headerBackgroundColor?.[colorScheme] ?? backgroundColor;
 
   const scrollRef = useAnimatedRef();
   const scrollOffset = useScrollOffset(scrollRef);
@@ -47,11 +51,15 @@ export default function ParallaxScrollView({
       ref={scrollRef}
       style={{ backgroundColor, flex: 1 }}
       scrollEventThrottle={16}
+      scrollIndicatorInsets={{ bottom }}
+      contentContainerStyle={{ paddingBottom: bottom }}
+      bounces={false}
+      overScrollMode="never"
     >
       <Animated.View
         style={[
           styles.header,
-          { backgroundColor: headerBackgroundColor[colorScheme] },
+          { backgroundColor: headerBackground },
           headerAnimatedStyle,
         ]}
       >

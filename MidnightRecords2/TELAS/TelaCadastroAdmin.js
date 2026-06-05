@@ -116,7 +116,12 @@ export default function TelaCadastroAdmin() {
       style={styles.background}
       imageStyle={styles.backgroundImage}
     >
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.container} 
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
+      >
         <View style={styles.logoContainer}>
           <Image
             source={require("../assets/imagensMR/logo-completa-midnight.png")}

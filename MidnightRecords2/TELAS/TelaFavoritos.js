@@ -184,6 +184,8 @@ export default function TelaFavoritos() {
           columnWrapperStyle={styles.row}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          bounces={false}
+          overScrollMode="never"
         />
       )}
     </ImageBackground>

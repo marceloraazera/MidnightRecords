@@ -85,7 +85,7 @@ export default function TelaLogin() {
       {/* Imagem de Fundo Totalmente Fixa */}
       <Image
         source={require("../assets/imagensMR/fundo-escuro.png")}
-        style={StyleSheet.absoluteFillObject}
+        style={[StyleSheet.absoluteFillObject, { width: "100%", height: "100%" }]}
         resizeMode="cover"
       />
 
@@ -229,8 +229,11 @@ const styles = StyleSheet.create({
   },
   container: {
   flex: 1,
+  width: "100%",
+  height: "100%",
   paddingHorizontal: 24,
   paddingTop: 40,
+  overflow: "hidden",
 },
   logoContainer: {
     alignItems: "center",
@@ -238,8 +241,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   logoImage: {
-  width: 220,
-  height: 120,
+  width: 360,
+  height: 220,
 },
   logo: {
     fontFamily: "Poppins_700Bold",
@@ -303,6 +306,7 @@ const styles = StyleSheet.create({
   padding: 24,
   borderWidth: 1,
   borderColor: "rgba(212, 167, 79, 0.24)",
+  overflow: "hidden",
 },
   inputWrapper: {
     marginBottom: 18,
