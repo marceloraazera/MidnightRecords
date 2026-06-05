@@ -39,4 +39,4 @@ const discografia = [
   }
 ]
 
-export default discografia()
+export default discografia;
