@@ -196,6 +196,8 @@ export default function DetalhesProduto() {
           style={{ flex: 1 }}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          bounces={false}
+          overScrollMode="never"
         >
           {/* Logo Midnight Records Reduzida */}
           <View style={styles.logoContainer}>
@@ -230,7 +232,8 @@ export default function DetalhesProduto() {
               showsHorizontalScrollIndicator={false}
               onScroll={handleScroll}
               scrollEventThrottle={16}
-              scrollEnabled={false}
+              bounces={false}
+              overScrollMode="never"
             >
               {carouselImages.map((imgSrc, index) => (
                 <View key={index} style={styles.carouselItem}>
