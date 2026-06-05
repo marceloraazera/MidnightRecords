@@ -160,7 +160,12 @@ const sairConta = async () => {
       style={styles.background}
       imageStyle={styles.backgroundImage}
     >
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <ScrollView 
+        style={styles.container} 
+        contentContainerStyle={styles.content}
+        bounces={false}
+        overScrollMode="never"
+      >
         <View style={styles.card}>
           <View style={styles.headerSection}>
             <View style={styles.avatar}>

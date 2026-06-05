@@ -98,7 +98,7 @@ export default function TelaCadastro() {
     <ImageBackground
       source={require("../assets/imagensMR/fundo-escuro.png")}
       style={styles.background}
-      imageStyle={styles.backgroundImage}
+      imageStyle={[styles.backgroundImage, { width: "100%", height: "100%" }]}
     >
       <View style={styles.container}>
         <View style={styles.logoContainer}>
@@ -219,10 +219,13 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   container: {
-    flexGrow: 1,
+    flex: 1,
+    width: "100%",
+    height: "100%",
     paddingHorizontal: 24,
     paddingVertical: 40,
     justifyContent: "space-between",
+    overflow: "hidden",
   },
   logoContainer: {
     alignItems: "center",

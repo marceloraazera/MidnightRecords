@@ -39,10 +39,10 @@ const imagemSources = {
 };
 
 const imagemFallbackById = {
-  "the-queen-is-dead": imagemSources["Disco1-1.png"],
-  "super-real-me": imagemSources["Disco2-1.png"],
-  "ocean-blvd": imagemSources["Disco3-1.png"],
-  "guts": imagemSources["Disco4-1.png"],
+  "the-queen-is-dead": imagemSources["Disco3-1.png"],
+  "super-real-me": imagemSources["Disco1-1.png"],
+  "ocean-blvd": imagemSources["Disco4-1.png"],
+  "guts": imagemSources["Disco2-1.png"],
   1: imagemSources["Disco1-1.png"],
   2: imagemSources["Disco2-1.png"],
   3: imagemSources["Disco3-1.png"],
@@ -50,10 +50,10 @@ const imagemFallbackById = {
 };
 
 const imagemFallbackByNome = {
-  "The Queen Is Dead": imagemSources["Disco1-1.png"],
-  "Super Real Me": imagemSources["Disco2-1.png"],
-  "Ocean Blvd": imagemSources["Disco3-1.png"],
-  GUTS: imagemSources["Disco4-1.png"],
+  "The Queen Is Dead": imagemSources["Disco3-1.png"],
+  "Super Real Me": imagemSources["Disco1-1.png"],
+  "Ocean Blvd": imagemSources["Disco4-1.png"],
+  GUTS: imagemSources["Disco2-1.png"],
 };
 
 const defaultAlbumImage = require("../assets/discos/Disco1-1.png");
