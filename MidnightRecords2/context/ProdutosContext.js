@@ -35,7 +35,7 @@ export function ProdutosProvider({ children }) {
     carregarProdutosLocal();
 
     const produtosRef = collection(db, "produtos");
-    const produtosQuery = query(produtosRef, orderBy("criadoEm", "desc"));
+    const produtosQuery = query(produtosRef);
 
     const unsubscribe = onSnapshot(
       produtosQuery,
