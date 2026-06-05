@@ -307,6 +307,7 @@ export default function TelaHome() {
         columnWrapperStyle={styles.columnWrapper}
         contentContainerStyle={styles.flatListContent}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={false}
         ListHeaderComponent={
           <>
             <View style={styles.headerContainer}>
@@ -456,7 +457,7 @@ const styles = StyleSheet.create({
   produtoImageAtual: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
+    resizeMode: "contain",
   },
 
   cardContent: {
