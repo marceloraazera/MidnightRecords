@@ -16,14 +16,14 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 
 const imagemSources = {
-  "the-queen-is-dead": require("../assets/discos/Disco1-1.png"),
-  "super-real-me": require("../assets/discos/Disco2-1.png"),
-  "ocean-blvd": require("../assets/discos/Disco3-1.png"),
-  "guts": require("../assets/discos/Disco4-1.png"),
-  "The Queen Is Dead": require("../assets/discos/Disco1-1.png"),
-  "Super Real Me": require("../assets/discos/Disco2-1.png"),
-  "Ocean Blvd": require("../assets/discos/Disco3-1.png"),
-  "GUTS": require("../assets/discos/Disco4-1.png"),
+  "the-queen-is-dead": require("../assets/discos/Disco3-1.png"),
+  "super-real-me": require("../assets/discos/Disco1-1.png"),
+  "ocean-blvd": require("../assets/discos/Disco4-1.png"),
+  "guts": require("../assets/discos/Disco2-1.png"),
+  "The Queen Is Dead": require("../assets/discos/Disco3-1.png"),
+  "Super Real Me": require("../assets/discos/Disco1-1.png"),
+  "Ocean Blvd": require("../assets/discos/Disco4-1.png"),
+  "GUTS": require("../assets/discos/Disco2-1.png"),
 };
 
 const parsePrice = (value) => {
