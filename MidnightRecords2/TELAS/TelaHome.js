@@ -307,7 +307,8 @@ export default function TelaHome() {
         columnWrapperStyle={styles.columnWrapper}
         contentContainerStyle={styles.flatListContent}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={false}
+        bounces={false}
+        overScrollMode="never"
         ListHeaderComponent={
           <>
             <View style={styles.headerContainer}>

@@ -230,6 +230,7 @@ export default function DetalhesProduto() {
               showsHorizontalScrollIndicator={false}
               onScroll={handleScroll}
               scrollEventThrottle={16}
+              scrollEnabled={false}
             >
               {carouselImages.map((imgSrc, index) => (
                 <View key={index} style={styles.carouselItem}>
@@ -330,8 +331,8 @@ export default function DetalhesProduto() {
   );
 }
 
-// Proporções atualizadas para o carrossel (aumentando a capa para parecer mais com a ref)
-const ALBUM_SIZE = SCREEN_WIDTH * 0.60;
+// Proporções atualizadas para o carrossel
+const ALBUM_SIZE = SCREEN_WIDTH * 0.40; // Imagens menores para adaptar melhor à tela
 const VINYL_SIZE = ALBUM_SIZE * 0.92;
 
 const styles = StyleSheet.create({
