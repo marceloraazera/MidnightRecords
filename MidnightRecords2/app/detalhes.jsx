@@ -38,10 +38,6 @@ const imagemFallbackById = {
   "super-real-me": imagemSources["Disco1-1.png"],
   "ocean-blvd": imagemSources["Disco4-1.png"],
   guts: imagemSources["Disco2-1.png"],
-  1: imagemSources["Disco3-1.png"],
-  2: imagemSources["Disco1-1.png"],
-  3: imagemSources["Disco4-1.png"],
-  4: imagemSources["Disco2-1.png"],
 };
 
 const imagemFallbackByNome = {
@@ -83,16 +79,16 @@ const getImageSource = (imagemNome, produtoId, produtoNome) => {
 const getImagesArray = (produtoId, produtoNome, defaultSource) => {
   const idStr = String(produtoId).toLowerCase();
   
-  if (idStr === "1" || idStr === "the-queen-is-dead" || produtoNome === "The Queen Is Dead") {
+  if (idStr === "the-queen-is-dead" || produtoNome === "The Queen Is Dead") {
     return [imagemSources["Disco3-1.png"], imagemSources["Disco3-2.png"], imagemSources["Disco3-3.png"]];
   }
-  if (idStr === "2" || idStr === "super-real-me" || produtoNome === "Super Real Me") {
+  if (idStr === "super-real-me" || produtoNome === "Super Real Me") {
     return [imagemSources["Disco1-1.png"], imagemSources["Disco1-2.png"], imagemSources["Disco1-3.png"]];
   }
-  if (idStr === "3" || idStr === "ocean-blvd" || produtoNome === "Ocean Blvd") {
+  if (idStr === "ocean-blvd" || produtoNome === "Ocean Blvd") {
     return [imagemSources["Disco4-1.png"], imagemSources["Disco4-2.png"], imagemSources["Disco4-3.png"]];
   }
-  if (idStr === "4" || idStr === "guts" || produtoNome === "GUTS") {
+  if (idStr === "guts" || produtoNome === "GUTS") {
     return [imagemSources["Disco2-1.png"], imagemSources["Disco2-2.png"], imagemSources["Disco2-3.png"]];
   }
   
@@ -116,16 +112,16 @@ const formatPrice = (value) => {
 
 const getFallbackDescription = (produtoId) => {
   const idStr = String(produtoId).toLowerCase();
-  if (idStr === "1" || idStr === "the-queen-is-dead") {
+  if (idStr === "the-queen-is-dead") {
     return "O ápice do indie rock britânico dos anos 80. Este álbum une a guitarra melódica de Johnny Marr às letras poéticas e sarcásticas de Morrissey, consolidando-se como uma obra-prima atemporal sobre a melancolia e a cultura inglesa.";
   }
-  if (idStr === "2" || idStr === "super-real-me") {
+  if (idStr === "super-real-me") {
     return "Um mergulho vibrante nas complexidades da vida moderna e do K-pop. ILLIT entrega faixas magnéticas e dançantes que exploram temas de autenticidade, auto-descobrimento e as pressões da juventude em um mundo hiperconectado.";
   }
-  if (idStr === "3" || idStr === "ocean-blvd") {
+  if (idStr === "ocean-blvd") {
     return "Lana Del Rey retorna com uma jornada íntima e cinematográfica. O álbum mistura melodias melancólicas, reflexões profundas sobre família e legado, e uma sonoridade nostálgica e atmosférica.";
   }
-  if (idStr === "4" || idStr === "guts") {
+  if (idStr === "guts") {
     return "A evolução do pop punk com a voz marcante da Geração Z. Olivia Rodrigo transforma angústias adolescentes, relacionamentos confusos e as dores do amadurecimento em hinos poderosos e inesquecíveis.";
   }
   return "Um álbum incrível que não pode faltar na sua coleção. Adquira agora e desfrute de horas de boa música.";
