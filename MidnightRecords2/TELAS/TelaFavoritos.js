@@ -26,6 +26,28 @@ const imagemSources = {
   "GUTS": require("../assets/discos/Disco4-1.png"),
 };
 
+const parsePrice = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return 0;
+  }
+
+  if (typeof value === "number") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.replace(/[^0-9,.-]/g, "").replace(/,/g, ".");
+    const parsed = parseFloat(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  return 0;
+};
+
+const formatPrice = (value) => {
+  return `R$ ${Number(value).toFixed(2).replace(".", ",")}`;
+};
+
 export default function TelaFavoritos() {
   const router = useRouter();
 
@@ -80,20 +102,42 @@ export default function TelaFavoritos() {
     }
   };
 
+  const irParaDetalhes = (produtoId) => {
+    const encodedId = encodeURIComponent(produtoId);
+    router.push(`/detalhes?id=${encodedId}`);
+  };
+
   const renderProduto = ({ item }) => {
   const imagem =
   item.linkImagem || item.imagem
     ? { uri: item.linkImagem || item.imagem }
     : imagemSources[item.imagemKey] || imagemSources[item.id] || imagemSources[item.nome];
+
+  const precoBase = parsePrice(item.precoCheio ?? item.preco ?? item.precoDesconto);
+  const precoDesconto = precoBase * 0.95;
+  const precoBaseFormatado = formatPrice(precoBase);
+  const precoDescontoFormatado = formatPrice(precoDesconto);
+
     return (
-      <View style={styles.card}>
+      <TouchableOpacity
+        style={styles.card}
+        activeOpacity={0.9}
+        onPress={() => irParaDetalhes(item.id)}
+      >
         <Image source={imagem} style={styles.image} resizeMode="cover" />
 
         <Text style={styles.nome} numberOfLines={2}>
           {item.nome}
         </Text>
 
-        <Text style={styles.preco}>{item.preco || "R$ 0,00"}</Text>
+        {precoBase > 0 ? (
+          <View style={styles.priceBox}>
+            <Text style={styles.precoOriginal}>De {precoBaseFormatado}</Text>
+            <Text style={styles.precoAtual}>Por {precoDescontoFormatado}</Text>
+          </View>
+        ) : (
+          <Text style={styles.preco}>{formatPrice(0)}</Text>
+        )}
 
         <TouchableOpacity
           style={styles.heartButton}
@@ -101,7 +145,7 @@ export default function TelaFavoritos() {
         >
           <Ionicons name="heart" size={30} color="#D97B46" />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -240,6 +284,21 @@ image: {
     lineHeight: 13,
     marginTop: 8,
     paddingRight: 28,
+  },
+  priceBox: {
+    marginTop: 8,
+  },
+  precoOriginal: {
+    fontFamily: "Poppins_400Regular",
+    color: "#6b6b6b",
+    fontSize: 12,
+    textDecorationLine: "line-through",
+  },
+  precoAtual: {
+    fontFamily: "Poppins_700Bold",
+    color: "#111",
+    fontSize: 15,
+    marginTop: 2,
   },
   preco: {
     fontFamily: "Poppins_700Bold",

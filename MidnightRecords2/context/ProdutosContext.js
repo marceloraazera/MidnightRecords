@@ -20,6 +20,53 @@ export function ProdutosProvider({ children }) {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const produtosPadrao = [
+    {
+      id: "the-queen-is-dead",
+      nome: "The Queen Is Dead",
+      autor: "The Smiths",
+      descricao: "Álbum clássico do rock alternativo britânico com letras melancólicas e instrumentais marcantes. Uma das obras mais icônicas dos anos 80.",
+      precoCheio: 299.9,
+      precoDesconto: 250.0,
+      imagens: ["Disco1 - 1.png", "Disco1 - 2.png", "Disco1 - 3.png"],
+    },
+    {
+      id: "super-real-me",
+      nome: "Super Real Me",
+      autor: "ILLIT",
+      descricao: "Mini álbum moderno do k-pop com sonoridade leve, energética e estética jovem. Mistura pop eletrônico com refrões viciantes.",
+      precoCheio: 299.9,
+      precoDesconto: 250.0,
+      imagens: ["Disco2 - 1.png", "Disco2 - 2.png", "Disco2 - 3.png"],
+    },
+    {
+      id: "ocean-blvd",
+      nome: "Ocean Blvd",
+      autor: "Lana Del Rey",
+      descricao: "Projeto introspectivo e cinematográfico com vocais suaves e produção emocional. Um dos trabalhos mais profundos da cantora.",
+      precoCheio: 299.9,
+      precoDesconto: 250.0,
+      imagens: ["Disco3 - 1.png", "Disco3 - 2.png", "Disco3 - 3.png"],
+    },
+    {
+      id: "guts",
+      nome: "GUTS",
+      autor: "Olivia Rodrigo",
+      descricao: "Álbum intenso e autêntico que mistura pop rock, emoções adolescentes e letras marcantes. Repleto de faixas explosivas e sentimentais.",
+      precoCheio: 299.9,
+      precoDesconto: 290.0,
+      imagens: ["Disco4 - 1.png", "Disco4 - 2.png", "Disco4 - 3.png"],
+    },
+  ];
+
+  const mergeWithDefaults = (remoteProducts) => {
+    const defaultIds = new Set(remoteProducts.map((item) => String(item.id)));
+    return [
+      ...produtosPadrao.filter((item) => !defaultIds.has(String(item.id))),
+      ...remoteProducts,
+    ];
+  };
+
   useEffect(() => {
     const carregarProdutosLocal = async () => {
       try {
@@ -45,10 +92,14 @@ export function ProdutosProvider({ children }) {
           ...document.data(),
         }));
 
-        setProdutos(produtosRemotos);
+        const produtosCompletos = produtosRemotos.length
+          ? mergeWithDefaults(produtosRemotos)
+          : produtosPadrao;
+
+        setProdutos(produtosCompletos);
 
         try {
-          await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosRemotos));
+          await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosCompletos));
         } catch (error) {
           console.error("Erro ao salvar produtos locais:", error);
         }
@@ -82,60 +133,6 @@ export function ProdutosProvider({ children }) {
       if (jsonValue) {
         setProdutos(JSON.parse(jsonValue));
       } else {
-        const produtosPadrao = [
-          {
-            id: "the-queen-is-dead",
-            nome: "The Queen Is Dead",
-            autor: "The Smiths",
-            descricao: "Álbum clássico do rock alternativo britânico com letras melancólicas e instrumentais marcantes. Uma das obras mais icônicas dos anos 80.",
-            precoCheio: 299.90,
-            precoDesconto: 250.00,
-            imagens: [
-              "Disco1 - 1.png",
-              "Disco1 - 2.png",
-              "Disco1 - 3.png"
-            ]
-          },
-          {
-            id: "super-real-me",
-            nome: "Super Real Me",
-            autor: "ILLIT",
-            descricao: "Mini álbum moderno do k-pop com sonoridade leve, energética e estética jovem. Mistura pop eletrônico com refrões viciantes.",
-            precoCheio: 299.90,
-            precoDesconto: 250.00,
-            imagens: [
-              "Disco2 - 1.png",
-              "Disco2 - 2.png",
-              "Disco2 - 3.png"
-            ]
-          },
-          {
-            id: "ocean-blvd",
-            nome: "Ocean Blvd",
-            autor: "Lana Del Rey",
-            descricao: "Projeto introspectivo e cinematográfico com vocais suaves e produção emocional. Um dos trabalhos mais profundos da cantora.",
-            precoCheio: 299.90,
-            precoDesconto: 250.00,
-            imagens: [
-              "Disco3 - 1.png",
-              "Disco3 - 2.png",
-              "Disco3 - 3.png"
-            ]
-          },
-          {
-            id: "guts",
-            nome: "GUTS",
-            autor: "Olivia Rodrigo",
-            descricao: "Álbum intenso e autêntico que mistura pop rock, emoções adolescentes e letras marcantes. Repleto de faixas explosivas e sentimentais.",
-            precoCheio: 299.90,
-            precoDesconto: 290.00,
-            imagens: [
-              "Disco4 - 1.png",
-              "Disco4 - 2.png",
-              "Disco4 - 3.png"
-            ]
-          }
-        ];
         setProdutos(produtosPadrao);
         await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosPadrao));
       }
