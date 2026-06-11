@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ProdutosProvider } from '@/context/ProdutosContext';
+import { CartProvider } from '@/context/CartContext';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { useColorScheme } from 'react-native';
 
@@ -27,6 +28,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
     <ProdutosProvider>
+    <CartProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -38,6 +40,7 @@ export default function RootLayout() {
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>
+    </CartProvider>
     </ProdutosProvider>
     </SafeAreaProvider>
   );

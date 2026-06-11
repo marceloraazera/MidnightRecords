@@ -14,6 +14,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
 import { auth } from "../config/firebaseConfig";
 import Feather from "@expo/vector-icons/Feather";
+import { useCart } from "../context/CartContext";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -137,53 +138,73 @@ export default function DetalhesProduto() {
 
   const produto = produtos.find((item) => String(item.id) === String(paramsId));
 
+  const produtosRelacionados = React.useMemo(() => {
+    return produtos
+      .filter((item) => String(item.id) !== String(paramsId))
+      .sort((a, b) => {
+        let scoreA = 0;
+        let scoreB = 0;
+        if (produto?.categoria && a.categoria === produto.categoria) scoreA++;
+        if (produto?.categoria && b.categoria === produto.categoria) scoreB++;
+        if (produto?.artista && a.artista === produto.artista) scoreA++;
+        if (produto?.artista && b.artista === produto.artista) scoreB++;
+        
+        if (scoreA !== scoreB) return scoreB - scoreA;
+        return 0.5 - Math.random();
+      })
+      .slice(0, 6);
+  }, [produtos, paramsId, produto]);
+
   console.log("=== DEBUG DETALHES ===");
   console.log("Produto encontrado:", produto?.id, produto?.nome);
   console.log("Usuário logado:", auth.currentUser?.uid, auth.currentUser?.email);
   console.log("criadoPor:", produto?.criadoPor);
   console.log("Pode excluir?", auth.currentUser && produto?.criadoPor === auth.currentUser.uid);
 
+  const { addItem } = useCart();
+
   // Permite excluir se: 1) usuario está logado, 2) produto tem criadoPor definido, 3) é o criador
   const podeExcluir = auth.currentUser && produto?.criadoPor && produto?.criadoPor === auth.currentUser.uid;
 
+  const primarySource = produto ? getImageSource(
+    produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem,
+    produto.id,
+    produto.nome
+  ) ?? defaultAlbumImage : defaultAlbumImage;
+
+  const precoBase = parsePrice(produto?.precoCheio ?? produto?.preco ?? produto?.precoDesconto);
+  const precoDesconto = precoBase * 0.95;
+
+  const handleAddToCart = () => {
+    if (!produto) return;
+    addItem({
+      id: produto.id,
+      nome: produto.nome,
+      preco: precoDesconto,
+      imagem: primarySource,
+    });
+    Alert.alert("Sucesso", "Produto adicionado ao carrinho!");
+  };
+
   const excluirProduto = async () => {
     try {
-      console.log("=== FUNÇÃO EXCLUIR CHAMADA ===");
-      Alert.alert("Iniciando exclusão...", "Aguarde...");
-      
       const produtoId = produto?.id ?? paramsId;
-      console.log("Produto ID:", produtoId);
-      
       await deletarProduto(produtoId);
-      
       Alert.alert("Sucesso", "Produto excluído com sucesso!");
       setTimeout(() => router.replace("/(tabs)"), 500);
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
-      Alert.alert("Erro na exclusão", `${error.message || "Não foi possível excluir este produto."}`);
+      Alert.alert("Erro", error.message || "Não foi possível excluir este produto.");
     }
   };
 
   const confirmarExclusao = () => {
-    console.log("Abrindo diálogo de confirmação, podeExcluir:", podeExcluir);
     Alert.alert(
       "Excluir produto",
       "Tem certeza que deseja excluir este produto? Essa ação não pode ser desfeita.",
       [
         { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: () =>
-            Alert.alert(
-              "Confirmação final",
-              "Deseja realmente excluir o produto permanentemente?",
-              [
-                { text: "Não", style: "cancel" },
-                { text: "Sim, excluir", style: "destructive", onPress: excluirProduto },
-              ]
-            ),
-        },
+        { text: "Excluir", style: "destructive", onPress: excluirProduto },
       ]
     );
   };
@@ -210,19 +231,11 @@ export default function DetalhesProduto() {
     );
   }
 
-  const primarySource = getImageSource(
-    produto.imagens?.[0] ?? produto.imagem ?? produto.linkImagem,
-    produto.id,
-    produto.nome
-  ) ?? defaultAlbumImage;
-
   const carouselImages = produto.imagens && produto.imagens.length > 1 
                          ? produto.imagens.map(img => getImageSource(img, produto.id, produto.nome) ?? primarySource)
                          : getImagesArray(produto.id, produto.nome, primarySource);
 
-  const precoBase = parsePrice(produto.precoCheio ?? produto.preco ?? produto.precoDesconto);
   const precoCheio = precoBase;
-  const precoDesconto = precoBase * 0.95;
 
   const handleScroll = (event) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;
@@ -240,7 +253,7 @@ export default function DetalhesProduto() {
       imageStyle={styles.backgroundImage}
     >
       <View style={styles.mainContainer}>
-        {/* Conteúdo scrollável principal da tela */}
+        {/* Conteúdo principal da tela com scroll */}
         <ScrollView
           style={styles.scrollArea}
           contentContainerStyle={styles.scrollContent}
@@ -348,7 +361,7 @@ export default function DetalhesProduto() {
 
           {/* Botões de ação lado a lado */}
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.saveButton} activeOpacity={0.85}>
+            <TouchableOpacity style={styles.saveButton} activeOpacity={0.85} onPress={handleAddToCart}>
               <Text style={styles.saveButtonText}>Salvar produto</Text>
             </TouchableOpacity>
 
@@ -356,48 +369,57 @@ export default function DetalhesProduto() {
               <Feather name="heart" size={18} color="#ffffff" style={styles.favIcon} />
               <Text style={styles.favButtonText}>Favoritar</Text>
             </TouchableOpacity>
-          </View>
 
-          {podeExcluir && (
-            <View style={styles.deleteButtonWrapper}>
-              <TouchableOpacity
-                style={styles.deleteButton}
+            {/* Ícone de lixeira apenas para o criador */}
+            {podeExcluir && (
+              <TouchableOpacity 
+                style={styles.trashIconButton} 
                 onPress={() => {
                   console.warn("✓ BOTÃO EXCLUIR CLICADO");
                   confirmarExclusao();
                 }}
                 activeOpacity={0.85}
               >
-                <Text style={styles.deleteButtonText}>Excluir produto</Text>
+                <Feather name="trash-2" size={20} color="#ff4d4d" />
               </TouchableOpacity>
-            </View>
-          )}
-
-          {!podeExcluir && produto?.criadoPor && (
-            <View style={styles.deleteButtonWrapper}>
-              <TouchableOpacity
-                style={[styles.deleteButton, { opacity: 0.5 }]}
-                disabled
-                activeOpacity={0.85}
-              >
-                <Text style={styles.deleteButtonText}>Só o criador pode excluir</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* BOTÃO DE TESTE - SEMPRE VISÍVEL PARA DEBUG */}
-          <View style={styles.deleteButtonWrapper}>
-            <TouchableOpacity
-              style={[styles.deleteButton, { backgroundColor: "#FF6B9D" }]}
-              onPress={() => {
-                console.warn("✓✓✓ BOTÃO DE TESTE CLICADO ✓✓✓");
-                Alert.alert("Teste", `podeExcluir: ${podeExcluir}\ncriadoPor: ${produto?.criadoPor}\nUID: ${auth.currentUser?.uid}`);
-              }}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.deleteButtonText}>🔴 TESTE: Clique aqui</Text>
-            </TouchableOpacity>
+            )}
           </View>
+
+          {/* Seção Veja também */}
+          {produtosRelacionados.length > 0 && (
+            <View style={styles.relatedSection}>
+              <Text style={styles.relatedTitle}>Veja também</Text>
+              <Text style={styles.relatedSubtitle}>Outros discos que podem te interessar</Text>
+              
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.relatedScrollContent}
+              >
+                {produtosRelacionados.map((item) => {
+                  const itemImg = getImageSource(
+                    item.imagens?.[0] ?? item.imagem ?? item.linkImagem, 
+                    item.id, 
+                    item.nome
+                  ) ?? defaultAlbumImage;
+                  const itemPreco = parsePrice(item.precoCheio ?? item.preco ?? item.precoDesconto);
+                  
+                  return (
+                    <TouchableOpacity 
+                      key={item.id} 
+                      style={styles.relatedCard}
+                      onPress={() => router.push({ pathname: "/detalhes", params: { id: item.id } })}
+                      activeOpacity={0.85}
+                    >
+                      <Image source={itemImg} style={styles.relatedImage} resizeMode="cover" />
+                      <Text style={styles.relatedName} numberOfLines={1}>{item.nome}</Text>
+                      <Text style={styles.relatedPrice}>{formatPrice(itemPreco)}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
         </ScrollView>
 
         {/* Barra de navegação inferior fixa */}
@@ -425,7 +447,7 @@ export default function DetalhesProduto() {
 }
 
 // Proporções atualizadas para o carrossel
-const ALBUM_SIZE = SCREEN_WIDTH * 0.40; // Imagens menores para adaptar melhor à tela
+const ALBUM_SIZE = SCREEN_WIDTH * 0.60; // Imagem maior para destaque premium
 const VINYL_SIZE = ALBUM_SIZE * 0.92;
 
 const styles = StyleSheet.create({
@@ -466,20 +488,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 120,
+    paddingBottom: 120, // Garante que role acima do bottom nav
   },
 
   /* Logo */
   logoContainer: {
     alignItems: "center",
+    marginTop: 10,
+    marginBottom: 12,
   },
   logoImage: {
-    height: 80,
+    height: 40,
   },
 
   /* Header bar escuro (como na imagem) */
   headerBox: {
-    marginHorizontal: 16,
+    marginHorizontal: 24,
     marginBottom: 20,
     borderRadius: 16,
     borderWidth: 1,
@@ -491,7 +515,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   headerDivider: {
     height: 1,
@@ -623,19 +647,21 @@ const styles = StyleSheet.create({
   },
   albumTitle: {
     fontFamily: "Poppins_700Bold",
-    fontSize: 26,
+    fontSize: 24,
     color: "#CCF7E4",
     letterSpacing: 0.5,
-    marginBottom: 10,
+    marginBottom: 4,
   },
   priceSection: {
-    marginBottom: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 16,
   },
   priceOld: {
     fontFamily: "Poppins_400Regular",
     fontSize: 13,
     color: "#999080",
-    marginBottom: 6,
     fontStyle: "italic",
   },
   priceOldValue: {
@@ -650,20 +676,20 @@ const styles = StyleSheet.create({
   },
   priceNewValue: {
     fontFamily: "Poppins_700Bold",
-    fontSize: 24,
+    fontSize: 20,
     color: "#CCF7E4",
     fontStyle: "normal",
   },
 
   /* Descrição */
   descriptionSection: {
-    marginBottom: 12,
+    marginBottom: 4,
   },
   descriptionLabel: {
     fontFamily: "Poppins_600SemiBold",
     fontSize: 14,
     color: "#D4A74F",
-    marginBottom: 6,
+    marginBottom: 4,
     fontStyle: "italic",
   },
   descriptionText: {
@@ -671,7 +697,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#f0f0f0",
     lineHeight: 20,
-    paddingRight: 10, // Para a largura se assemelhar à ref
+    paddingRight: 0,
   },
 
   /* Botões de ação */
@@ -679,15 +705,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingHorizontal: 24,
     gap: 12,
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 12,
+    marginBottom: 32,
     justifyContent: "space-between",
+    alignItems: "center",
   },
   saveButton: {
     flex: 1,
-    backgroundColor: "#CA743C", // Mais fiel à ref (verde floresta escuro)
+    backgroundColor: "#CA743C", 
     borderRadius: 24,
-    minHeight: 50,
+    minHeight: 44,
     justifyContent: "center",
     alignItems: "center",
     elevation: 3,
@@ -699,9 +726,9 @@ const styles = StyleSheet.create({
   },
   favButton: {
     flex: 1,
-    backgroundColor: "#1C5544", // Tom roxo/grafite escuro da ref
+    backgroundColor: "#1C5544",
     borderRadius: 24,
-    minHeight: 50,
+    minHeight: 44,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -715,22 +742,79 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 14,
   },
-  deleteButtonWrapper: {
-    paddingHorizontal: 24,
-    marginBottom: 18,
-  },
-  deleteButton: {
-    backgroundColor: "#A82E2E",
+  cartButton: {
+    flex: 1,
+    backgroundColor: "#D4A74F",
     borderRadius: 24,
-    minHeight: 50,
+    minHeight: 44,
     justifyContent: "center",
     alignItems: "center",
     elevation: 3,
+    marginHorizontal: 4,
   },
-  deleteButtonText: {
+  cartButtonText: {
     fontFamily: "Poppins_600SemiBold",
-    color: "#ffffff",
+    color: "#15101F",
     fontSize: 14,
+  },
+  trashIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255, 77, 77, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 77, 77, 0.3)",
+  },
+
+  /* Veja também */
+  relatedSection: {
+    marginTop: 10,
+    marginBottom: 40,
+  },
+  relatedTitle: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 18,
+    color: "#CCF7E4",
+    paddingHorizontal: 24,
+    marginBottom: 2,
+  },
+  relatedSubtitle: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 12,
+    color: "#999080",
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  relatedScrollContent: {
+    paddingHorizontal: 24,
+    gap: 12,
+  },
+  relatedCard: {
+    width: 120,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderRadius: 12,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.05)",
+  },
+  relatedImage: {
+    width: "100%",
+    height: 104,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  relatedName: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 12,
+    color: "#ffffff",
+    marginBottom: 4,
+  },
+  relatedPrice: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 12,
+    color: "#D4A74F",
   },
 
   /* Barra de navegação inferior */

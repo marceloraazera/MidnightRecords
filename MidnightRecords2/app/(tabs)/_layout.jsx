@@ -1,5 +1,7 @@
 import { Tabs } from "expo-router";
+import { View } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
+import CartBadge from "../components/CartBadge";
 
 export default function TabLayout() {
   return (
@@ -27,17 +29,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
-      <Tabs.Screen
-        name="add"
-        options={{
-          title: "Criar",
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="plus-circle" size={size} color={color} />
-          ),
-        }}
-      />
-
       <Tabs.Screen
         name="favoritos"
         options={{
@@ -47,7 +38,27 @@ export default function TabLayout() {
           ),
         }}
       />
-
+      <Tabs.Screen
+        name="add"
+        options={{
+          title: "Criar",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="plus-circle" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="carrinho"
+        options={{
+          title: "Carrinho",
+          tabBarIcon: ({ color, size }) => (
+            <View style={{ position: "relative" }}>
+              <Feather name="shopping-cart" size={size} color={color} />
+              <CartBadge />
+            </View>
+          ),
+        }}
+      />
       <Tabs.Screen
         name="perfil"
         options={{
