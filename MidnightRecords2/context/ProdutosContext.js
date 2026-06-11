@@ -28,7 +28,7 @@ export function ProdutosProvider({ children }) {
       descricao: "Álbum clássico do rock alternativo britânico com letras melancólicas e instrumentais marcantes. Uma das obras mais icônicas dos anos 80.",
       precoCheio: 299.9,
       precoDesconto: 250.0,
-      imagens: ["Disco1 - 1.png", "Disco1 - 2.png", "Disco1 - 3.png"],
+      imagens: ["Disco3 - 1.png", "Disco3 - 2.png", "Disco3 - 3.png"],
     },
     {
       id: "super-real-me",
@@ -37,7 +37,7 @@ export function ProdutosProvider({ children }) {
       descricao: "Mini álbum moderno do k-pop com sonoridade leve, energética e estética jovem. Mistura pop eletrônico com refrões viciantes.",
       precoCheio: 299.9,
       precoDesconto: 250.0,
-      imagens: ["Disco2 - 1.png", "Disco2 - 2.png", "Disco2 - 3.png"],
+      imagens: ["Disco1 - 1.png", "Disco1 - 2.png", "Disco1 - 3.png"],
     },
     {
       id: "ocean-blvd",
@@ -46,7 +46,7 @@ export function ProdutosProvider({ children }) {
       descricao: "Projeto introspectivo e cinematográfico com vocais suaves e produção emocional. Um dos trabalhos mais profundos da cantora.",
       precoCheio: 299.9,
       precoDesconto: 250.0,
-      imagens: ["Disco3 - 1.png", "Disco3 - 2.png", "Disco3 - 3.png"],
+      imagens: ["Disco4 - 1.png", "Disco4 - 2.png", "Disco4 - 3.png"],
     },
     {
       id: "guts",
@@ -55,7 +55,7 @@ export function ProdutosProvider({ children }) {
       descricao: "Álbum intenso e autêntico que mistura pop rock, emoções adolescentes e letras marcantes. Repleto de faixas explosivas e sentimentais.",
       precoCheio: 299.9,
       precoDesconto: 290.0,
-      imagens: ["Disco4 - 1.png", "Disco4 - 2.png", "Disco4 - 3.png"],
+      imagens: ["Disco2- 1.png", "Disco2 - 2.png", "Disco2 - 3.png"],
     },
   ];
 
