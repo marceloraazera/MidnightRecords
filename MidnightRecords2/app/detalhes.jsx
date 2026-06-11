@@ -12,8 +12,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
-import { auth, db } from "../config/firebaseConfig";
-import { doc, deleteDoc } from "firebase/firestore";
+import { auth } from "../config/firebaseConfig";
 import Feather from "@expo/vector-icons/Feather";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -131,32 +130,60 @@ export default function DetalhesProduto() {
   const router = useRouter();
   const rawParams = useLocalSearchParams();
   const paramsId = Array.isArray(rawParams.id) ? rawParams.id[0] : rawParams.id;
-  const { produtos, loading } = useProdutosContext();
+  const { produtos, loading, deletarProduto } = useProdutosContext();
   
   // Controle do scroll do carrossel
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const produto = produtos.find((item) => String(item.id) === String(paramsId));
 
-  const podeExcluir = auth.currentUser && produto?.criadoPor === auth.currentUser.uid;
+  console.log("=== DEBUG DETALHES ===");
+  console.log("Produto encontrado:", produto?.id, produto?.nome);
+  console.log("Usuário logado:", auth.currentUser?.uid, auth.currentUser?.email);
+  console.log("criadoPor:", produto?.criadoPor);
+  console.log("Pode excluir?", auth.currentUser && produto?.criadoPor === auth.currentUser.uid);
+
+  // Permite excluir se: 1) usuario está logado, 2) produto tem criadoPor definido, 3) é o criador
+  const podeExcluir = auth.currentUser && produto?.criadoPor && produto?.criadoPor === auth.currentUser.uid;
 
   const excluirProduto = async () => {
     try {
-      await deleteDoc(doc(db, "produtos", produto.id));
-      router.replace("/(tabs)");
+      console.log("=== FUNÇÃO EXCLUIR CHAMADA ===");
+      Alert.alert("Iniciando exclusão...", "Aguarde...");
+      
+      const produtoId = produto?.id ?? paramsId;
+      console.log("Produto ID:", produtoId);
+      
+      await deletarProduto(produtoId);
+      
+      Alert.alert("Sucesso", "Produto excluído com sucesso!");
+      setTimeout(() => router.replace("/(tabs)"), 500);
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
-      Alert.alert("Erro", "Não foi possível excluir este produto.");
+      Alert.alert("Erro na exclusão", `${error.message || "Não foi possível excluir este produto."}`);
     }
   };
 
   const confirmarExclusao = () => {
+    console.log("Abrindo diálogo de confirmação, podeExcluir:", podeExcluir);
     Alert.alert(
       "Excluir produto",
       "Tem certeza que deseja excluir este produto? Essa ação não pode ser desfeita.",
       [
         { text: "Cancelar", style: "cancel" },
-        { text: "Excluir", style: "destructive", onPress: excluirProduto },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: () =>
+            Alert.alert(
+              "Confirmação final",
+              "Deseja realmente excluir o produto permanentemente?",
+              [
+                { text: "Não", style: "cancel" },
+                { text: "Sim, excluir", style: "destructive", onPress: excluirProduto },
+              ]
+            ),
+        },
       ]
     );
   };
@@ -335,13 +362,42 @@ export default function DetalhesProduto() {
             <View style={styles.deleteButtonWrapper}>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={confirmarExclusao}
+                onPress={() => {
+                  console.warn("✓ BOTÃO EXCLUIR CLICADO");
+                  confirmarExclusao();
+                }}
                 activeOpacity={0.85}
               >
                 <Text style={styles.deleteButtonText}>Excluir produto</Text>
               </TouchableOpacity>
             </View>
           )}
+
+          {!podeExcluir && produto?.criadoPor && (
+            <View style={styles.deleteButtonWrapper}>
+              <TouchableOpacity
+                style={[styles.deleteButton, { opacity: 0.5 }]}
+                disabled
+                activeOpacity={0.85}
+              >
+                <Text style={styles.deleteButtonText}>Só o criador pode excluir</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* BOTÃO DE TESTE - SEMPRE VISÍVEL PARA DEBUG */}
+          <View style={styles.deleteButtonWrapper}>
+            <TouchableOpacity
+              style={[styles.deleteButton, { backgroundColor: "#FF6B9D" }]}
+              onPress={() => {
+                console.warn("✓✓✓ BOTÃO DE TESTE CLICADO ✓✓✓");
+                Alert.alert("Teste", `podeExcluir: ${podeExcluir}\ncriadoPor: ${produto?.criadoPor}\nUID: ${auth.currentUser?.uid}`);
+              }}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.deleteButtonText}>🔴 TESTE: Clique aqui</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
 
         {/* Barra de navegação inferior fixa */}
