@@ -362,10 +362,7 @@ export default function DetalhesProduto() {
             <View style={styles.deleteButtonWrapper}>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => {
-                  console.warn("✓ BOTÃO EXCLUIR CLICADO");
-                  confirmarExclusao();
-                }}
+                onPress={confirmarExclusao}
                 activeOpacity={0.85}
               >
                 <Text style={styles.deleteButtonText}>Excluir produto</Text>
@@ -384,20 +381,6 @@ export default function DetalhesProduto() {
               </TouchableOpacity>
             </View>
           )}
-
-          {/* BOTÃO DE TESTE - SEMPRE VISÍVEL PARA DEBUG */}
-          <View style={styles.deleteButtonWrapper}>
-            <TouchableOpacity
-              style={[styles.deleteButton, { backgroundColor: "#FF6B9D" }]}
-              onPress={() => {
-                console.warn("✓✓✓ BOTÃO DE TESTE CLICADO ✓✓✓");
-                Alert.alert("Teste", `podeExcluir: ${podeExcluir}\ncriadoPor: ${produto?.criadoPor}\nUID: ${auth.currentUser?.uid}`);
-              }}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.deleteButtonText}>🔴 TESTE: Clique aqui</Text>
-            </TouchableOpacity>
-          </View>
         </ScrollView>
 
         {/* Barra de navegação inferior fixa */}

@@ -157,8 +157,17 @@ export function ProdutosProvider({ children }) {
       };
 
       const docRef = await addDoc(collection(db, "produtos"), produto);
+      const produtoAdicionado = { id: docRef.id, ...produto };
 
-      return { id: docRef.id, ...produto };
+      setProdutos((currentProdutos) => {
+        const produtosAtualizados = [produtoAdicionado, ...currentProdutos];
+        AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosAtualizados)).catch((error) => {
+          console.error("Erro ao salvar produto local após adicionar:", error);
+        });
+        return produtosAtualizados;
+      });
+
+      return produtoAdicionado;
     } catch (error) {
       console.error("Erro ao adicionar produto:", error);
       throw error;
@@ -180,8 +189,13 @@ export function ProdutosProvider({ children }) {
 
   const deletarProduto = async (id) => {
     try {
+      if (!id) {
+        throw new Error("ID do produto inválido.");
+      }
+
+      const produtoId = String(id);
       console.log("=== INICIANDO EXCLUSÃO NO CONTEXTO ===");
-      console.log("ID a excluir:", id);
+      console.log("ID a excluir:", produtoId);
       
       const usuario = auth.currentUser;
       console.log("Usuário logado:", usuario?.uid, usuario?.email);
@@ -190,7 +204,7 @@ export function ProdutosProvider({ children }) {
         throw new Error("Você precisa estar logado para excluir um produto.");
       }
 
-      const produto = produtos.find((p) => String(p.id) === String(id));
+      const produto = produtos.find((p) => String(p.id) === produtoId);
       console.log("Produto encontrado localmente:", produto?.id, produto?.nome);
       console.log("criadoPor do produto:", produto?.criadoPor);
       console.log("UID do usuário:", usuario.uid);
@@ -202,11 +216,11 @@ export function ProdutosProvider({ children }) {
         throw new Error("Você só pode excluir produtos criados por você.");
       }
 
-      console.log("Tentando deletar de produtos com ID:", id);
-      await deleteDoc(doc(db, "produtos", id));
+      console.log("Tentando deletar de produtos com ID:", produtoId);
+      await deleteDoc(doc(db, "produtos", produtoId));
       console.log("✓ Deletado do Firestore com sucesso");
 
-      const produtosAtualizados = produtos.filter((p) => String(p.id) !== String(id));
+      const produtosAtualizados = produtos.filter((p) => String(p.id) !== produtoId);
       console.log("Produtos antes:", produtos.length, "Produtos depois:", produtosAtualizados.length);
       
       setProdutos(produtosAtualizados);
