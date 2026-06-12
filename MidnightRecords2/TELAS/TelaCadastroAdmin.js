@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     color: "#300322",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 13,
     fontWeight: "600",
     fontSize: 13,
     letterSpacing: 0.5,
