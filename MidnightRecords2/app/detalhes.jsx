@@ -448,18 +448,28 @@ export default function DetalhesProduto() {
               </Text>
             </TouchableOpacity>
 
-            {/* Ícone de lixeira apenas para o criador */}
             {podeExcluir && (
-              <TouchableOpacity 
-                style={styles.trashIconButton} 
-                onPress={() => {
-                  console.warn("✓ BOTÃO EXCLUIR CLICADO");
-                  confirmarExclusao();
-                }}
-                activeOpacity={0.85}
-              >
-                <Feather name="trash-2" size={20} color="#ff4d4d" />
-              </TouchableOpacity>
+              <View style={styles.deleteButtonWrapper}>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={confirmarExclusao}
+                  activeOpacity={0.85}
+                >
+                  <Feather name="trash-2" size={20} color="#ff4d4d" />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {!podeExcluir && produto?.criadoPor && (
+              <View style={styles.deleteButtonWrapper}>
+                <TouchableOpacity
+                  style={[styles.deleteButton, { opacity: 0.5 }]}
+                  disabled
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.deleteButtonText}>Só o criador pode excluir</Text>
+                </TouchableOpacity>
+              </View>
             )}
           </View>
 
