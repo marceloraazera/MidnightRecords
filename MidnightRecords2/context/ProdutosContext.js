@@ -9,6 +9,7 @@ import {
   deleteDoc,
   doc,
   serverTimestamp,
+  getDoc,
 } from "firebase/firestore";
 import { auth, db } from "../config/firebaseConfig";
 
@@ -194,40 +195,48 @@ export function ProdutosProvider({ children }) {
       }
 
       const produtoId = String(id);
-      console.log("=== INICIANDO EXCLUSÃO NO CONTEXTO ===");
-      console.log("ID a excluir:", produtoId);
-      
       const usuario = auth.currentUser;
-      console.log("Usuário logado:", usuario?.uid, usuario?.email);
       
+      // 1. Validar se o usuário está logado
       if (!usuario) {
         throw new Error("Você precisa estar logado para excluir um produto.");
       }
 
-      const produto = produtos.find((p) => String(p.id) === produtoId);
-      console.log("Produto encontrado localmente:", produto?.id, produto?.nome);
-      console.log("criadoPor do produto:", produto?.criadoPor);
-      console.log("UID do usuário:", usuario.uid);
-      console.log("São iguais?", produto?.criadoPor === usuario.uid);
-      
-      if (!produto) {
-        console.warn("Produto não encontrado no estado, mas continuando para tentar excluir...");
-      } else if (produto.criadoPor && produto.criadoPor !== usuario.uid) {
-        throw new Error("Você só pode excluir produtos criados por você.");
+      console.log("🗑️ Iniciando exclusão de produto:", produtoId);
+      console.log("📝 Usuário:", usuario.uid);
+
+      // 2. Buscar o documento do Firestore (fonte única de verdade)
+      const produtoRef = doc(db, "produtos", produtoId);
+      const produtoSnapshot = await getDoc(produtoRef);
+
+      // 3. Validar se o produto existe
+      if (!produtoSnapshot.exists()) {
+        throw new Error("Produto não encontrado no banco de dados.");
       }
 
-      console.log("Tentando deletar de produtos com ID:", produtoId);
-      await deleteDoc(doc(db, "produtos", produtoId));
-      console.log("✓ Deletado do Firestore com sucesso");
+      const produtoData = produtoSnapshot.data();
+      console.log("📦 Dados do produto:", produtoData);
 
+      // 4. Validar permissão - apenas o criador pode deletar
+      if (produtoData.criadoPor && produtoData.criadoPor !== usuario.uid) {
+        throw new Error("Você não tem permissão para excluir este produto. Apenas o criador pode deletá-lo.");
+      }
+
+      // 5. Se passou em todas as validações, deletar do Firestore
+      console.log("✨ Permissões validadas. Deletando...");
+      await deleteDoc(produtoRef);
+      console.log("✅ Produto deletado do Firestore com sucesso!");
+
+      // 6. Atualizar o estado local
       const produtosAtualizados = produtos.filter((p) => String(p.id) !== produtoId);
-      console.log("Produtos antes:", produtos.length, "Produtos depois:", produtosAtualizados.length);
-      
       setProdutos(produtosAtualizados);
+      
+      // 7. Atualizar AsyncStorage
       await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosAtualizados));
-      console.log("✓ Estado local atualizado");
+      console.log("✅ Estado local atualizado!");
+
     } catch (error) {
-      console.error("❌ Erro ao deletar produto:", error);
+      console.error("❌ Erro ao deletar produto:", error.message || error);
       throw error;
     }
   };
