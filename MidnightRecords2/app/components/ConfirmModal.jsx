@@ -30,6 +30,7 @@ export default function ConfirmModal({
   confirmText = 'Confirmar',
   cancelText = 'Cancelar',
   confirmDanger = false,
+  singleButton = false,
   icon,
   onConfirm,
   onCancel,
@@ -42,58 +43,66 @@ export default function ConfirmModal({
       statusBarTranslucent
       onRequestClose={onCancel}
     >
-      <TouchableWithoutFeedback onPress={onCancel}>
-        <View style={styles.overlay}>
-          <TouchableWithoutFeedback>
-            <View style={styles.card}>
-              {icon && (
-                <View style={[styles.iconWrap, confirmDanger && styles.iconWrapDanger]}>
-                  <Feather
-                    name={icon}
-                    size={28}
-                    color={confirmDanger ? '#ff4d4d' : '#D4A74F'}
-                  />
-                </View>
-              )}
+      <View style={styles.overlay}>
+        <TouchableWithoutFeedback onPress={onCancel}>
+          <View style={StyleSheet.absoluteFillObject} />
+        </TouchableWithoutFeedback>
 
-              <Text style={styles.title}>{title}</Text>
-              {!!message && <Text style={styles.message}>{message}</Text>}
-
-              <View style={styles.actions}>
-                <TouchableOpacity
-                  style={styles.cancelBtn}
-                  onPress={onCancel}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.cancelText}>{cancelText}</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.confirmBtn, confirmDanger && styles.confirmBtnDanger]}
-                  onPress={onConfirm}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.confirmText}>{confirmText}</Text>
-                </TouchableOpacity>
-              </View>
+        <View style={styles.card}>
+          {icon && (
+            <View style={[styles.iconWrap, confirmDanger && styles.iconWrapDanger]}>
+              <Feather
+                name={icon}
+                size={28}
+                color={confirmDanger ? '#ff4d4d' : '#D4A74F'}
+              />
             </View>
-          </TouchableWithoutFeedback>
+          )}
+
+          <Text style={styles.title}>{title}</Text>
+          {!!message && <Text style={styles.message}>{message}</Text>}
+
+          <View style={styles.actions}>
+            {!singleButton && (
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={onCancel}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.cancelText}>{cancelText}</Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              style={[styles.confirmBtn, confirmDanger && styles.confirmBtnDanger]}
+              onPress={onConfirm}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.confirmText}>{confirmText}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.65)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 28,
+    zIndex: 9999,
   },
   card: {
     width: '100%',
+    maxWidth: 340,
     backgroundColor: '#1A1128',
     borderRadius: 20,
     padding: 24,

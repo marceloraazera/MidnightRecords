@@ -12,9 +12,14 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useProdutosContext } from "../context/ProdutosContext";
-import { auth } from "../config/firebaseConfig";
+import { auth, db } from "../config/firebaseConfig";
+import { doc, setDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
+import { useFocusEffect } from "@react-navigation/native";
 import Feather from "@expo/vector-icons/Feather";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useCart } from "../context/CartContext";
+import CartBadge from "./components/CartBadge";
+import ConfirmModal from "./components/ConfirmModal";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -138,6 +143,33 @@ export default function DetalhesProduto() {
 
   const produto = produtos.find((item) => String(item.id) === String(paramsId));
 
+  // Estado para os Favoritos
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favModalVisible, setFavModalVisible] = useState(false);
+
+  const carregarFavorito = async () => {
+    try {
+      const usuario = auth.currentUser;
+      if (!usuario || !paramsId) {
+        setIsFavorited(false);
+        return;
+      }
+      const produtoId = String(paramsId);
+      const favoritosRef = collection(db, "favoritos", usuario.uid, "itens");
+      const snapshot = await getDocs(favoritosRef);
+      const ids = snapshot.docs.map((item) => item.id);
+      setIsFavorited(ids.includes(produtoId));
+    } catch (error) {
+      console.log("Erro ao carregar favoritos no Detalhes:", error);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      carregarFavorito();
+    }, [paramsId])
+  );
+
   const produtosRelacionados = React.useMemo(() => {
     return produtos
       .filter((item) => String(item.id) !== String(paramsId))
@@ -207,6 +239,45 @@ export default function DetalhesProduto() {
         { text: "Excluir", style: "destructive", onPress: excluirProduto },
       ]
     );
+  };
+
+  const handleFavoritar = async () => {
+    try {
+      const usuario = auth.currentUser;
+      if (!usuario) {
+        Alert.alert("Erro", "Você precisa estar logado para favoritar.");
+        return;
+      }
+
+      if (!produto) return;
+
+      const produtoId = String(produto.id ?? produto.nome);
+      const favoritoRef = doc(db, "favoritos", usuario.uid, "itens", produtoId);
+      const novoEstado = !isFavorited;
+
+      if (!novoEstado) {
+        await deleteDoc(favoritoRef);
+        setIsFavorited(false);
+      } else {
+        await setDoc(favoritoRef, {
+          id: produtoId,
+          nome: produto.nome ?? "",
+          preco: produto.precoDesconto || produto.preco || produto.precoCheio || "R$ 0,00",
+          precoCheio: produto.precoCheio || null,
+          precoDesconto: produto.precoDesconto || null,
+          imagemKey: produto.id ?? produto.nome ?? "",
+          imagem: typeof produto.imagem === "string" ? produto.imagem : "",
+          linkImagem: typeof produto.linkImagem === "string" ? produto.linkImagem : "",
+          descricao: produto.descricao ?? "",
+          criadoEm: new Date().toISOString(),
+        });
+        setIsFavorited(true);
+        setFavModalVisible(true);
+      }
+    } catch (error) {
+      console.log("Erro ao favoritar/desfavoritar produto:", error);
+      Alert.alert("Erro", "Não foi possível atualizar o favorito: " + error.message);
+    }
   };
 
   if (loading) {
@@ -365,9 +436,16 @@ export default function DetalhesProduto() {
               <Text style={styles.saveButtonText}>Salvar produto</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.favButton} activeOpacity={0.85}>
-              <Feather name="heart" size={18} color="#ffffff" style={styles.favIcon} />
-              <Text style={styles.favButtonText}>Favoritar</Text>
+            <TouchableOpacity style={styles.favButton} activeOpacity={0.85} onPress={handleFavoritar}>
+              <FontAwesome 
+                name={isFavorited ? "heart" : "heart-o"} 
+                size={18} 
+                color={isFavorited ? "#D4A74F" : "#ffffff"} 
+                style={styles.favIcon} 
+              />
+              <Text style={styles.favButtonText}>
+                {isFavorited ? "Favoritado" : "Favoritar"}
+              </Text>
             </TouchableOpacity>
 
             {/* Ícone de lixeira apenas para o criador */}
@@ -428,13 +506,20 @@ export default function DetalhesProduto() {
             <Feather name="home" size={24} color="#CCF7E4" />
             <Text style={styles.navLabel}>Home</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem} onPress={() => router.replace("/(tabs)/favoritos")}>
+            <Feather name="heart" size={24} color="#CCF7E4" />
+            <Text style={styles.navLabel}>Favoritos</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.navItem} onPress={() => router.replace("/(tabs)/add")}>
             <Feather name="plus-circle" size={24} color="#CCF7E4" />
             <Text style={styles.navLabel}>Criar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => router.replace("/(tabs)/favoritos")}>
-            <Feather name="heart" size={24} color="#CCF7E4" />
-            <Text style={styles.navLabel}>Favoritos</Text>
+          <TouchableOpacity style={styles.navItem} onPress={() => router.replace("/(tabs)/carrinho")}>
+            <View style={{ position: "relative" }}>
+              <Feather name="shopping-cart" size={24} color="#CCF7E4" />
+              <CartBadge />
+            </View>
+            <Text style={styles.navLabel}>Carrinho</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem} onPress={() => router.replace("/(tabs)/perfil")}>
             <Feather name="user" size={24} color="#CCF7E4" />
@@ -442,6 +527,21 @@ export default function DetalhesProduto() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Modal de Favoritos */}
+      <ConfirmModal
+        visible={favModalVisible}
+        icon="heart"
+        title="Favoritado"
+        message="Item favoritado com sucesso"
+        confirmText="OK"
+        singleButton={true}
+        onConfirm={() => {
+          setFavModalVisible(false);
+          router.replace("/(tabs)/favoritos");
+        }}
+        onCancel={() => setFavModalVisible(false)}
+      />
     </ImageBackground>
   );
 }
@@ -840,9 +940,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   navLabel: {
-    fontFamily: "Poppins_400Regular",
-    fontSize: 11,
+    fontFamily: "Poppins_500Medium",
+    fontSize: 10,
     color: "#CCF7E4",
-    marginTop: 4,
+    marginTop: 2,
   },
 });
