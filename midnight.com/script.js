@@ -47,9 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     revealElements.forEach((element) => revealObserver.observe(element));
 
-    // -------------------------------------------------------------
-    // SEARCH & MOBILE NAVIGATION LOGIC
-    // -------------------------------------------------------------
     const albumSearch = document.getElementById('album-search');
     const searchDropdown = document.getElementById('search-results-dropdown');
     
@@ -71,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
-    // Helper function to remove diacritics for clean searches
     function cleanString(str) {
         return str
             .toLowerCase()
@@ -112,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 albumSearch.value = '';
                 searchDropdown.classList.add('hidden');
                 
-                // Smooth scroll to the carousel showcase
+
                 const carouselSection = document.getElementById('carousel-section');
                 carouselSection?.scrollIntoView({ behavior: 'smooth' });
             });
