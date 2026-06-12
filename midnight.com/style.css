@@ -323,9 +323,8 @@ p {
 }
 
 .hero-main-logo {
-    max-width: 100%;
     height: auto;
-    max-height: 150px; /* Logo ajustada para o topo */
+    width: 300px;
     object-fit: contain;
     margin: 0 0 1.5rem 0;
     filter: drop-shadow(0 0 15px rgba(223, 159, 88, 0.4));
@@ -1403,6 +1402,7 @@ p {
     top: 0;
     left: 0;
     width: 100%;
+    padding: 30px 0;
     height: 80px;
     background-color: rgba(18, 9, 33, 0.75);
     backdrop-filter: blur(16px);
@@ -1442,11 +1442,6 @@ p {
     object-fit: contain;
     filter: drop-shadow(0 0 8px rgba(223, 159, 88, 0.3));
     transition: transform 0.3s ease, filter 0.3s ease;
-}
-
-.logo-link:hover .header-logo {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 12px rgba(223, 159, 88, 0.5));
 }
 
 /* Search Wrapper & Input */
