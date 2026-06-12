@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+ 
   Alert,
+  
   Image,
   ImageBackground,
   Platform,
@@ -29,34 +31,44 @@ export default function TelaCadastroAdmin() {
   const [titulo, setTitulo] = useState("");
   const [preco, setPreco] = useState("");
   const [linkImagem, setLinkImagem] = useState("");
+const [imagens, setImagens] = useState([]);
   const [descricao, setDescricao] = useState("");
-  const [imagePreview, setImagePreview] = useState(null);
   const [focusedInput, setFocusedInput] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const selecionarImagem = async () => {
-    if (!ImagePicker) {
-      Alert.alert("Aviso", "Seleção de imagens não disponível na web. Use o campo de URL.");
-      return;
-    }
+const selecionarImagem = async () => {
+  if (!ImagePicker) {
+    Alert.alert(
+      "Aviso",
+      "Seleção de imagens não disponível na web."
+    );
+    return;
+  }
 
-    try {
-      const resultado = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
+  if (imagens.length >= 3) {
+    Alert.alert(
+      "Limite atingido",
+      "Você pode adicionar apenas 3 imagens."
+    );
+    return;
+  }
 
-      if (resultado && !resultado.canceled && resultado.assets[0]) {
-        const asset = resultado.assets[0];
-        setImagePreview(asset.uri);
-        setLinkImagem(asset.uri);
-      }
-    } catch (error) {
-      console.warn("Image picker error:", error);
+  try {
+    const resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!resultado.canceled) {
+      const novaImagem = resultado.assets[0].uri;
+
+      setImagens(prev => [...prev, novaImagem]);
     }
-  };
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   const cancelar = () => {
     router.back();
@@ -64,14 +76,27 @@ export default function TelaCadastroAdmin() {
 
   const salvarProduto = async () => {
     if (!titulo.trim()) {
-      Alert.alert("Erro", "Informe o título do produto");
-      return;
-    }
+  Alert.alert("Erro", "Informe o nome do produto");
+  return;
+}
 
-    if (!preco.trim()) {
-      Alert.alert("Erro", "Informe o preço do produto");
-      return;
-    }
+if (!preco.trim()) {
+  Alert.alert("Erro", "Informe o preço do produto");
+  return;
+}
+
+if (!descricao.trim()) {
+  Alert.alert("Erro", "Informe a descrição do produto");
+  return;
+}
+
+if (imagens.length !== 3) {
+  Alert.alert(
+    "Erro",
+    "É obrigatório adicionar exatamente 3 imagens."
+  );
+  return;
+}
 
     setLoading(true);
 
@@ -83,21 +108,21 @@ export default function TelaCadastroAdmin() {
         return;
       }
 
-      const imagem = imagePreview || linkImagem || "";
+     
 
       await adicionarProduto({
-        nome: titulo,
-        preco: preco,
-        imagem: imagem,
-        descricao: descricao,
-        linkImagem: linkImagem,
-      });
+  nome: titulo,
+  preco,
+  descricao,
+  imagem: imagens[0],
+  imagens,
+});
 
       setTitulo("");
-      setPreco("");
-      setLinkImagem("");
-      setDescricao("");
-      setImagePreview(null);
+setPreco("");
+setDescricao("");
+setImagens([]);
+setLinkImagem("");
 
       Alert.alert("Sucesso", "Produto cadastrado com sucesso!");
 
@@ -173,26 +198,76 @@ export default function TelaCadastroAdmin() {
           </View>
 
           <View style={styles.inputWrapper}>
-            <Text style={styles.inputLabel}>Fotos do produto</Text>
-            {imagePreview && (
-              <View style={styles.imagePreviewContainer}>
-                <Image source={{ uri: imagePreview }} style={styles.imagePreview} />
-              </View>
-            )}
-            <TouchableOpacity style={styles.imageSelectorButton} onPress={selecionarImagem}>
-              <Text style={styles.imageSelectorButtonText}>Selecionar imagem</Text>
-            </TouchableOpacity>
-            <View style={[styles.inputContainer, focusedInput === "linkImagem" && styles.inputContainerFocused]}>
-              <TextInput
-                style={styles.input}
-                placeholder="URL da imagem"
-                placeholderTextColor="#D8E3C3"
-                value={linkImagem}
-                onChangeText={setLinkImagem}
-                onFocus={() => setFocusedInput("linkImagem")}
-                onBlur={() => setFocusedInput(null)}
-              />
-            </View>
+  <Text style={styles.inputLabel}>Fotos do produto</Text>
+
+  <View
+    style={{
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+      marginBottom: 12,
+    }}
+  >
+    {imagens.map((img, index) => (
+      <Image
+        key={index}
+        source={{ uri: img }}
+        style={{
+          width: 90,
+          height: 90,
+          borderRadius: 12,
+        }}
+      />
+    ))}
+  </View>
+
+  <View
+    style={[
+      styles.inputContainer,
+      focusedInput === "linkImagem" &&
+        styles.inputContainerFocused,
+    ]}
+  >
+    <TextInput
+      style={styles.input}
+      placeholder="Cole a URL da imagem"
+      placeholderTextColor="#D8E3C3"
+      value={linkImagem}
+      onChangeText={setLinkImagem}
+      onFocus={() => setFocusedInput("linkImagem")}
+      onBlur={() => setFocusedInput(null)}
+    />
+  </View>
+
+  <TouchableOpacity
+    style={[
+      styles.imageSelectorButton,
+      { marginTop: 12 }
+    ]}
+    onPress={() => {
+      if (!linkImagem.trim()) {
+        Alert.alert("Erro", "Informe a URL da imagem.");
+        return;
+      }
+
+      if (imagens.length >= 3) {
+        Alert.alert(
+          "Erro",
+          "Você só pode adicionar 3 imagens."
+        );
+        return;
+      }
+
+      setImagens([...imagens, linkImagem.trim()]);
+      setLinkImagem("");
+    }}
+  >
+    <Text style={styles.imageSelectorButtonText}>
+      Adicionar imagem ({imagens.length}/3)
+    </Text>
+  </TouchableOpacity>
+</View>
+            
           </View>
 
           <View style={styles.inputWrapper}>
@@ -232,7 +307,6 @@ export default function TelaCadastroAdmin() {
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
       </ScrollView>
     </ImageBackground>
   );

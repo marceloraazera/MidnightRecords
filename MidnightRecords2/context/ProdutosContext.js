@@ -202,8 +202,8 @@ export function ProdutosProvider({ children }) {
         throw new Error("Você precisa estar logado para excluir um produto.");
       }
 
-      console.log("🗑️ Iniciando exclusão de produto:", produtoId);
-      console.log("📝 Usuário:", usuario.uid);
+      console.log("Iniciando exclusão de produto:", produtoId);
+      console.log("Usuário:", usuario.uid);
 
       // 2. Buscar o documento do Firestore (fonte única de verdade)
       const produtoRef = doc(db, "produtos", produtoId);
@@ -215,7 +215,7 @@ export function ProdutosProvider({ children }) {
       }
 
       const produtoData = produtoSnapshot.data();
-      console.log("📦 Dados do produto:", produtoData);
+      console.log("Dados do produto:", produtoData);
 
       // 4. Validar permissão - apenas o criador pode deletar
       if (produtoData.criadoPor && produtoData.criadoPor !== usuario.uid) {
@@ -225,7 +225,7 @@ export function ProdutosProvider({ children }) {
       // 5. Se passou em todas as validações, deletar do Firestore
       console.log("✨ Permissões validadas. Deletando...");
       await deleteDoc(produtoRef);
-      console.log("✅ Produto deletado do Firestore com sucesso!");
+      console.log("Produto deletado do Firestore com sucesso!");
 
       // 6. Atualizar o estado local
       const produtosAtualizados = produtos.filter((p) => String(p.id) !== produtoId);
@@ -233,10 +233,10 @@ export function ProdutosProvider({ children }) {
       
       // 7. Atualizar AsyncStorage
       await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosAtualizados));
-      console.log("✅ Estado local atualizado!");
+      console.log("Estado local atualizado!");
 
     } catch (error) {
-      console.error("❌ Erro ao deletar produto:", error.message || error);
+      console.error("Erro ao deletar produto:", error.message || error);
       throw error;
     }
   };

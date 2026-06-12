@@ -6,6 +6,7 @@ import {
   ImageBackground,
   ScrollView,
   TouchableOpacity,
+  Pressable,
   StyleSheet,
   Dimensions,
   Alert,
@@ -148,6 +149,9 @@ export default function DetalhesProduto() {
   // Estado para os Favoritos
   const [isFavorited, setIsFavorited] = useState(false);
   const [favModalVisible, setFavModalVisible] = useState(false);
+  const [cartModalVisible, setCartModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deletedModalVisible, setDeletedModalVisible] = useState(false);
 
   const carregarFavorito = async () => {
     try {
@@ -218,7 +222,7 @@ export default function DetalhesProduto() {
       preco: precoDesconto,
       imagem: primarySource,
     });
-    Alert.alert("Sucesso", "Produto adicionado ao carrinho!");
+    setCartModalVisible(true);
   };
 
   const excluirProduto = async () => {
@@ -234,17 +238,13 @@ export default function DetalhesProduto() {
       await deletarProduto(produtoId);
       
       console.log("✅ Produto excluído com sucesso!");
-      Alert.alert(
-        "Sucesso",
-        "Disco excluído com sucesso!",
-        [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
-      );
+      setDeletedModalVisible(true);
     } catch (error) {
       console.error("❌ Erro ao excluir produto:", error.message || error);
       
       let mensagemErro = "Não foi possível excluir este disco.";
       
-      if (error.message) {
+      if (error?.message) {
         if (error.message.includes("permissão") || error.message.includes("criador")) {
           mensagemErro = "Você não tem permissão para excluir este disco. Apenas o criador pode deletá-lo.";
         } else if (error.message.includes("não encontrado")) {
@@ -261,28 +261,20 @@ export default function DetalhesProduto() {
     }
   };
 
+  const handleDeletePress = () => {
+    console.log('🗑️ handleDeletePress chamado');
+    if (isDeleting) {
+      console.warn('Já está deletando, ignorando novo clique');
+      return;
+    }
+    setDeleteModalVisible(true);
+  };
+
   const confirmarExclusao = () => {
     console.log("✨ Função confirmarExclusao foi chamada!");
     console.log("isDeleting:", isDeleting);
     console.log("podeExcluir:", podeExcluir);
-    
-    if (isDeleting) {
-      console.warn("Já está deletando, ignorando novo clique");
-      return; // Evitar múltiplos cliques
-    }
-    
-    Alert.alert(
-      "Excluir disco",
-      "Tem certeza que deseja excluir este disco? Essa ação não pode ser desfeita.",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Excluir", 
-          style: "destructive", 
-          onPress: excluirProduto,
-        },
-      ]
-    );
+    setDeleteModalVisible(true);
   };
 
   const handleFavoritar = async () => {
@@ -335,13 +327,32 @@ export default function DetalhesProduto() {
   if (!produto) {
     return (
       <View style={styles.fallbackContainer}>
-        <Text style={styles.fallbackText}>Produto não encontrado.</Text>
-        <TouchableOpacity
-          style={styles.fallbackBackButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.fallbackBackText}>Voltar</Text>
-        </TouchableOpacity>
+        {deletedModalVisible ? (
+          <ConfirmModal
+            visible={deletedModalVisible}
+            icon="trash-2"
+            title="Produto excluído"
+            message="O produto foi removido com sucesso"
+            confirmText="OK"
+            cancelText=""
+            singleButton={true}
+            onConfirm={() => {
+              setDeletedModalVisible(false);
+              router.replace("/(tabs)");
+            }}
+            onCancel={() => setDeletedModalVisible(false)}
+          />
+        ) : (
+          <>
+            <Text style={styles.fallbackText}>Produto não encontrado.</Text>
+            <TouchableOpacity
+              style={styles.fallbackBackButton}
+              onPress={() => router.back()}
+            >
+              <Text style={styles.fallbackBackText}>Voltar</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     );
   }
@@ -477,7 +488,7 @@ export default function DetalhesProduto() {
           {/* Botões de ação lado a lado */}
           <View style={styles.actionButtons}>
             <TouchableOpacity style={styles.saveButton} activeOpacity={0.85} onPress={handleAddToCart}>
-              <Text style={styles.saveButtonText}>Salvar produto</Text>
+              <Text style={styles.saveButtonText}>Adicionar ao carrinho</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.favButton} activeOpacity={0.85} onPress={handleFavoritar}>
@@ -494,10 +505,13 @@ export default function DetalhesProduto() {
 
             {podeExcluir && (
               <View style={styles.deleteButtonWrapper}>
-                <TouchableOpacity
-                  style={[styles.deleteButton, isDeleting && { opacity: 0.6 }]}
-                  onPress={confirmarExclusao}
-                  activeOpacity={0.85}
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.deleteButton,
+                    isDeleting && styles.deleteButtonDisabled,
+                    pressed && styles.deleteButtonPressed,
+                  ]}
+                  onPress={handleDeletePress}
                   disabled={isDeleting}
                 >
                   {isDeleting ? (
@@ -505,19 +519,7 @@ export default function DetalhesProduto() {
                   ) : (
                     <Feather name="trash-2" size={20} color="#ff4d4d" />
                   )}
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {!podeExcluir && produto?.criadoPor && (
-              <View style={styles.deleteButtonWrapper}>
-                <TouchableOpacity
-                  style={[styles.deleteButton, { opacity: 0.5 }]}
-                  disabled
-                  activeOpacity={0.85}
-                >
-                  <Text style={styles.deleteButtonText}>Só o criador pode excluir</Text>
-                </TouchableOpacity>
+                </Pressable>
               </View>
             )}
           </View>
@@ -593,14 +595,65 @@ export default function DetalhesProduto() {
         icon="heart"
         title="Favoritado"
         message="Item favoritado com sucesso"
-        confirmText="OK"
-        singleButton={true}
+        confirmText="Ver"
+        cancelText="OK"
+        singleButton={false}
         onConfirm={() => {
           setFavModalVisible(false);
           router.replace("/(tabs)/favoritos");
         }}
         onCancel={() => setFavModalVisible(false)}
       />
+
+      {/* Modal de Carrinho */}
+      <ConfirmModal
+        visible={cartModalVisible}
+        icon="shopping-cart"
+        title="Adicionado ao carrinho"
+        message="Item adicionado ao carrinho com sucesso"
+        confirmText="Ver"
+        cancelText="OK"
+        singleButton={false}
+        onConfirm={() => {
+          setCartModalVisible(false);
+          router.replace("/(tabs)/carrinho");
+        }}
+        onCancel={() => setCartModalVisible(false)}
+      />
+
+      {/* Modal de Exclusão */}
+      <ConfirmModal
+        visible={deleteModalVisible}
+        icon="trash-2"
+        title="Excluir disco"
+        message="Tem certeza que deseja excluir este disco? Essa ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        confirmDanger={true}
+        singleButton={false}
+        onConfirm={() => {
+          setDeleteModalVisible(false);
+          excluirProduto();
+        }}
+        onCancel={() => setDeleteModalVisible(false)}
+      />
+
+      {/* Modal de Produto Excluído */}
+      <ConfirmModal
+        visible={deletedModalVisible}
+        icon="trash-2"
+        title="Produto excluído"
+        message="O produto foi removido com sucesso."
+        confirmText="OK"
+        cancelText=""
+        singleButton={true}
+        onConfirm={() => {
+          setDeletedModalVisible(false);
+          router.replace("/(tabs)");
+        }}
+        onCancel={() => setDeletedModalVisible(false)}
+      />
+
     </ImageBackground>
   );
 }
@@ -916,15 +969,25 @@ const styles = StyleSheet.create({
     color: "#15101F",
     fontSize: 14,
   },
-  trashIconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 77, 77, 0.1)",
+  deleteButtonWrapper: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "rgba(255, 77, 77, 0.12)",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
     borderColor: "rgba(255, 77, 77, 0.3)",
+  },
+  deleteButtonPressed: {
+    backgroundColor: "rgba(255, 77, 77, 0.18)",
+  },
+  deleteButtonDisabled: {
+    opacity: 0.6,
   },
 
   /* Veja também */
