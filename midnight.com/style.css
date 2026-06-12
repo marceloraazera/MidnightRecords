@@ -1,8 +1,4 @@
-/* -------------------------------------------------------------
-   MIDNIGHT RECORDS - DESIGN SYSTEM & PROMOTIONAL POSTER STYLES
-   ------------------------------------------------------------- */
 
-/* Root Variables - Brand Palette */
 :root {
     --bg-dark-1: #120921;
     --bg-dark-2: #07030d;
@@ -22,7 +18,6 @@
     --font-body: 'Poppins', sans-serif;
 }
 
-/* Reset & Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -40,7 +35,6 @@ body {
     min-height: 100vh;
 }
 
-/* Starry Sparkle Rain Background */
 .sparkle-rain {
     position: fixed;
     top: 0;
@@ -95,14 +89,13 @@ body {
 @keyframes rain2 { from { background-position: 0 0; } to { background-position: 0 250px; } }
 @keyframes rain3 { from { background-position: 0 0; } to { background-position: 0 300px; } }
 
-/* Glowing Orbs Background */
 .glow-orb {
     position: fixed;
     border-radius: 50%;
-    filter: blur(100px); /* Menos desfoque, mais cor */
+    filter: blur(100px); 
     z-index: -2;
     pointer-events: none;
-    opacity: 0.90; /* Orbes muito mais brilhantes */
+    opacity: 0.90; 
 }
 
 .orb-1 {
@@ -137,7 +130,6 @@ body {
     100% { transform: translate(120px, 150px) scale(1.15); }
 }
 
-/* Typography & Layout Utilities */
 h1, h2, h3, h4 {
     font-family: var(--font-heading);
     letter-spacing: -0.02em;
@@ -180,7 +172,6 @@ p {
     color: var(--color-text-secondary);
 }
 
-/* Buttons */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -234,7 +225,6 @@ p {
     transform: translateY(-2px);
 }
 
-/* Scroll Animations */
 .reveal {
     opacity: 0;
     transform: translateY(40px);
@@ -259,7 +249,6 @@ p {
     overflow: hidden;
 }
 
-/* Shooting Stars Effect */
 .shooting-stars-container {
     position: fixed;
     top: 0;
@@ -376,7 +365,6 @@ p {
     flex-wrap: wrap;
 }
 
-/* Social Proof */
 .social-proof {
     margin-top: 2.5rem;
     display: flex;
