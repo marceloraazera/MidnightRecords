@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midnight Records - Sua Vitrine Digital de Vinis</title>
+    <!-- Google Fonts: Shrikhand (retro groovy), Outfit (modern headings), Poppins (clean body text) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Poppins:wght@300;400;500;600&family=Shrikhand&display=swap" rel="stylesheet">
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Fixo Estelar -->
+    <header class="site-header">
+        <div class="header-container">
+            <a href="#" class="logo-link">
+                <img src="img/logo-midnight.png" alt="Midnight Records Logo" class="header-logo" onerror="this.src='img/logo-com-fundo-novo.png'; this.onerror=null;">
+            </a>
+
+            <div class="search-wrapper">
+                <div class="search-bar">
+                    <input type="text" id="album-search" placeholder="Buscar discos, artistas..." autocomplete="off">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <i class="fa-solid fa-sparkles search-sparkle"></i>
+                </div>
+                <div id="search-results-dropdown" class="search-results-dropdown hidden"></div>
+            </div>
+
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="#carousel-section" class="nav-link-item"><i class="fa-solid fa-compact-disc"></i> Vitrine</a></li>
+                    <li><a href="#features-section" class="nav-link-item"><i class="fa-solid fa-sparkles"></i> Recursos</a></li>
+                    <li><a href="#download-section" class="nav-link-item"><i class="fa-solid fa-mobile-screen"></i> App</a></li>
+                </ul>
+            </nav>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Nav Overlay -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay">
+        <div class="mobile-nav-menu">
+            <button class="close-mobile-menu" id="closeMobileMenuBtn" aria-label="Fechar Menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <ul class="mobile-nav-links">
+                <li><a href="#carousel-section" class="mobile-nav-link"><i class="fa-solid fa-compact-disc"></i> Vitrine</a></li>
+                <li><a href="#features-section" class="mobile-nav-link"><i class="fa-solid fa-sparkles"></i> Recursos</a></li>
+                <li><a href="#download-section" class="mobile-nav-link"><i class="fa-solid fa-mobile-screen"></i> App</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Subtle Retro Mesh Glow Backgrounds -->
+    <div class="mesh-glow mesh-1"></div>
+    <div class="mesh-glow mesh-2"></div>
+
+    <!-- Starry Sparkle Rain Background -->
+    <div class="sparkle-rain">
+        <div class="sparkle-layer layer-1"></div>
+        <div class="sparkle-layer layer-2"></div>
+        <div class="sparkle-layer layer-3"></div>
+    </div>
+
+    <!-- Glowing Orbs using Palette -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+
+    <!-- Shooting Stars Effect -->
+    <div class="shooting-stars-container">
+        <div class="shooting-star star-1"></div>
+    </div>
+
+    <!-- Hero Poster Section -->
+    <section class="hero-section">
+        <div class="hero-container reveal">
+            <div class="hero-content">
+                <img src="img/logo-completa-midnight.png" alt="Midnight Records Logo" class="hero-main-logo" onerror="this.src='img/logo-com-fundo-novo.png'; this.onerror=null;">
+                
+                <span class="hero-badge"><i class="fa-solid fa-sparkles"></i> O APP DEFINITIVO</span>
+                
+                <h1 class="hero-title">O Som Analógico.<br>A Praticidade Digital.</h1>
+                
+                <p class="hero-subtitle">
+                    Explore os catálogos mais icônicos de vinil, favorite suas capas preferidas e construa sua estante musical premium com alguns toques na tela.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#carousel-section" class="btn btn-primary"><i class="fa-solid fa-compass"></i> Explorar Discos</a>
+                    <a href="#download-section" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Baixar App</a>
+                </div>
+                <div class="social-proof">
+                    <div class="stars-container">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <p><strong>4.9/5</strong> Avaliações • +<strong>10.000</strong> usuários</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Carousel Section (The Core Showcase) -->
+    <section id="carousel-section" class="carousel-section reveal">
+        <div class="section-header">
+            <h2 class="section-title">Nossa Vitrine Digital</h2>
+            <p class="section-subtitle">Gire os discos mais cobiçados do momento com uma experiência visual inesquecível.</p>
+        </div>
+
+        <!-- Carousel Container -->
+        <div class="carousel-container">
+            <!-- Left Arrow -->
+            <button class="carousel-btn prev-btn" id="prevBtn" aria-label="Slide anterior">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <!-- Slides Wrap -->
+            <div class="carousel-track-container">
+                <ul class="carousel-track" id="carouselTrack">
+                    
+                    <!-- Slide 1: The Smiths -->
+                    <li class="carousel-slide active">
+                        <div class="slide-card">
+                            <div class="vinyl-mockup-wrapper">
+                                <div class="album-cover-container">
+                                    <img src="img/thequeenisdead.webp" alt="The Queen Is Dead - The Smiths" class="album-cover" onerror="this.src='https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=60';">
+                                </div>
+                                <div class="vinyl-record-container">
+                                    <div class="vinyl-disk">
+                                        <div class="vinyl-center-label" style="background-color: #1B6B59;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slide-info">
+                                <span class="album-genre"><i class="fa-solid fa-music"></i> Rock Alternativo • Anos 80</span>
+                                <h3 class="album-title">The Queen Is Dead</h3>
+                                <h4 class="album-artist">The Smiths</h4>
+                                <p class="album-desc">
+                                    Álbum clássico do rock alternativo britânico com letras melancólicas e instrumentais marcantes. Uma das obras mais icônicas e influentes de todos os tempos.
+                                </p>
+                                <div class="price-box">
+                                    <span class="price-old">R$ 299,90</span>
+                                    <span class="price-current">R$ 250,00</span>
+                                </div>
+                                <a href="#download-section" class="btn btn-primary card-btn"><i class="fa-solid fa-cart-shopping"></i> Comprar no App</a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- Slide 2: ILLIT -->
+                    <li class="carousel-slide">
+                        <div class="slide-card">
+                            <div class="vinyl-mockup-wrapper">
+                                <div class="album-cover-container">
+                                    <img src="img/superrealme.webp" alt="Super Real Me - ILLIT" class="album-cover" onerror="this.src='https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&auto=format&fit=crop&q=60';">
+                                </div>
+                                <div class="vinyl-record-container">
+                                    <div class="vinyl-disk colored-vinyl mint-vinyl">
+                                        <div class="vinyl-center-label" style="background-color: #CCF7E4;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slide-info">
+                                <span class="album-genre"><i class="fa-solid fa-music"></i> K-Pop • Moderno</span>
+                                <h3 class="album-title">Super Real Me</h3>
+                                <h4 class="album-artist">ILLIT</h4>
+                                <p class="album-desc">
+                                    Mini álbum moderno com sonoridade leve, energética e estética jovem contagiante. Mistura pop eletrônico vibrante com refrões extremamente viciantes.
+                                </p>
+                                <div class="price-box">
+                                    <span class="price-old">R$ 299,90</span>
+                                    <span class="price-current">R$ 250,00</span>
+                                </div>
+                                <a href="#download-section" class="btn btn-primary card-btn"><i class="fa-solid fa-cart-shopping"></i> Comprar no App</a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- Slide 3: Lana Del Rey -->
+                    <li class="carousel-slide">
+                        <div class="slide-card">
+                            <div class="vinyl-mockup-wrapper">
+                                <div class="album-cover-container">
+                                    <img src="img/oceanblvd.png" alt="Ocean Blvd - Lana Del Rey" class="album-cover" onerror="this.src='https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=600&auto=format&fit=crop&q=60';">
+                                </div>
+                                <div class="vinyl-record-container">
+                                    <div class="vinyl-disk">
+                                        <div class="vinyl-center-label" style="background-color: #300322;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slide-info">
+                                <span class="album-genre"><i class="fa-solid fa-music"></i> Indie Pop • Cinematográfico</span>
+                                <h3 class="album-title">Ocean Blvd</h3>
+                                <h4 class="album-artist">Lana Del Rey</h4>
+                                <p class="album-desc">
+                                    Projeto introspectivo e cinematográfico com vocais suaves e produção profundamente emocional. Um dos trabalhos líricos mais profundos da cantora.
+                                </p>
+                                <div class="price-box">
+                                    <span class="price-old">R$ 299,90</span>
+                                    <span class="price-current">R$ 250,00</span>
+                                </div>
+                                <a href="#download-section" class="btn btn-primary card-btn"><i class="fa-solid fa-cart-shopping"></i> Comprar no App</a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- Slide 4: Olivia Rodrigo -->
+                    <li class="carousel-slide">
+                        <div class="slide-card">
+                            <div class="vinyl-mockup-wrapper">
+                                <div class="album-cover-container">
+                                    <img src="img/guts.png" alt="GUTS - Olivia Rodrigo" class="album-cover" onerror="this.src='https://images.unsplash.com/photo-1487180142328-0c4e37023af5?w=600&auto=format&fit=crop&q=60';">
+                                </div>
+                                <div class="vinyl-record-container">
+                                    <div class="vinyl-disk colored-vinyl purple-vinyl">
+                                        <div class="vinyl-center-label" style="background-color: #DF9F58;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slide-info">
+                                <span class="album-genre"><i class="fa-solid fa-music"></i> Pop Rock • Intenso</span>
+                                <h3 class="album-title">GUTS</h3>
+                                <h4 class="album-artist">Olivia Rodrigo</h4>
+                                <p class="album-desc">
+                                    Álbum intenso e autêntico que mistura pop rock enérgico, emoções intensas e letras sinceras. Repleto de faixas explosivas e sentimentais inesquecíveis.
+                                </p>
+                                <div class="price-box">
+                                    <span class="price-old">R$ 299,90</span>
+                                    <span class="price-current">R$ 290,00</span>
+                                </div>
+                                <a href="#download-section" class="btn btn-primary card-btn"><i class="fa-solid fa-cart-shopping"></i> Comprar no App</a>
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+
+            <!-- Right Arrow -->
+            <button class="carousel-btn next-btn" id="nextBtn" aria-label="Próximo slide">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Carousel Dots -->
+        <div class="carousel-dots" id="carouselDots">
+            <button class="dot-indicator active" data-slide="0"></button>
+            <button class="dot-indicator" data-slide="1"></button>
+            <button class="dot-indicator" data-slide="2"></button>
+            <button class="dot-indicator" data-slide="3"></button>
+        </div>
+    </section>
+
+    <!-- Features Section (Como Funciona) -->
+    <section id="features-section" class="features-section reveal">
+        <div class="section-header">
+            <h2 class="section-title">A Melhor Experiência Musical</h2>
+            <p class="section-subtitle">Unimos o charme analógico do vinil com o dinamismo do nosso aplicativo móvel.</p>
+        </div>
+
+        <div class="features-grid">
+            <!-- Card 1 -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper color-green">
+                    <i class="fa-solid fa-compact-disc"></i>
+                </div>
+                <h3 class="feature-card-title">Vitrine Digital de Ofertas</h3>
+                <p class="feature-card-desc">
+                    Acesse um catálogo selecionado e atualizado constantemente. Encontre desde raridades clássicas dos anos 80 até os últimos lançamentos mundiais.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-circle-check"></i> Lançamentos exclusivos</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Busca inteligente de artistas</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Promoções semanais</li>
+                </ul>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper color-gold">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <h3 class="feature-card-title">Favoritos & Desejos</h3>
+                <p class="feature-card-desc">
+                    Monte sua estante de vinis dos sonhos. Favorite seus álbuns preferidos com um clique e acompanhe variações de preços e ofertas exclusivas em tempo real.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-circle-check"></i> Coleções personalizadas</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Alertas de desconto</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Histórico de pesquisa rápido</li>
+                </ul>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper color-mint">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <h3 class="feature-card-title">Painel do Colecionador</h3>
+                <p class="feature-card-desc">
+                    Para vendedores e entusiastas, o aplicativo oferece um painel administrativo intuitivo para registrar novos títulos, carregar fotos e gerenciar preços.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-circle-check"></i> Cadastro rápido de discos</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Upload direto da câmera</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Controle total do acervo</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call To Action (Download Area) -->
+    <section id="download-section" class="download-section reveal">
+        <div class="download-container">
+            <div class="download-info">
+                <h2 class="download-title">Leve a Música com Você</h2>
+                <p class="download-subtitle">
+                    Tenha o catálogo completo na palma da mão. Baixe o app <strong style="color: var(--color-gold); font-size: 1.1em;">Midnight Records</strong> e viva uma imersão musical premium, rápida e sem interrupções.
+                </p>
+                <div class="app-store-badges">
+                    <a href="#" class="store-badge" aria-label="Baixar na Apple App Store">
+                        <i class="fa-brands fa-apple store-icon"></i>
+                        <div class="store-text">
+                            <span>Disponível na</span>
+                            <strong>App Store</strong>
+                        </div>
+                    </a>
+                    <a href="#" class="store-badge" aria-label="Baixar na Google Play Store">
+                        <i class="fa-brands fa-google-play store-icon"></i>
+                        <div class="store-text">
+                            <span>Disponível no</span>
+                            <strong>Google Play</strong>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="download-visual">
+                <!-- Elegant Glassmorphic QR Box -->
+                <div class="qr-code-box">
+                    <div class="qr-border-glow"></div>
+                    <div class="qr-content">
+                        <div class="qr-icon-top"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                        <h4 class="qr-title">Acesse via Expo Go</h4>
+                        <!-- Simulated retro-styled QR Code -->
+                        <div class="qr-code-graphic">
+                            <div class="qr-pixel-decor">
+                                <div class="qr-corner-box top-left"></div>
+                                <div class="qr-corner-box top-right"></div>
+                                <div class="qr-corner-box bottom-left"></div>
+                                <div class="qr-center-logo">
+                                    <i class="fa-solid fa-record-vinyl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="qr-instruction">Aponte a câmera para ler o QR Code do projeto Expo e comece a navegar!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <!-- Logo grande e isolada à esquerda -->
+                <div class="footer-brand">
+                    <img src="img/logo-completa-midnight.png" alt="Midnight Records Logo" class="footer-logo" onerror="this.src='img/logo-com-fundo-novo.png'; this.onerror=null;">
+                </div>
+
+                <!-- Navegação no meio -->
+                <div class="footer-links">
+                    <h4 class="footer-title">Navegação</h4>
+                    <a href="#carousel-section"><i class="fa-solid fa-record-vinyl"></i> Vitrine Digital</a>
+                    <a href="#download-section"><i class="fa-solid fa-mobile-screen-button"></i> Baixar o App</a>
+                    <a href="#"><i class="fa-solid fa-circle-info"></i> Sobre Nós</a>
+                </div>
+
+                <!-- Redes e Tagline à direita -->
+                <div class="footer-socials">
+                    <h4 class="footer-title">Acompanhe</h4>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" aria-label="Spotify"><i class="fa-brands fa-spotify"></i></a>
+                    </div>
+                    <p class="footer-tagline">Girando nostalgia<br>na velocidade do presente.</p>
+                </div>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-bottom">
+                <p class="copyright">&copy; 2026 Midnight Records. Todos os direitos reservados.</p>
+                <div class="footer-policy">
+                    <a href="#">Termos de Uso</a>
+                    <a href="#">Privacidade</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main JavaScript Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
