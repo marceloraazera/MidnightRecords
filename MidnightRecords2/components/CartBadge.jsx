@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../context/CartContext';
 
 export default function CartBadge() {
   const { totalQuantity } = useCart();

@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import { View } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
-import CartBadge from "../components/CartBadge";
+import CartBadge from "../../components/CartBadge";
 
 export default function TabLayout() {
   return (
@@ -37,6 +37,16 @@ export default function TabLayout() {
         name="favoritos"
         options={{
           title: "Favoritos",
+          tabBarActiveTintColor: "#D97B46",
+          tabBarInactiveTintColor: "#300322",
+          tabBarStyle: {
+            height: 72,
+            backgroundColor: "#FFF4C8",
+            borderTopWidth: 1,
+            borderTopColor: "rgba(217, 123, 70, 0.28)",
+            paddingTop: 8,
+            paddingBottom: 10,
+          },
           tabBarIcon: ({ color, size }) => (
             <Feather name="heart" size={size} color={color} />
           ),

@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   TouchableWithoutFeedback,
+  Platform,
+  useWindowDimensions,
 } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 
@@ -35,6 +37,74 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
 }) {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const webCardSize = Platform.OS === 'web'
+    ? { width: Math.min(Math.max(windowWidth - 40, 260), 340) }
+    : null;
+  const webOverlaySize = Platform.OS === 'web'
+    ? { width: windowWidth, height: windowHeight }
+    : null;
+
+  const renderCard = () => (
+    <View style={[styles.card, Platform.OS === 'web' && styles.webCard, webCardSize]}>
+      {icon && (
+        <View style={[styles.iconWrap, confirmDanger && styles.iconWrapDanger]}>
+          <Feather
+            name={icon}
+            size={28}
+            color={confirmDanger ? '#ff4d4d' : '#D4A74F'}
+          />
+        </View>
+      )}
+
+      <Text style={styles.title}>{title}</Text>
+      {!!message && <Text style={styles.message}>{message}</Text>}
+
+      <View style={styles.actions}>
+        {!singleButton && (
+          <TouchableOpacity
+            style={styles.cancelBtn}
+            onPress={onCancel}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.cancelText}>{cancelText}</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          style={[styles.confirmBtn, confirmDanger && styles.confirmBtnDanger]}
+          onPress={onConfirm}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.confirmText}>{confirmText}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  if (Platform.OS === 'web') {
+    if (!visible) {
+      return null;
+    }
+
+    const webModal = (
+      <View style={[styles.webOverlay, webOverlaySize]}>
+        <TouchableWithoutFeedback onPress={onCancel}>
+          <View style={StyleSheet.absoluteFillObject} />
+        </TouchableWithoutFeedback>
+
+        {renderCard()}
+      </View>
+    );
+
+    if (typeof document !== 'undefined' && document.body) {
+      const { createPortal } = require('react-dom');
+      return createPortal(webModal, document.body);
+    }
+
+    return webModal;
+  }
+
   return (
     <Modal
       visible={visible}
@@ -48,40 +118,7 @@ export default function ConfirmModal({
           <View style={StyleSheet.absoluteFillObject} />
         </TouchableWithoutFeedback>
 
-        <View style={styles.card}>
-          {icon && (
-            <View style={[styles.iconWrap, confirmDanger && styles.iconWrapDanger]}>
-              <Feather
-                name={icon}
-                size={28}
-                color={confirmDanger ? '#ff4d4d' : '#D4A74F'}
-              />
-            </View>
-          )}
-
-          <Text style={styles.title}>{title}</Text>
-          {!!message && <Text style={styles.message}>{message}</Text>}
-
-          <View style={styles.actions}>
-            {!singleButton && (
-              <TouchableOpacity
-                style={styles.cancelBtn}
-                onPress={onCancel}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.cancelText}>{cancelText}</Text>
-              </TouchableOpacity>
-            )}
-
-            <TouchableOpacity
-              style={[styles.confirmBtn, confirmDanger && styles.confirmBtnDanger]}
-              onPress={onConfirm}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.confirmText}>{confirmText}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        {renderCard()}
       </View>
     </Modal>
   );
@@ -100,6 +137,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     zIndex: 9999,
   },
+  webOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    maxWidth: '100vw',
+    maxHeight: '100vh',
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+    zIndex: 9999,
+  },
   card: {
     width: '100%',
     maxWidth: 340,
@@ -113,6 +164,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 20,
     elevation: 10,
+  },
+  webCard: {
+    maxWidth: 340,
+    boxSizing: 'border-box',
   },
   iconWrap: {
     width: 56,

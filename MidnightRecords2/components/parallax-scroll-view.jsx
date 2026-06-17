@@ -7,7 +7,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { ThemedView } from "@/components/themed-view";
+import { ThemedView } from "./themed-view";
 
 const HEADER_HEIGHT = 250;
 

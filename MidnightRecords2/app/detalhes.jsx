@@ -20,8 +20,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useCart } from "../context/CartContext";
-import CartBadge from "./components/CartBadge";
-import ConfirmModal from "./components/ConfirmModal";
+import CartBadge from "../components/CartBadge";
+import ConfirmModal from "../components/ConfirmModal";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -153,7 +153,7 @@ export default function DetalhesProduto() {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deletedModalVisible, setDeletedModalVisible] = useState(false);
 
-  const carregarFavorito = async () => {
+  const carregarFavorito = React.useCallback(async () => {
     try {
       const usuario = auth.currentUser;
       if (!usuario || !paramsId) {
@@ -168,12 +168,12 @@ export default function DetalhesProduto() {
     } catch (error) {
       console.log("Erro ao carregar favoritos no Detalhes:", error);
     }
-  };
+  }, [paramsId]);
 
   useFocusEffect(
     React.useCallback(() => {
       carregarFavorito();
-    }, [paramsId])
+    }, [carregarFavorito])
   );
 
   const produtosRelacionados = React.useMemo(() => {
@@ -267,13 +267,6 @@ export default function DetalhesProduto() {
       console.warn('Já está deletando, ignorando novo clique');
       return;
     }
-    setDeleteModalVisible(true);
-  };
-
-  const confirmarExclusao = () => {
-    console.log("✨ Função confirmarExclusao foi chamada!");
-    console.log("isDeleting:", isDeleting);
-    console.log("podeExcluir:", podeExcluir);
     setDeleteModalVisible(true);
   };
 
@@ -488,7 +481,7 @@ export default function DetalhesProduto() {
           {/* Botões de ação lado a lado */}
           <View style={styles.actionButtons}>
             <TouchableOpacity style={styles.saveButton} activeOpacity={0.85} onPress={handleAddToCart}>
-              <Text style={styles.saveButtonText}>Adicionar ao carrinho</Text>
+              <Text style={styles.saveButtonText} numberOfLines={1}>Adicionar ao carrinho</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.favButton} activeOpacity={0.85} onPress={handleFavoritar}>
@@ -498,7 +491,7 @@ export default function DetalhesProduto() {
                 color={isFavorited ? "#D4A74F" : "#ffffff"} 
                 style={styles.favIcon} 
               />
-              <Text style={styles.favButtonText}>
+              <Text style={styles.favButtonText} numberOfLines={1}>
                 {isFavorited ? "Favoritado" : "Favoritar"}
               </Text>
             </TouchableOpacity>
@@ -916,28 +909,31 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: "row",
     paddingHorizontal: 24,
-    gap: 12,
+    gap: 8,
     marginTop: 12,
     marginBottom: 32,
     justifyContent: "space-between",
     alignItems: "center",
   },
   saveButton: {
-    flex: 1,
+    flex: 1.45,
     backgroundColor: "#CA743C", 
     borderRadius: 24,
     minHeight: 44,
     justifyContent: "center",
     alignItems: "center",
     elevation: 3,
+    paddingHorizontal: 10,
   },
   saveButtonText: {
     fontFamily: "Poppins_600SemiBold",
     color: "#ffffff",
-    fontSize: 14,
+    fontSize: 12,
+    lineHeight: 14,
+    textAlign: "center",
   },
   favButton: {
-    flex: 1,
+    flex: 1.2,
     backgroundColor: "#1C5544",
     borderRadius: 24,
     minHeight: 44,
@@ -945,14 +941,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     elevation: 3,
+    paddingHorizontal: 10,
   },
   favIcon: {
-    marginRight: 8,
+    marginRight: 6,
   },
   favButtonText: {
     fontFamily: "Poppins_600SemiBold",
     color: "#ffffff",
-    fontSize: 14,
+    fontSize: 12,
   },
   cartButton: {
     flex: 1,
@@ -974,9 +971,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   deleteButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: "rgba(255, 77, 77, 0.12)",
     justifyContent: "center",
     alignItems: "center",

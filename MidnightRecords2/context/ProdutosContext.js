@@ -3,7 +3,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   collection,
   query,
-  orderBy,
   onSnapshot,
   addDoc,
   deleteDoc,
@@ -11,6 +10,7 @@ import {
   serverTimestamp,
   getDoc,
 } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../config/firebaseConfig";
 
 const PRODUTOS_STORAGE_KEY = "@midnight_produtos";
@@ -69,61 +69,72 @@ export function ProdutosProvider({ children }) {
   };
 
   useEffect(() => {
-    const carregarProdutosLocal = async () => {
+    let unsubscribeProdutos = null;
+
+    const carregarFallbackLocal = async () => {
       try {
         const jsonValue = await AsyncStorage.getItem(PRODUTOS_STORAGE_KEY);
-        if (jsonValue) {
-          setProdutos(JSON.parse(jsonValue));
-        }
+        setProdutos(jsonValue ? JSON.parse(jsonValue) : produtosPadrao);
       } catch (error) {
         console.error("Erro ao carregar produtos locais:", error);
+        setProdutos(produtosPadrao);
+      } finally {
+        setLoading(false);
       }
     };
 
-    carregarProdutosLocal();
-
-    const produtosRef = collection(db, "produtos");
-    const produtosQuery = query(produtosRef);
-
-    const unsubscribe = onSnapshot(
-      produtosQuery,
-      async (snapshot) => {
-        const produtosRemotos = snapshot.docs.map((document) => ({
-          id: document.id,
-          ...document.data(),
-        }));
-
-        const produtosCompletos = produtosRemotos.length
-          ? mergeWithDefaults(produtosRemotos)
-          : produtosPadrao;
-
-        setProdutos(produtosCompletos);
-
-        try {
-          await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosCompletos));
-        } catch (error) {
-          console.error("Erro ao salvar produtos locais:", error);
-        }
-
-        setLoading(false);
-      },
-      async (error) => {
-        console.error("Erro ao carregar produtos do Firestore:", error);
-
-        try {
-          const jsonValue = await AsyncStorage.getItem(PRODUTOS_STORAGE_KEY);
-          if (jsonValue) {
-            setProdutos(JSON.parse(jsonValue));
-          }
-        } catch (storageError) {
-          console.error("Erro ao carregar fallback local:", storageError);
-        }
-
-        setLoading(false);
+    const unsubscribeAuth = onAuthStateChanged(auth, (usuario) => {
+      if (unsubscribeProdutos) {
+        unsubscribeProdutos();
+        unsubscribeProdutos = null;
       }
-    );
 
-    return () => unsubscribe();
+      if (!usuario) {
+        carregarFallbackLocal();
+        return;
+      }
+
+      setLoading(true);
+
+      const produtosRef = collection(db, "produtos");
+      const produtosQuery = query(produtosRef);
+
+      unsubscribeProdutos = onSnapshot(
+        produtosQuery,
+        async (snapshot) => {
+          const produtosRemotos = snapshot.docs.map((document) => ({
+            id: document.id,
+            ...document.data(),
+          }));
+
+          const produtosCompletos = produtosRemotos.length
+            ? mergeWithDefaults(produtosRemotos)
+            : produtosPadrao;
+
+          setProdutos(produtosCompletos);
+
+          try {
+            await AsyncStorage.setItem(PRODUTOS_STORAGE_KEY, JSON.stringify(produtosCompletos));
+          } catch (error) {
+            console.error("Erro ao salvar produtos locais:", error);
+          }
+
+          setLoading(false);
+        },
+        async (error) => {
+          console.error("Erro ao carregar produtos do Firestore:", error);
+          await carregarFallbackLocal();
+        }
+      );
+    });
+
+    return () => {
+      unsubscribeAuth();
+
+      if (unsubscribeProdutos) {
+        unsubscribeProdutos();
+      }
+    };
   }, []);
 
   const carregarProdutos = async () => {

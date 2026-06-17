@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useCart } from '../../context/CartContext';
-import QuantityControl from '../components/QuantityControl';
-import ConfirmModal from '../components/ConfirmModal';
+import QuantityControl from '../../components/QuantityControl';
+import ConfirmModal from '../../components/ConfirmModal';
 import Feather from '@expo/vector-icons/Feather';
 
 export default function CarrinhoScreen() {

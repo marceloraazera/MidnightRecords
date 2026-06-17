@@ -52,7 +52,6 @@ export default function TelaFavoritos() {
   const router = useRouter();
 
   const [favoritos, setFavoritos] = useState([]);
-  const [nome, setNome] = useState("");
 
   useFocusEffect(
     React.useCallback(() => {
@@ -66,11 +65,8 @@ export default function TelaFavoritos() {
 
       if (!usuario) {
         setFavoritos([]);
-        setNome("Usuário");
         return;
       }
-
-      setNome(usuario.displayName || "Usuário");
 
       const favoritosRef = collection(db, "favoritos", usuario.uid, "itens");
       const snapshot = await getDocs(favoritosRef);
@@ -124,26 +120,32 @@ export default function TelaFavoritos() {
         activeOpacity={0.9}
         onPress={() => irParaDetalhes(item.id)}
       >
-        <Image source={imagem} style={styles.image} resizeMode="cover" />
+        <View style={styles.imageContainer}>
+          <Image source={imagem} style={styles.image} resizeMode="contain" />
+        </View>
 
-        <Text style={styles.nome} numberOfLines={2}>
-          {item.nome}
-        </Text>
+        <View style={styles.cardContent}>
+          <Text style={styles.nome} numberOfLines={1}>
+            {item.nome}
+          </Text>
 
-        {precoBase > 0 ? (
-          <View style={styles.priceBox}>
-            <Text style={styles.precoOriginal}>De {precoBaseFormatado}</Text>
-            <Text style={styles.precoAtual}>Por {precoDescontoFormatado}</Text>
-          </View>
-        ) : (
-          <Text style={styles.preco}>{formatPrice(0)}</Text>
-        )}
+          {precoBase > 0 ? (
+            <View style={styles.priceBox}>
+              <Text style={styles.precoOriginal} numberOfLines={1}>De {precoBaseFormatado}</Text>
+              <Text style={styles.precoAtual} numberOfLines={1}>Por {precoDescontoFormatado}</Text>
+            </View>
+          ) : (
+            <Text style={styles.preco}>{formatPrice(0)}</Text>
+          )}
+        </View>
 
         <TouchableOpacity
           style={styles.heartButton}
           onPress={() => removerFavorito(item.id)}
         >
-          <Ionicons name="heart" size={30} color="#D97B46" />
+          <View style={styles.heartButtonInner}>
+            <Ionicons name="heart" size={22} color="#D97B46" />
+          </View>
         </TouchableOpacity>
       </TouchableOpacity>
     );
@@ -193,37 +195,23 @@ export default function TelaFavoritos() {
 }
 
 const styles = StyleSheet.create({
-background: {
-  flex: 1,
-},
+  background: {
+    flex: 1,
+  },
   backgroundImage: {
-  resizeMode: "cover",
-},
-  header: {
-    height: 102,
-    paddingHorizontal: 26,
-    paddingTop: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(217, 123, 70, 0.32)",
+    resizeMode: "cover",
   },
   logoContainer: {
     alignItems: "center",
+    paddingTop: 18,
+    paddingBottom: 4,
   },
   logo: {
-    width: 200,
-    height: 120,
-  },
-  iconButton: {
-    width: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 168,
+    height: 78,
   },
   titleBar: {
-    height: 42,
+    height: 48,
     paddingHorizontal: 24,
     flexDirection: "row",
     alignItems: "center",
@@ -233,12 +221,14 @@ background: {
   },
   backButton: {
     width: 40,
+    height: 40,
     justifyContent: "center",
   },
   title: {
-    fontFamily: "Poppins_600SemiBold",
+    fontFamily: "Poppins_700Bold",
     color: "#D97B46",
-    fontSize: 17,
+    fontSize: 18,
+    letterSpacing: 0.2,
     textAlign: "center",
   },
   empty: {
@@ -249,69 +239,87 @@ background: {
     fontSize: 16,
   },
   list: {
-    paddingHorizontal: 34,
-    paddingTop: 16,
+    paddingHorizontal: 20,
+    paddingTop: 18,
     paddingBottom: 110,
   },
   row: {
     justifyContent: "space-between",
+    marginBottom: 20,
   },
   card: {
-  width: "46.5%",
-  backgroundColor: "#FFF4C8",
-  borderRadius: 8,
-  padding: 12,
-  marginBottom: 22,
-  minHeight: 210,
-  maxHeight: 210,
-  position: "relative",
-  shadowColor: "#000",
-  shadowOpacity: 0.08,
-  shadowRadius: 8,
-  shadowOffset: { width: 0, height: 4 },
-  elevation: 3,
-},
-
-image: {
-  width: "100%",
-  height: 112,
-  borderRadius: 7,
-  backgroundColor: "#D9D9D9",
-  resizeMode: "cover",
-},
+    width: "47%",
+    backgroundColor: "#FFF4C8",
+    borderRadius: 22,
+    overflow: "hidden",
+    paddingBottom: 14,
+    position: "relative",
+    borderWidth: 1,
+    borderColor: "rgba(217, 123, 70, 0.18)",
+    shadowColor: "#000",
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+  },
+  imageContainer: {
+    width: "100%",
+    aspectRatio: 1,
+    backgroundColor: "#FFF4C8",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  cardContent: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+  },
   nome: {
-    fontFamily: "Poppins_500Medium",
+    fontFamily: "Poppins_600SemiBold",
     color: "#111",
-    fontSize: 12,
-    lineHeight: 13,
-    marginTop: 8,
-    paddingRight: 28,
+    fontSize: 13,
+    lineHeight: 16,
   },
   priceBox: {
-    marginTop: 8,
+    marginTop: 6,
   },
   precoOriginal: {
     fontFamily: "Poppins_400Regular",
     color: "#6b6b6b",
     fontSize: 12,
+    lineHeight: 15,
     textDecorationLine: "line-through",
+    marginBottom: 4,
   },
   precoAtual: {
     fontFamily: "Poppins_700Bold",
     color: "#111",
-    fontSize: 15,
-    marginTop: 2,
+    fontSize: 16,
+    lineHeight: 19,
   },
   preco: {
     fontFamily: "Poppins_700Bold",
     color: "#111",
-    fontSize: 15,
-    marginTop: 2,
-    paddingRight: 28,
+    fontSize: 16,
+    lineHeight: 19,
+    marginTop: 6,
   },
   heartButton: {
-  position: "absolute",
-  right: 10,
-  bottom: 18,
-},
+    position: "absolute",
+    top: 12,
+    right: 12,
+  },
+  heartButtonInner: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(217, 123, 70, 0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(217, 123, 70, 0.28)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
